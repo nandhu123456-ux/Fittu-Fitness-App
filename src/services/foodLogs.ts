@@ -22,7 +22,7 @@ export async function getTodaysTotals(uid: string): Promise<TodayTotals> {
       const data = entry.data();
       const mealType = data.mealType as MealType;
       return {
-        calories: totals.calories + Number(data.totalCal ?? data.calories ?? 0),
+        calories: totals.calories + Number(data.totalCal ?? data.calories ?? data.cal ?? 0),
         protein: totals.protein + Number(data.totalP ?? data.protein ?? 0),
         carbs: totals.carbs + Number(data.totalC ?? data.carbs ?? 0),
         fat: totals.fat + Number(data.totalF ?? data.fat ?? 0),
