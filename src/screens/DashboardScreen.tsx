@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Modal, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
@@ -10,11 +10,11 @@ import { MomentumRing } from '../components/MomentumRing';
 import { MoodPicker } from '../components/MoodPicker';
 import { PrimaryCTA } from '../components/PrimaryCTA';
 import { WeightCard } from '../components/WeightCard';
+import { WaterModal } from '../components/WaterModal';
 import { colors } from '../constants/colors';
-import { signOut } from '../services/auth';
 import { getTodaysTotals, type TodayTotals } from '../services/foodLogs';
 import { getTodayMood, setMood } from '../services/moodLogs';
-import { getTodaysWater } from '../services/waterLogs';
+import { addWater, getTodaysWater } from '../services/waterLogs';
 import { getRecentWeights, type WeightEntry } from '../services/weightLogs';
 import { useAuthStore } from '../store/authStore';
 import type { RootTabParamList } from '../types/navigation';
@@ -33,6 +33,8 @@ export default function DashboardScreen() {
   const [mood, setMoodValue] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [now, setNow] = useState(new Date());
+  const [waterModalVisible, setWaterModalVisible] = useState(false);
+  const [moodModalVisible, setMoodModalVisible] = useState(false);
   const targets = profile?.targets;
   const calories = targets?.calories ?? 0;
 
@@ -60,11 +62,13 @@ export default function DashboardScreen() {
     <View style={styles.header}><TouchableOpacity><Ionicons name="menu-outline" size={28} color={colors.text} /></TouchableOpacity><View style={styles.headerText}><Text style={styles.date}>{now.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })} · {now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</Text><Text style={styles.greeting}>Good {now.getHours() < 12 ? 'morning' : now.getHours() < 18 ? 'afternoon' : 'evening'}, {profile?.displayName ?? 'there'}</Text></View>{profile?.streakDays ? <View style={styles.streak}><Ionicons name="flame" size={15} color={colors.warn} /><Text style={styles.streakText}>{profile.streakDays}</Text></View> : <View style={styles.avatar}><Text style={styles.avatarText}>{(profile?.displayName ?? 'B').slice(0, 1).toUpperCase()}</Text></View>}</View>
     <InsightCard />
     <View style={styles.card}><MomentumRing score={momentum.score} label={momentum.label} /><Text style={styles.summary}>{totals.calories} eaten · {remaining} left · {calories} goal</Text></View>
-    <View style={styles.macros}><MacroRing label="Protein" current={totals.protein} target={targets?.protein ?? 0} color={colors.protein} unit="g" /><MacroRing label="Carbs" current={totals.carbs} target={targets?.carbs ?? 0} color={colors.carbs} unit="g" /><MacroRing label="Fat" current={totals.fat} target={targets?.fat ?? 0} color={colors.fat} unit="g" /><MacroRing label="Water" current={water} target={2500} color={colors.water} unit="L" /></View>
+    <View style={styles.macros}><MacroRing label="Protein" current={totals.protein} target={targets?.protein ?? 0} color={colors.protein} unit="g" /><MacroRing label="Carbs" current={totals.carbs} target={targets?.carbs ?? 0} color={colors.carbs} unit="g" /><MacroRing label="Fat" current={totals.fat} target={targets?.fat ?? 0} color={colors.fat} unit="g" /><TouchableOpacity onPress={() => setWaterModalVisible(true)} style={styles.waterRing}><MacroRing label="Water" current={water} target={2500} color={colors.water} unit="L" /></TouchableOpacity></View>
     <PrimaryCTA {...cta} onPress={() => navigation.navigate('Log', cta.mealType ? { mealType: cta.mealType } : undefined)} />
     <WeightCard entries={weights} goal={goal} targetKg={profile?.goal?.targetWeightKg ?? 0} prediction={prediction} />
-    <MoodPicker value={mood} onSave={async (value) => { if (!user) return; setMoodValue(value); await setMood(user.uid, value); }} />
-    <TouchableOpacity style={styles.signOut} onPress={() => void signOut()}><Text style={styles.signOutText}>Sign out</Text></TouchableOpacity>
+    <MoodPicker value={mood} onOpen={() => setMoodModalVisible(true)} onSave={async (value) => { if (!user) return; setMoodValue(value); await setMood(user.uid, value); }} />
+    <TouchableOpacity style={styles.settings} onPress={() => navigation.navigate('Settings')}><Text style={styles.settingsText}>Settings</Text></TouchableOpacity>
+    <WaterModal visible={waterModalVisible} onClose={() => setWaterModalVisible(false)} onAdd={async (ml) => { if (!user) return; await addWater(user.uid, ml); setWater((current) => current + ml); }} />
+    <Modal visible={moodModalVisible} transparent animationType="fade" onRequestClose={() => setMoodModalVisible(false)}><View style={styles.moodOverlay}><View style={styles.moodModal}><MoodPicker value={mood} onSave={async (value) => { if (!user) return; setMoodValue(value); await setMood(user.uid, value); setMoodModalVisible(false); }} /></View></View></Modal>
   </ScrollView>;
 }
 
@@ -77,5 +81,5 @@ function getCta(hour: number, perMeal: TodayTotals['perMeal'], target: number, r
 }
 
 const styles = StyleSheet.create({
-  screen: { backgroundColor: colors.bg }, content: { gap: 16, padding: 20, paddingBottom: 36 }, header: { alignItems: 'center', flexDirection: 'row', marginBottom: 12 }, headerText: { flex: 1, marginLeft: 12 }, date: { color: colors.muted, fontSize: 13 }, greeting: { color: colors.text, fontSize: 22, fontWeight: '600', letterSpacing: -0.3, marginTop: 3 }, streak: { alignItems: 'center', backgroundColor: colors.surfaceHi, borderRadius: 16, flexDirection: 'row', gap: 4, paddingHorizontal: 10, paddingVertical: 6 }, streakText: { color: colors.text, fontSize: 13, fontWeight: '700' }, avatar: { alignItems: 'center', backgroundColor: colors.accentAlt, borderRadius: 18, height: 36, justifyContent: 'center', width: 36 }, avatarText: { color: colors.bg, fontWeight: '700' }, card: { alignItems: 'center', backgroundColor: colors.surface, borderColor: colors.border, borderRadius: 20, borderWidth: 1, padding: 20 }, summary: { color: colors.muted, fontSize: 12, marginTop: 4 }, macros: { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: 20, borderWidth: 1, flexDirection: 'row', paddingVertical: 16 }, signOut: { borderTopColor: 'rgba(255,255,255,0.04)', borderTopWidth: 1, paddingTop: 20 }, signOutText: { color: colors.muted, fontSize: 13, textAlign: 'center', textDecorationLine: 'underline' },
+  screen: { backgroundColor: colors.bg }, content: { gap: 16, padding: 20, paddingBottom: 36 }, header: { alignItems: 'center', flexDirection: 'row', marginBottom: 12 }, headerText: { flex: 1, marginLeft: 12 }, date: { color: colors.muted, fontSize: 13 }, greeting: { color: colors.text, fontSize: 22, fontWeight: '600', letterSpacing: -0.3, marginTop: 3 }, streak: { alignItems: 'center', backgroundColor: colors.surfaceHi, borderRadius: 16, flexDirection: 'row', gap: 4, paddingHorizontal: 10, paddingVertical: 6 }, streakText: { color: colors.text, fontSize: 13, fontWeight: '700' }, avatar: { alignItems: 'center', backgroundColor: colors.accentAlt, borderRadius: 18, height: 36, justifyContent: 'center', width: 36 }, avatarText: { color: colors.bg, fontWeight: '700' }, card: { alignItems: 'center', backgroundColor: colors.surface, borderColor: colors.border, borderRadius: 20, borderWidth: 1, padding: 20 }, summary: { color: colors.muted, fontSize: 12, marginTop: 4 }, macros: { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: 20, borderWidth: 1, flexDirection: 'row', paddingVertical: 16 }, waterRing: { flex: 1 }, settings: { borderTopColor: 'rgba(255,255,255,0.04)', borderTopWidth: 1, paddingTop: 20 }, settingsText: { color: colors.muted, fontSize: 13, textAlign: 'center', textDecorationLine: 'underline' }, moodOverlay: { backgroundColor: 'rgba(0,0,0,0.68)', flex: 1, justifyContent: 'flex-end' }, moodModal: { backgroundColor: colors.surfaceHi, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 28 },
 });
