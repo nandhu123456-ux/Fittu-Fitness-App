@@ -11,12 +11,24 @@ type Props = NativeStackScreenProps<OnboardingStackParamList, 'BodyStats'>;
 export default function BodyStatsScreen({ navigation }: Props) {
   const form = useOnboardingStore((s) => s.form);
   const setForm = useOnboardingStore((s) => s.setForm);
-  const [age, setAge] = useState(String(form.age));
-  const [height, setHeight] = useState(String(form.heightCm));
-  const [weight, setWeight] = useState(String(form.weightKg));
+  const [age, setAge] = useState('');
+  const [height, setHeight] = useState('');
+  const [weight, setWeight] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   const handleContinue = () => {
+    if (!age) {
+      setError('Please enter your age.');
+      return;
+    }
+    if (!height) {
+      setError('Please enter your height.');
+      return;
+    }
+    if (!weight) {
+      setError('Please enter your weight.');
+      return;
+    }
     const ageNum = Number(age);
     const heightNum = Number(height);
     const weightNum = Number(weight);
@@ -50,7 +62,7 @@ export default function BodyStatsScreen({ navigation }: Props) {
       />
       <TextInput
         style={styles.input}
-        placeholder="Height (cm)"
+        placeholder="Height in cm (100–250)"
         placeholderTextColor={colors.muted}
         keyboardType="numeric"
         value={height}
@@ -58,7 +70,7 @@ export default function BodyStatsScreen({ navigation }: Props) {
       />
       <TextInput
         style={styles.input}
-        placeholder="Current weight (kg)"
+        placeholder="Weight in kg (25–300)"
         placeholderTextColor={colors.muted}
         keyboardType="numeric"
         value={weight}

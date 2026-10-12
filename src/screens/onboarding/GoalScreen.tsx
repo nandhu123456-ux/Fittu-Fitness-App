@@ -18,13 +18,21 @@ const OPTIONS: { value: GoalType; label: string }[] = [
 export default function GoalScreen({ navigation }: Props) {
   const form = useOnboardingStore((s) => s.form);
   const setForm = useOnboardingStore((s) => s.setForm);
-  const [target, setTarget] = useState(String(form.targetWeightKg || form.weightKg));
-  const [rate, setRate] = useState(String(form.weeklyRateKg));
+  const [target, setTarget] = useState('');
+  const [rate, setRate] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   const handleContinue = () => {
     if (form.goalType === null) {
       setError('Please select your goal.');
+      return;
+    }
+    if (!target) {
+      setError('Please enter your target weight.');
+      return;
+    }
+    if (!rate) {
+      setError('Please enter your weekly rate.');
       return;
     }
     const targetNum = Number(target);

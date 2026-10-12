@@ -45,6 +45,7 @@ export default function SummaryScreen() {
         targets,
         onboardingComplete: true,
       });
+      useOnboardingStore.getState().resetForm();
       const fresh = await getUserProfile(user.uid);
       if (fresh === null) {
         setError('Plan saved but profile could not be reloaded. Please relaunch the app.');
