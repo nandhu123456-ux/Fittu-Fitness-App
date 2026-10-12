@@ -10,7 +10,7 @@ A weight-loss mobile app: food logging, weight tracking, AI coach, AI photo food
 - React Navigation v7 (bottom tabs + native stack)
 - State: Zustand
 - Charts: react-native-svg-charts
-- Camera/Barcode: expo-camera + expo-barcode-scanner
+- Camera/Barcode: expo-camera (CameraView with barcodeScannerSettings — no expo-barcode-scanner)
 - Local cache: react-native-mmkv
 - i18n: English only for now
 
