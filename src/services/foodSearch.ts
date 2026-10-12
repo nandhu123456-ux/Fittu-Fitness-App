@@ -1,6 +1,6 @@
 import { collection, doc, getDoc, getDocs, limit, query, setDoc, where } from 'firebase/firestore';
 
-import foods from '../../assets/data/indianFoods.json';
+import ifct from '../../assets/data/ifct2017.json';
 import { db } from './firebase';
 
 export interface FoodResult {
@@ -22,7 +22,21 @@ const toNumber = (value: unknown): number => Number.isFinite(Number(value)) ? Nu
 
 function localMatches(queryText: string): FoodResult[] {
   const needle = normalise(queryText);
-  return foods.filter((food) => [food.name, ...food.aliases].some((term) => normalise(term).includes(needle) || needle.includes(normalise(term)))).map((food) => ({ ...food, source: 'local' }));
+  if (!needle) return [];
+  const hits = ifct.filter((item) => {
+    const haystack = normalise(`${item.name} ${item.regn}`);
+    return haystack.includes(needle);
+  });
+  return hits.slice(0, 20).map((item) => ({
+    id: item.code,
+    name: item.name,
+    source: 'local',
+    serving: '100g',
+    cal: item.cal,
+    protein: item.protein,
+    carbs: item.carbs,
+    fat: item.fat,
+  }));
 }
 
 async function cachedMatches(queryText: string): Promise<FoodResult[]> {
