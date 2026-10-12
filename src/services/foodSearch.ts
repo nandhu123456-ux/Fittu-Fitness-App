@@ -1,6 +1,7 @@
 import { collection, doc, getDoc, getDocs, limit, query, setDoc, where } from 'firebase/firestore';
 
 import ifct from '../../assets/data/ifct2017.json';
+import indianDishes from '../../assets/data/indianDishes.json';
 import { db } from './firebase';
 
 export interface FoodResult {
@@ -23,20 +24,35 @@ const toNumber = (value: unknown): number => Number.isFinite(Number(value)) ? Nu
 function localMatches(queryText: string): FoodResult[] {
   const needle = normalise(queryText);
   if (!needle) return [];
-  const hits = ifct.filter((item) => {
+  const dishHits = indianDishes.filter((dish) => {
+    const haystack = normalise(`${dish.name} ${dish.aliases.join(' ')}`);
+    return haystack.includes(needle);
+  });
+  const ingredientHits = ifct.filter((item) => {
     const haystack = normalise(`${item.name} ${item.regn}`);
     return haystack.includes(needle);
   });
-  return hits.slice(0, 20).map((item) => ({
+  const dishResults = dishHits.slice(0, 20).map((dish) => ({
+    id: dish.id,
+    name: dish.name,
+    source: 'local' as const,
+    serving: dish.serving,
+    cal: dish.cal,
+    protein: dish.protein,
+    carbs: dish.carbs,
+    fat: dish.fat,
+  }));
+  const ingredientResults = ingredientHits.slice(0, 20).map((item) => ({
     id: item.code,
     name: item.name,
-    source: 'local',
+    source: 'local' as const,
     serving: '100g',
     cal: item.cal,
     protein: item.protein,
     carbs: item.carbs,
     fat: item.fat,
   }));
+  return [...dishResults, ...ingredientResults].slice(0, 40);
 }
 
 async function cachedMatches(queryText: string): Promise<FoodResult[]> {
