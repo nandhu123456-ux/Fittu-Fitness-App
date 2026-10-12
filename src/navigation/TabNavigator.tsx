@@ -7,6 +7,7 @@ import CoachScreen from '../screens/CoachScreen';
 import DashboardScreen from '../screens/DashboardScreen';
 import LogScreen from '../screens/LogScreen';
 import ProgressScreen from '../screens/ProgressScreen';
+import SettingsScreen from '../screens/SettingsScreen';
 import type { RootTabParamList } from '../types/navigation';
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
@@ -26,6 +27,7 @@ export default function TabNavigator() {
       <Tab.Screen name="Dashboard" component={DashboardScreen} />
       <Tab.Screen name="Log" component={LogScreen} />
       <Tab.Screen name="Barcode" component={BarcodeScreen} options={{ tabBarButton: () => null }} />
+      <Tab.Screen name="Settings" component={SettingsScreen} options={{ tabBarButton: () => null }} />
       <Tab.Screen name="Progress" component={ProgressScreen} />
       <Tab.Screen name="Coach" component={CoachScreen} />
     </Tab.Navigator>

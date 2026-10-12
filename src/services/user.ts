@@ -1,8 +1,9 @@
-import { Timestamp, doc, getDoc, setDoc } from 'firebase/firestore';
+import { deleteUser } from 'firebase/auth';
+import { Timestamp, deleteDoc, doc, getDoc, setDoc } from 'firebase/firestore';
 
 import { useAuthStore } from '../store/authStore';
 import type { User } from '../types/user';
-import { db } from './firebase';
+import { auth, db } from './firebase';
 
 function recordError(e: unknown): void {
   const message = e instanceof Error ? e.message : 'Firestore request failed.';
@@ -46,6 +47,19 @@ export async function getUserProfile(uid: string): Promise<User | null> {
 export async function updateUserProfile(uid: string, patch: Partial<User>): Promise<void> {
   try {
     await setDoc(doc(db, 'users', uid), { ...patch, updatedAt: Timestamp.now() }, { merge: true });
+  } catch (e) {
+    recordError(e);
+    throw e;
+  }
+}
+
+/** Deletes the profile document before removing the authenticated Firebase user. */
+export async function deleteAccount(uid: string): Promise<void> {
+  const currentUser = auth.currentUser;
+  if (!currentUser || currentUser.uid !== uid) throw new Error('No matching signed-in user.');
+  try {
+    await deleteDoc(doc(db, 'users', uid));
+    await deleteUser(currentUser);
   } catch (e) {
     recordError(e);
     throw e;

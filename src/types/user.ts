@@ -45,4 +45,5 @@ export interface User {
   /** Set after onboarding completes. */
   targets?: Targets;
   streakDays?: number;
+  units?: 'kg' | 'lb';
 }
