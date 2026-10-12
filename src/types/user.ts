@@ -44,4 +44,5 @@ export interface User {
   tdee?: number;
   /** Set after onboarding completes. */
   targets?: Targets;
+  streakDays?: number;
 }
