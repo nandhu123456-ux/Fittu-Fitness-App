@@ -7,6 +7,7 @@ import RootNavigator from './src/navigation/RootNavigator';
 import { onAuthChange } from './src/services/auth';
 import { getUserProfile } from './src/services/user';
 import { useAuthStore } from './src/store/authStore';
+import { useOnboardingStore } from './src/store/onboardingStore';
 
 export default function App() {
   const [fontsLoaded] = useFonts({ ...Ionicons.font });
@@ -20,10 +21,14 @@ export default function App() {
         store.setLoading(false);
         return;
       }
+      store.setLoading(true);
       store.setUser(user);
       try {
         const profile = await getUserProfile(user.uid);
         store.setProfile(profile);
+        if (profile?.onboardingComplete) {
+          useOnboardingStore.getState().resetForm();
+        }
       } catch {
         store.setProfile(null);
       } finally {
