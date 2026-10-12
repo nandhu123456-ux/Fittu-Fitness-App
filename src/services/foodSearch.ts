@@ -1,0 +1,63 @@
+import { collection, doc, getDoc, getDocs, limit, query, setDoc, where } from 'firebase/firestore';
+
+import foods from '../../assets/data/indianFoods.json';
+import { db } from './firebase';
+
+export interface FoodResult {
+  id: string;
+  name: string;
+  source: 'local' | 'cache' | 'off';
+  serving: string;
+  cal: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+}
+
+interface OffProduct { code?: string; product_name?: string; serving_size?: string; nutriments?: Record<string, number>; }
+
+const normalise = (value: string): string => value.trim().toLowerCase();
+const termsFor = (name: string): string[] => normalise(name).split(/\s+/).filter(Boolean);
+const toNumber = (value: unknown): number => Number.isFinite(Number(value)) ? Number(value) : 0;
+
+function localMatches(queryText: string): FoodResult[] {
+  const needle = normalise(queryText);
+  return foods.filter((food) => [food.name, ...food.aliases].some((term) => normalise(term).includes(needle) || needle.includes(normalise(term)))).map((food) => ({ ...food, source: 'local' }));
+}
+
+async function cachedMatches(queryText: string): Promise<FoodResult[]> {
+  const snapshots = await getDocs(query(collection(db, 'cachedFoods'), where('keywords', 'array-contains', normalise(queryText)), limit(20)));
+  return snapshots.docs.map((snapshot) => ({ id: snapshot.id, ...snapshot.data(), source: 'cache' } as FoodResult));
+}
+
+async function cacheOffResult(food: FoodResult): Promise<void> {
+  const reference = doc(db, 'cachedFoods', food.id);
+  if ((await getDoc(reference)).exists()) return;
+  await setDoc(reference, { ...food, keywords: [...new Set([...termsFor(food.name), food.id.toLowerCase()])] });
+}
+
+async function offMatches(queryText: string): Promise<FoodResult[]> {
+  const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(queryText)}&search_simple=1&action=process&json=1&lc=en&page_size=20`;
+  const response = await fetch(url);
+  if (!response.ok) return [];
+  const payload = await response.json() as { products?: OffProduct[] };
+  const results = (payload.products ?? []).filter((product) => product.code && product.product_name).map((product) => {
+    const nutrients = product.nutriments ?? {};
+    return { id: product.code as string, name: product.product_name as string, source: 'off' as const, serving: product.serving_size || '100g', cal: toNumber(nutrients['energy-kcal_100g'] ?? nutrients['energy-kcal']), protein: toNumber(nutrients.proteins_100g), carbs: toNumber(nutrients.carbohydrates_100g), fat: toNumber(nutrients.fat_100g) };
+  });
+  await Promise.all(results.map((food) => cacheOffResult(food).catch(() => undefined)));
+  return results;
+}
+
+export async function searchFood(queryText: string): Promise<FoodResult[]> {
+  if (!normalise(queryText)) return [];
+  try {
+    const local = localMatches(queryText);
+    if (local.length) return local;
+    const cached = await cachedMatches(queryText);
+    if (cached.length) return cached;
+    return await offMatches(queryText);
+  } catch {
+    return [];
+  }
+}
