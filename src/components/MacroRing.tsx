@@ -12,7 +12,7 @@ const circumference = Math.PI * 2 * radius;
 export function MacroRing({ label, current, target, color, unit }: Props) {
   const progress = Math.min(100, (current / Math.max(target, 1)) * 100);
   return <View style={styles.wrap}>
-    <View><Svg width={size} height={size} rotation="-90"><Circle cx={size / 2} cy={size / 2} r={radius} stroke="rgba(255,255,255,0.06)" strokeWidth={stroke} fill="none" /><Circle cx={size / 2} cy={size / 2} r={radius} stroke={color} strokeWidth={stroke} strokeLinecap="round" fill="none" strokeDasharray={circumference} strokeDashoffset={circumference * (1 - progress / 100)} /></Svg><Text style={[styles.value, { color: current > target ? colors.warn : colors.text }]}>{unit === 'L' ? `${(current / 1000).toFixed(1)}L` : `${Math.round(current)}${unit}`}</Text></View>
+    <View><Svg width={size} height={size}><Circle cx={size / 2} cy={size / 2} r={radius} stroke="rgba(255,255,255,0.06)" strokeWidth={stroke} fill="none" /><Circle cx={size / 2} cy={size / 2} r={radius} stroke={color} strokeWidth={stroke} strokeLinecap="round" fill="none" strokeDasharray={circumference} strokeDashoffset={circumference * (1 - progress / 100)} /></Svg><Text style={[styles.value, { color: current > target ? colors.warn : colors.text }]}>{unit === 'L' ? `${(current / 1000).toFixed(1)}L` : `${Math.round(current)}${unit}`}</Text></View>
     <Text style={styles.label}>{label}</Text>
   </View>;
 }
