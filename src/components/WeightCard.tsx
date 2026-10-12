@@ -1,26 +1,21 @@
 import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import Svg, { Defs, LinearGradient, Path, Stop } from 'react-native-svg';
+import Svg, { Circle, Defs, LinearGradient, Path, Stop } from 'react-native-svg';
 
 import { colors } from '../constants/colors';
 import type { WeightEntry } from '../services/weightLogs';
+import { createWeightChartPaths } from '../utils/weightChart';
 
 interface Props { entries: WeightEntry[]; goal: 'lose' | 'maintain' | 'gain'; targetKg: number; prediction: string | null; }
-
-function chartPath(entries: WeightEntry[], width: number): string {
-  const values = entries.map((entry) => entry.weight).reverse();
-  const min = Math.min(...values); const max = Math.max(...values); const span = max - min || 1;
-  const points = values.map((value, index) => ({ x: (index / Math.max(values.length - 1, 1)) * width, y: 120 - ((value - min) / span) * 100 }));
-  return points.reduce((path, point, index) => index === 0 ? `M ${point.x} ${point.y}` : `${path} Q ${(points[index - 1].x + point.x) / 2} ${points[index - 1].y}, ${point.x} ${point.y}`, '');
-}
 
 export function WeightCard({ entries, goal, targetKg, prediction }: Props) {
   const { width } = useWindowDimensions();
   const chartWidth = Math.max(1, width - 80);
   const latest = entries[0]; const previous = entries[1]; const delta = latest && previous ? latest.weight - previous.weight : 0;
   const positive = goal === 'lose' ? delta < 0 : goal === 'gain' ? delta > 0 : false;
+  const chart = entries.length > 1 ? createWeightChartPaths(entries, chartWidth) : null;
   return <View style={styles.card}><View style={styles.titleRow}><Text style={styles.section}>WEIGHT JOURNEY</Text><Ionicons name="create-outline" size={17} color={colors.muted} /></View>
-    {entries.length > 1 ? <Svg width={chartWidth} height={140} viewBox={`0 0 ${chartWidth} 140`}><Defs><LinearGradient id="weight" x1="0" y1="0" x2="1" y2="1"><Stop offset="0" stopColor={colors.accentAlt} /><Stop offset="1" stopColor={colors.accent} /></LinearGradient></Defs><Path d={chartPath(entries, chartWidth)} fill="none" stroke="url(#weight)" strokeWidth={3} /></Svg> : <View style={styles.emptyChart}><Text style={styles.empty}>Add a weight entry to start your journey.</Text></View>}
+    {chart ? <Svg width={chartWidth} height={140} viewBox={`0 0 ${chartWidth} 140`}><Defs><LinearGradient id="weightLine" x1="0" y1="0" x2="1" y2="1"><Stop offset="0" stopColor={colors.accentAlt} /><Stop offset="1" stopColor={colors.accent} /></LinearGradient><LinearGradient id="weightFill" x1="0" y1="0" x2="0" y2="1"><Stop offset="0" stopColor={colors.accent} stopOpacity={0.25} /><Stop offset="1" stopColor={colors.accent} stopOpacity={0} /></LinearGradient></Defs><Path d={chart.areaPath} fill="url(#weightFill)" /><Path d={chart.linePath} fill="none" stroke="url(#weightLine)" strokeWidth={3} />{chart.points.map((point, index) => <Circle key={index} cx={point.x} cy={point.y} fill={colors.surface} r={4} stroke={colors.accent} strokeWidth={2} />)}</Svg> : <View style={styles.emptyChart}><Text style={styles.empty}>Add a weight entry to start your journey.</Text></View>}
     {latest ? <View style={styles.metrics}><Text style={styles.weight}>{latest.weight.toFixed(1)} kg</Text>{previous ? <Text style={[styles.delta, { color: delta === 0 ? colors.muted : positive ? colors.accent : colors.danger }]}>{delta > 0 ? '+' : ''}{delta.toFixed(1)} kg {delta === 0 ? '—' : delta < 0 ? '↓' : '↑'}</Text> : null}</View> : null}
     <View style={styles.divider} /><Text style={styles.prediction}>{prediction ? `At this pace: ${targetKg}kg by ${prediction}` : 'Log 3+ weights to see your forecast'}</Text></View>;
 }

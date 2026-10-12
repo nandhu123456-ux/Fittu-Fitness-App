@@ -2,17 +2,11 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert, FlatList, Modal, Pressable, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
-import Svg, { Path } from 'react-native-svg';
+import Svg, { Circle, Defs, LinearGradient, Path, Stop } from 'react-native-svg';
 import { colors } from '../constants/colors';
 import { addWeight, deleteWeight, getWeightHistory, type WeightEntry } from '../services/weightLogs';
 import { useAuthStore } from '../store/authStore';
-
-function linePath(entries: WeightEntry[], width: number): string {
-  const oldestFirst = [...entries].reverse();
-  const values = oldestFirst.map((entry) => entry.weight);
-  const min = Math.min(...values); const span = Math.max(...values) - min || 1;
-  return values.map((value, index) => `${index === 0 ? 'M' : 'L'} ${(index / Math.max(values.length - 1, 1)) * width} ${120 - ((value - min) / span) * 100}`).join(' ');
-}
+import { createWeightChartPaths } from '../utils/weightChart';
 
 export default function WeightScreen() {
   const user = useAuthStore((state) => state.user);
@@ -22,6 +16,7 @@ export default function WeightScreen() {
   const [weight, setWeight] = useState('');
   const [note, setNote] = useState('');
   const chartWidth = Math.max(1, width - 40);
+  const chart = entries.length >= 2 ? createWeightChartPaths(entries, chartWidth) : null;
   const load = useCallback(async () => { if (user) setEntries(await getWeightHistory(user.uid, 30)); }, [user]);
   useEffect(() => { void load(); }, [load]);
   const delta = useMemo(() => entries.length > 1 ? entries[0].weight - entries[1].weight : null, [entries]);
@@ -47,7 +42,7 @@ export default function WeightScreen() {
 };
   const remove = (entry: WeightEntry) => Alert.alert('Delete weight entry?', `${entry.weight.toFixed(1)} kg from ${entry.date}`, [{ text: 'Cancel', style: 'cancel' }, { text: 'Delete', style: 'destructive', onPress: () => { if (user) void deleteWeight(user.uid, entry.id).then(load); } }]);
   const row = ({ item }: { item: WeightEntry }) => <Swipeable renderRightActions={() => <Pressable onPress={() => remove(item)} style={styles.delete}><Ionicons name="trash-outline" color={colors.text} size={22} /></Pressable>}><View style={styles.row}><View><Text style={styles.rowWeight}>{item.weight.toFixed(1)} kg</Text><Text style={styles.rowDate}>{item.date}{item.note ? ` · ${item.note}` : ''}</Text></View><Ionicons name="chevron-back" color={colors.muted} size={17} /></View></Swipeable>;
-  return <View style={styles.screen}><FlatList data={entries} keyExtractor={(item) => item.id} renderItem={row} onRefresh={() => void load()} refreshing={false} ListHeaderComponent={entries.length >= 2 ? <View style={styles.chartCard}><Text style={styles.section}>LAST 30 ENTRIES</Text><Svg width={chartWidth} height={140} viewBox={`0 0 ${chartWidth} 140`}><Path d={linePath(entries, chartWidth)} fill="none" stroke={colors.accent} strokeWidth={3} /></Svg>{delta !== null ? <Text style={styles.delta}>{delta > 0 ? '+' : ''}{delta.toFixed(1)} kg since last entry</Text> : null}</View> : null} ListEmptyComponent={<View style={styles.empty}><Ionicons name="scale-outline" color={colors.muted} size={44} /><Text style={styles.emptyTitle}>Start your weight journey</Text><Text style={styles.emptyText}>Add at least two entries to see your trend.</Text></View>} contentContainerStyle={styles.list} />
+  return <View style={styles.screen}><FlatList data={entries} keyExtractor={(item) => item.id} renderItem={row} onRefresh={() => void load()} refreshing={false} ListHeaderComponent={chart ? <View style={styles.chartCard}><Text style={styles.section}>LAST 30 ENTRIES</Text><Svg width={chartWidth} height={140} viewBox={`0 0 ${chartWidth} 140`}><Defs><LinearGradient id="progressLine" x1="0" y1="0" x2="1" y2="1"><Stop offset="0" stopColor={colors.accentAlt} /><Stop offset="1" stopColor={colors.accent} /></LinearGradient><LinearGradient id="progressFill" x1="0" y1="0" x2="0" y2="1"><Stop offset="0" stopColor={colors.accent} stopOpacity={0.25} /><Stop offset="1" stopColor={colors.accent} stopOpacity={0} /></LinearGradient></Defs><Path d={chart.areaPath} fill="url(#progressFill)" /><Path d={chart.linePath} fill="none" stroke="url(#progressLine)" strokeWidth={3} />{chart.points.map((point, index) => <Circle key={index} cx={point.x} cy={point.y} fill={colors.surface} r={4} stroke={colors.accent} strokeWidth={2} />)}</Svg>{delta !== null ? <Text style={styles.delta}>{delta > 0 ? '+' : ''}{delta.toFixed(1)} kg since last entry</Text> : null}</View> : null} ListEmptyComponent={<View style={styles.empty}><Ionicons name="scale-outline" color={colors.muted} size={44} /><Text style={styles.emptyTitle}>Start your weight journey</Text><Text style={styles.emptyText}>Add at least two entries to see your trend.</Text></View>} contentContainerStyle={styles.list} />
     <Pressable onPress={() => setVisible(true)} style={styles.fab}><Ionicons name="add" size={30} color={colors.bg} /></Pressable>
     <Modal visible={visible} transparent animationType="slide" onRequestClose={() => setVisible(false)}><Pressable onPress={() => setVisible(false)} style={styles.overlay}><Pressable onPress={(event) => event.stopPropagation()} style={styles.modal}><Text style={styles.modalTitle}>Add weight</Text><TextInput autoFocus keyboardType="decimal-pad" onChangeText={setWeight} placeholder="Weight in kg" placeholderTextColor={colors.muted} style={styles.input} value={weight} /><TextInput onChangeText={setNote} placeholder="Optional note" placeholderTextColor={colors.muted} style={styles.input} value={note} /><Pressable onPress={() => void save()} style={styles.save}><Text style={styles.saveText}>Save entry</Text></Pressable></Pressable></Pressable></Modal>
   </View>;
