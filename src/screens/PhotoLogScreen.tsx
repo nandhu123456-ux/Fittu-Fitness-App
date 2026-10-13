@@ -19,7 +19,7 @@ type Navigation = BottomTabNavigationProp<RootTabParamList, 'PhotoLog'>;
 
 const pickerOptions: ImagePicker.ImagePickerOptions = {
   mediaTypes: 'images',
-  quality: 0.5,
+  quality: 0.4,
   base64: true,
   allowsEditing: true,
   aspect: [4, 3],
@@ -34,41 +34,45 @@ export default function PhotoLogScreen() {
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [food, setFood] = useState<FoodResult | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
-  const [analyzing, setAnalyzing] = useState(false);
+  const [status, setStatus] = useState<'idle' | 'uploading' | 'analyzing' | 'done'>('idle');
 
   const analyze = async (asset: ImagePicker.ImagePickerAsset): Promise<void> => {
     if (!asset.base64) {
       Alert.alert('Could not identify food.', 'Try a clearer photo.');
+      setStatus('idle');
       return;
     }
     setImageUri(asset.uri);
     setFood(null);
-    setAnalyzing(true);
+    setStatus('analyzing');
     try {
       const result = await analyzeMealPhoto(asset.base64, asset.mimeType ?? 'image/jpeg');
       if (!result) {
         Alert.alert('Could not identify food.', 'Try a clearer photo.');
+        setStatus('idle');
         return;
       }
       setFood(result);
+      setStatus('done');
       setModalVisible(true);
     } catch (e) {
       const message = e instanceof Error && e.message.startsWith('Photo too large')
         ? e.message
         : 'Try a clearer photo.';
       Alert.alert('Could not identify food.', message);
-    } finally {
-      setAnalyzing(false);
+      setStatus('idle');
     }
   };
 
   const pick = async (launch: (options: ImagePicker.ImagePickerOptions) => Promise<ImagePicker.ImagePickerResult>): Promise<void> => {
+    setStatus('uploading');
     try {
       const result = await launch(pickerOptions);
-      if (result.canceled || !result.assets?.[0]) return;
+      if (result.canceled || !result.assets?.[0]) { setStatus('idle'); return; }
       await analyze(result.assets[0]);
     } catch {
       Alert.alert('Could not identify food.', 'Try a clearer photo.');
+      setStatus('idle');
     }
   };
 
@@ -105,13 +109,13 @@ export default function PhotoLogScreen() {
       {imageUri !== null && (
         <Image resizeMode="cover" source={{ uri: imageUri }} style={styles.preview} />
       )}
-      {analyzing && (
+      {(status === 'uploading' || status === 'analyzing') && (
         <View style={styles.state}>
           <ActivityIndicator color={colors.accent} />
-          <Text style={styles.stateText}>Identifying your meal…</Text>
+          <Text style={styles.stateText}>{status === 'uploading' ? 'Preparing photo…' : 'Identifying your meal…'}</Text>
         </View>
       )}
-      {food !== null && !analyzing && (
+      {food !== null && status === 'done' && (
         <View style={styles.result}>
           <Text style={styles.name}>{food.name}</Text>
           <Text style={styles.serving}>
