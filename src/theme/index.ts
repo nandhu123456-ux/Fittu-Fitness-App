@@ -35,6 +35,8 @@ export interface ThemeColors {
   fat: string;
   water: string;
   overlay: string;
+  overlayStrong: string;
+  loadingOverlay: string;
   scrim: string;
 }
 
@@ -90,6 +92,8 @@ export const darkColors: ThemeColors = {
   fat:              '#FFD93D',
   water:            '#5EB8FF',
   overlay:          'rgba(0,0,0,0.65)',
+  overlayStrong:    'rgba(0,0,0,0.45)',
+  loadingOverlay:   'rgba(0,0,0,0.6)',
   scrim:            'rgba(0,0,0,0.4)',
 };
 
@@ -116,6 +120,8 @@ export const lightColors: ThemeColors = {
   fat:              '#946800',
   water:            '#1565C0',
   overlay:          'rgba(0,0,0,0.5)',
+  overlayStrong:    'rgba(0,0,0,0.35)',
+  loadingOverlay:   'rgba(0,0,0,0.45)',
   scrim:            'rgba(0,0,0,0.3)',
 };
 

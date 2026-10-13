@@ -1,7 +1,7 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 
-import { colors } from '../constants/colors';
 import BarcodeScreen from '../screens/BarcodeScreen';
 import CoachScreen from '../screens/CoachScreen';
 import DashboardScreen from '../screens/DashboardScreen';
@@ -9,20 +9,27 @@ import LogScreen from '../screens/LogScreen';
 import PhotoLogScreen from '../screens/PhotoLogScreen';
 import ProgressScreen from '../screens/ProgressScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import { useTheme } from '../theme';
 import type { RootTabParamList } from '../types/navigation';
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
 
 export default function TabNavigator() {
+  const theme = useTheme();
+  const themedStyles = useMemo(() => StyleSheet.create({
+    header: { backgroundColor: theme.colors.bg },
+    headerTitle: { color: theme.colors.text },
+    tabBar: { backgroundColor: theme.colors.surface, borderTopColor: theme.colors.border },
+  }), [theme]);
   return (
     <Tab.Navigator
       initialRouteName="Dashboard"
       screenOptions={{
-        headerStyle: styles.header,
-        headerTitleStyle: styles.headerTitle,
-        tabBarStyle: styles.tabBar,
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.muted,
+        headerStyle: themedStyles.header,
+        headerTitleStyle: themedStyles.headerTitle,
+        tabBarStyle: themedStyles.tabBar,
+        tabBarActiveTintColor: theme.colors.accent,
+        tabBarInactiveTintColor: theme.colors.muted,
       }}
     >
       <Tab.Screen name="Dashboard" component={DashboardScreen} />
@@ -35,15 +42,3 @@ export default function TabNavigator() {
     </Tab.Navigator>
   );
 }
-
-const styles = StyleSheet.create({
-  header: {
-    backgroundColor: colors.bg,
-  },
-  headerTitle: {
-    color: colors.text,
-  },
-  tabBar: {
-    backgroundColor: colors.bg,
-  },
-});

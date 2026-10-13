@@ -147,6 +147,8 @@ export default function BarcodeScreen() {
     frame: { borderColor: theme.colors.accent, borderRadius: 24, borderWidth: 2, height: FRAME, width: FRAME },
     corner: { borderColor: theme.colors.accent, height: 30, position: 'absolute', width: 30 },
     hint: { color: theme.colors.text, fontSize: 14, fontWeight: '500' },
+    iconButton: { backgroundColor: theme.colors.overlayStrong, borderRadius: 22, padding: 8 },
+    loadingOverlay: { alignItems: 'center', backgroundColor: theme.colors.loadingOverlay, gap: 14, justifyContent: 'center', ...StyleSheet.absoluteFillObject },
     loadingText: { color: theme.colors.text, fontSize: 15 },
     statusCard: { backgroundColor: theme.colors.surfaceHi, borderColor: theme.colors.border, borderRadius: 20, borderWidth: 1, gap: 14, padding: 20 },
     statusText: { color: theme.colors.text, fontSize: 16, fontWeight: '600', textAlign: 'center' },
@@ -189,10 +191,10 @@ export default function BarcodeScreen() {
 
       <View pointerEvents="box-none" style={StyleSheet.absoluteFill}>
         <View style={styles.topBar}>
-          <Pressable hitSlop={12} onPress={() => navigation.goBack()} style={styles.iconButton}>
+          <Pressable hitSlop={12} onPress={() => navigation.goBack()} style={themedStyles.iconButton}>
             <Ionicons color={theme.colors.text} name="close" size={26} />
           </Pressable>
-          <Pressable hitSlop={12} onPress={() => setTorch((value) => !value)} style={styles.iconButton}>
+          <Pressable hitSlop={12} onPress={() => setTorch((value) => !value)} style={themedStyles.iconButton}>
             <Ionicons color={torch ? theme.colors.accent : theme.colors.text} name={torch ? 'flash' : 'flash-off'} size={26} />
           </Pressable>
         </View>
@@ -214,7 +216,7 @@ export default function BarcodeScreen() {
       </View>
 
       {loading && (
-        <View pointerEvents="auto" style={styles.loadingOverlay}>
+        <View pointerEvents="auto" style={themedStyles.loadingOverlay}>
           <ActivityIndicator color={theme.colors.accent} size="large" />
           <Text style={themedStyles.loadingText}>Looking up product…</Text>
         </View>
@@ -257,13 +259,11 @@ const styles = StyleSheet.create({
   center: { alignItems: 'center', justifyContent: 'center' },
   padded: { gap: 14, paddingHorizontal: 32 },
   topBar: { flexDirection: 'row', justifyContent: 'space-between', padding: 16 },
-  iconButton: { backgroundColor: 'rgba(0,0,0,0.45)', borderRadius: 22, padding: 8 },
   middleRow: { flexDirection: 'row', height: FRAME },
   cornerTL: { borderTopLeftRadius: 22, borderTopWidth: 4, borderLeftWidth: 4, left: -1, top: -1 },
   cornerTR: { borderTopRightRadius: 22, borderTopWidth: 4, borderRightWidth: 4, right: -1, top: -1 },
   cornerBL: { borderBottomLeftRadius: 22, borderBottomWidth: 4, borderLeftWidth: 4, bottom: -1, left: -1 },
   cornerBR: { borderBottomRightRadius: 22, borderBottomWidth: 4, borderRightWidth: 4, bottom: -1, right: -1 },
-  loadingOverlay: { alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.6)', gap: 14, justifyContent: 'center', ...StyleSheet.absoluteFillObject },
   statusWrap: { bottom: 48, left: 24, position: 'absolute', right: 24 },
   statusActions: { flexDirection: 'row', gap: 12 },
 });
