@@ -3,11 +3,12 @@ import { collection, doc, getDoc, getDocs, limit, query, setDoc, where } from 'f
 import ifct from '../../assets/data/ifct2017.json';
 import indianDishes from '../../assets/data/indianDishes.json';
 import { db } from './firebase';
+import { lookupViaVercel } from './vercelNutrition';
 
 export interface FoodResult {
   id: string;
   name: string;
-  source: 'local' | 'cache' | 'off';
+  source: 'local' | 'cache' | 'off' | 'usda';
   serving: string;
   cal: number;
   protein: number;
@@ -86,7 +87,11 @@ export async function searchFood(queryText: string): Promise<FoodResult[]> {
     if (local.length) return local;
     const cached = await cachedMatches(queryText);
     if (cached.length) return cached;
-    return await offMatches(queryText);
+    const off = await offMatches(queryText);
+    if (off.length) return off;
+    const vercel = await lookupViaVercel(queryText);
+    if (vercel) return [vercel];
+    return [];
   } catch {
     return [];
   }
