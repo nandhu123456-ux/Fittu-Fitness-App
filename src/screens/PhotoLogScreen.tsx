@@ -19,9 +19,11 @@ type Navigation = BottomTabNavigationProp<RootTabParamList, 'PhotoLog'>;
 
 const pickerOptions: ImagePicker.ImagePickerOptions = {
   mediaTypes: 'images',
-  quality: 0.7,
+  quality: 0.5,
   base64: true,
-  allowsEditing: false,
+  allowsEditing: true,
+  aspect: [4, 3],
+  exif: false,
 };
 
 export default function PhotoLogScreen() {
@@ -50,8 +52,11 @@ export default function PhotoLogScreen() {
       }
       setFood(result);
       setModalVisible(true);
-    } catch {
-      Alert.alert('Could not identify food.', 'Try a clearer photo.');
+    } catch (e) {
+      const message = e instanceof Error && e.message.startsWith('Photo too large')
+        ? e.message
+        : 'Try a clearer photo.';
+      Alert.alert('Could not identify food.', message);
     } finally {
       setAnalyzing(false);
     }

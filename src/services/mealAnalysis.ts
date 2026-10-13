@@ -15,6 +15,9 @@ interface AnalyzePayload {
 }
 
 export async function analyzeMealPhoto(base64: string, mimeType: string): Promise<FoodResult | null> {
+  if (base64.length > 3_000_000) {
+    throw new Error('Photo too large. Please try a different image or crop it first.');
+  }
   try {
     const user = auth.currentUser;
     if (!user || !base64) return null;
