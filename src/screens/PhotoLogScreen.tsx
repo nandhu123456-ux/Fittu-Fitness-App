@@ -3,16 +3,16 @@ import { useNavigation, useRoute, type RouteProp } from '@react-navigation/nativ
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import * as ImagePicker from 'expo-image-picker';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { PortionModal } from '../components/PortionModal';
-import { colors } from '../constants/colors';
 import type { MealType } from '../services/foodLogs';
 import { addFoodLog } from '../services/foodLogService';
 import type { FoodResult } from '../services/foodSearch';
 import { analyzeMealPhoto } from '../services/mealAnalysis';
 import { useAuthStore } from '../store/authStore';
+import { useTheme } from '../theme';
 import type { RootTabParamList } from '../types/navigation';
 
 type PhotoLogRoute = RouteProp<RootTabParamList, 'PhotoLog'>;
@@ -28,6 +28,7 @@ const pickerOptions: ImagePicker.ImagePickerOptions = {
 };
 
 export default function PhotoLogScreen() {
+  const theme = useTheme();
   const route = useRoute<PhotoLogRoute>();
   const navigation = useNavigation<Navigation>();
   const { user } = useAuthStore();
@@ -99,18 +100,33 @@ export default function PhotoLogScreen() {
     navigation.goBack();
   };
 
+  const themedStyles = useMemo(() => StyleSheet.create({
+    screen: { backgroundColor: theme.colors.bg, flex: 1, padding: 20 },
+    title: { color: theme.colors.text, fontSize: 26, fontWeight: '700' },
+    subtitle: { color: theme.colors.muted, fontSize: 14, marginTop: 5 },
+    button: { alignItems: 'center', backgroundColor: theme.colors.accent, borderRadius: 14, flex: 1, flexDirection: 'row', gap: 8, justifyContent: 'center', padding: 15 },
+    buttonText: { color: theme.colors.bg, fontWeight: '700' },
+    secondary: { alignItems: 'center', borderColor: theme.colors.border, borderRadius: 14, borderWidth: 1, flex: 1, flexDirection: 'row', gap: 8, justifyContent: 'center', padding: 15 },
+    secondaryText: { color: theme.colors.text, fontWeight: '600' },
+    stateText: { color: theme.colors.muted, fontSize: 14 },
+    result: { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 18, borderWidth: 1, marginTop: 20, padding: 16 },
+    name: { color: theme.colors.text, fontSize: 17, fontWeight: '700' },
+    serving: { color: theme.colors.muted, fontSize: 13, marginTop: 4 },
+    macros: { color: theme.colors.muted, fontSize: 13, marginTop: 4 },
+  }), [theme]);
+
   return (
-    <View style={styles.screen}>
-      <Text style={styles.title}>Snap your meal</Text>
-      <Text style={styles.subtitle}>Take a photo and we will identify it.</Text>
+    <View style={themedStyles.screen}>
+      <Text style={themedStyles.title}>Snap your meal</Text>
+      <Text style={themedStyles.subtitle}>Take a photo and we will identify it.</Text>
       <View style={styles.actions}>
-        <Pressable onPress={() => void pick(ImagePicker.launchCameraAsync)} style={styles.button}>
-          <Ionicons color={colors.bg} name="camera" size={20} />
-          <Text style={styles.buttonText}>Take Photo</Text>
+        <Pressable onPress={() => void pick(ImagePicker.launchCameraAsync)} style={themedStyles.button}>
+          <Ionicons color={theme.colors.bg} name="camera" size={20} />
+          <Text style={themedStyles.buttonText}>Take Photo</Text>
         </Pressable>
-        <Pressable onPress={() => void pick(ImagePicker.launchImageLibraryAsync)} style={styles.secondary}>
-          <Ionicons color={colors.text} name="images" size={20} />
-          <Text style={styles.secondaryText}>Choose from Library</Text>
+        <Pressable onPress={() => void pick(ImagePicker.launchImageLibraryAsync)} style={themedStyles.secondary}>
+          <Ionicons color={theme.colors.text} name="images" size={20} />
+          <Text style={themedStyles.secondaryText}>Choose from Library</Text>
         </Pressable>
       </View>
       {imageUri !== null && (
@@ -118,17 +134,17 @@ export default function PhotoLogScreen() {
       )}
       {(status === 'uploading' || status === 'analyzing') && (
         <View style={styles.state}>
-          <ActivityIndicator color={colors.accent} />
-          <Text style={styles.stateText}>{status === 'uploading' ? 'Preparing photo…' : 'Identifying your meal…'}</Text>
+          <ActivityIndicator color={theme.colors.accent} />
+          <Text style={themedStyles.stateText}>{status === 'uploading' ? 'Preparing photo…' : 'Identifying your meal…'}</Text>
         </View>
       )}
       {food !== null && status === 'done' && (
-        <View style={styles.result}>
-          <Text style={styles.name}>{food.name}</Text>
-          <Text style={styles.serving}>
+        <View style={themedStyles.result}>
+          <Text style={themedStyles.name}>{food.name}</Text>
+          <Text style={themedStyles.serving}>
             {food.serving} · {food.cal} kcal
           </Text>
-          <Text style={styles.macros}>
+          <Text style={themedStyles.macros}>
             P {food.protein}g · C {food.carbs}g · F {food.fat}g
           </Text>
         </View>
@@ -139,19 +155,7 @@ export default function PhotoLogScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: { backgroundColor: colors.bg, flex: 1, padding: 20 },
-  title: { color: colors.text, fontSize: 26, fontWeight: '700' },
-  subtitle: { color: colors.muted, fontSize: 14, marginTop: 5 },
   actions: { flexDirection: 'row', gap: 12, marginTop: 20 },
-  button: { alignItems: 'center', backgroundColor: colors.accent, borderRadius: 14, flex: 1, flexDirection: 'row', gap: 8, justifyContent: 'center', padding: 15 },
-  buttonText: { color: colors.bg, fontWeight: '700' },
-  secondary: { alignItems: 'center', borderColor: colors.border, borderRadius: 14, borderWidth: 1, flex: 1, flexDirection: 'row', gap: 8, justifyContent: 'center', padding: 15 },
-  secondaryText: { color: colors.text, fontWeight: '600' },
   preview: { borderRadius: 18, height: 240, marginTop: 20, width: '100%' },
   state: { alignItems: 'center', gap: 10, marginTop: 24 },
-  stateText: { color: colors.muted, fontSize: 14 },
-  result: { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: 18, borderWidth: 1, marginTop: 20, padding: 16 },
-  name: { color: colors.text, fontSize: 17, fontWeight: '700' },
-  serving: { color: colors.muted, fontSize: 13, marginTop: 4 },
-  macros: { color: colors.muted, fontSize: 13, marginTop: 4 },
 });
