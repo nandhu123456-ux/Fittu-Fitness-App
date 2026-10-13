@@ -1,7 +1,8 @@
+import { useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { colors } from '../constants/colors';
 import type { CoachMessage } from '../services/coachChat';
+import { useTheme } from '../theme';
 
 interface Props {
   message: CoachMessage;
@@ -14,15 +15,24 @@ const formatTime = (ts: CoachMessage['ts']): string => {
 };
 
 export function ChatBubble({ message }: Props) {
+  const theme = useTheme();
   const isUser = message.role === 'user';
+  const themedStyles = useMemo(() => StyleSheet.create({
+    bubbleUser: { backgroundColor: theme.colors.accent },
+    bubbleAssistant: { backgroundColor: theme.colors.surfaceHi },
+    contentUser: { color: theme.colors.bg },
+    contentAssistant: { color: theme.colors.text },
+    timeUser: { color: theme.colors.muted, textAlign: 'right' },
+    timeAssistant: { color: theme.colors.muted, textAlign: 'left' },
+  }), [theme]);
   return (
     <View style={[styles.row, isUser ? styles.rowUser : styles.rowAssistant]}>
-      <View style={[styles.bubble, isUser ? styles.bubbleUser : styles.bubbleAssistant]}>
-        <Text style={[styles.content, isUser ? styles.contentUser : styles.contentAssistant]}>
+      <View style={[styles.bubble, isUser ? themedStyles.bubbleUser : themedStyles.bubbleAssistant]}>
+        <Text style={[styles.content, isUser ? themedStyles.contentUser : themedStyles.contentAssistant]}>
           {message.content}
         </Text>
       </View>
-      <Text style={[styles.time, isUser ? styles.timeUser : styles.timeAssistant]}>
+      <Text style={[styles.time, isUser ? themedStyles.timeUser : themedStyles.timeAssistant]}>
         {formatTime(message.ts)}
       </Text>
     </View>
@@ -34,12 +44,6 @@ const styles = StyleSheet.create({
   rowUser: { alignItems: 'flex-end' },
   rowAssistant: { alignItems: 'flex-start' },
   bubble: { borderRadius: 18, maxWidth: '78%', paddingHorizontal: 14, paddingVertical: 10 },
-  bubbleUser: { backgroundColor: colors.accent },
-  bubbleAssistant: { backgroundColor: colors.surfaceHi },
   content: { fontSize: 15, lineHeight: 21 },
-  contentUser: { color: colors.bg },
-  contentAssistant: { color: colors.text },
   time: { fontSize: 11, marginTop: 3 },
-  timeUser: { color: colors.muted, textAlign: 'right' },
-  timeAssistant: { color: colors.muted, textAlign: 'left' },
 });
