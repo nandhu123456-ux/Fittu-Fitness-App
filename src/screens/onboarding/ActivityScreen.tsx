@@ -1,9 +1,9 @@
 import { type NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { colors } from '../../constants/colors';
 import { useOnboardingStore } from '../../store/onboardingStore';
+import { useTheme } from '../../theme';
 import type { OnboardingStackParamList } from '../../types/navigation';
 import type { ActivityLevel } from '../../types/user';
 
@@ -18,6 +18,7 @@ const OPTIONS: { value: ActivityLevel; label: string }[] = [
 ];
 
 export default function ActivityScreen({ navigation }: Props) {
+  const theme = useTheme();
   const form = useOnboardingStore((s) => s.form);
   const setForm = useOnboardingStore((s) => s.setForm);
   const [error, setError] = useState<string | null>(null);
@@ -31,70 +32,33 @@ export default function ActivityScreen({ navigation }: Props) {
     navigation.navigate('Goal');
   };
 
+  const themedStyles = useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: theme.colors.bg, justifyContent: 'center', paddingHorizontal: 32, gap: 12 },
+    heading: { fontSize: 22, fontWeight: '700', color: theme.colors.text, marginBottom: 8 },
+    option: { backgroundColor: theme.colors.surface, borderRadius: 8, paddingVertical: 14, alignItems: 'flex-start', borderWidth: 1, borderColor: theme.colors.surface, paddingHorizontal: 16 },
+    optionSelected: { borderColor: theme.colors.accent },
+    optionText: { color: theme.colors.text, fontSize: 15 },
+    error: { color: theme.colors.danger, fontSize: 14 },
+    button: { backgroundColor: theme.colors.accentAlt, borderRadius: 8, paddingVertical: 14, alignItems: 'center', marginTop: 8 },
+    buttonText: { color: theme.colors.accentText, fontSize: 16, fontWeight: '600' },
+  }), [theme]);
   return (
-    <View style={styles.container}>
-      <Text style={styles.heading}>How active are you?</Text>
+    <View style={themedStyles.container}>
+      <Text style={themedStyles.heading}>How active are you?</Text>
       {OPTIONS.map((option) => (
         <Pressable
           key={option.value}
-          style={[styles.option, form.activityLevel === option.value && styles.optionSelected]}
+          style={[themedStyles.option, form.activityLevel === option.value && themedStyles.optionSelected]}
           onPress={() => setForm({ activityLevel: option.value })}
         >
-          <Text style={styles.optionText}>{option.label}</Text>
+          <Text style={themedStyles.optionText}>{option.label}</Text>
         </Pressable>
       ))}
-      {error !== null && <Text style={styles.error}>{error}</Text>}
-      <Pressable style={styles.button} onPress={handleContinue}>
-        <Text style={styles.buttonText}>Continue</Text>
+      {error !== null && <Text style={themedStyles.error}>{error}</Text>}
+      <Pressable style={themedStyles.button} onPress={handleContinue}>
+        <Text style={themedStyles.buttonText}>Continue</Text>
       </Pressable>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.bg,
-    justifyContent: 'center',
-    paddingHorizontal: 32,
-    gap: 12,
-  },
-  heading: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: colors.text,
-    marginBottom: 8,
-  },
-  option: {
-    backgroundColor: '#1E1E1E',
-    borderRadius: 8,
-    paddingVertical: 14,
-    alignItems: 'flex-start',
-    borderWidth: 1,
-    borderColor: '#1E1E1E',
-    paddingHorizontal: 16,
-  },
-  optionSelected: {
-    borderColor: colors.primary,
-  },
-  optionText: {
-    color: colors.text,
-    fontSize: 15,
-  },
-  error: {
-    color: '#FF6B6B',
-    fontSize: 14,
-  },
-  button: {
-    backgroundColor: colors.primary,
-    borderRadius: 8,
-    paddingVertical: 14,
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  buttonText: {
-    color: colors.text,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-});

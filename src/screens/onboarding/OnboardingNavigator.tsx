@@ -1,6 +1,6 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import { colors } from '../../constants/colors';
+import { useTheme } from '../../theme';
 import type { OnboardingStackParamList } from '../../types/navigation';
 import ActivityScreen from './ActivityScreen';
 import BodyStatsScreen from './BodyStatsScreen';
@@ -11,14 +11,15 @@ import SummaryScreen from './SummaryScreen';
 const Stack = createNativeStackNavigator<OnboardingStackParamList>();
 
 export default function OnboardingNavigator() {
+  const theme = useTheme();
   return (
     <Stack.Navigator
       initialRouteName="Gender"
       screenOptions={{
-        headerStyle: { backgroundColor: colors.bg },
-        headerTitleStyle: { color: colors.text },
-        headerTintColor: colors.primary,
-        contentStyle: { backgroundColor: colors.bg },
+        headerStyle: { backgroundColor: theme.colors.bg },
+        headerTitleStyle: { color: theme.colors.text },
+        headerTintColor: theme.colors.accentAlt,
+        contentStyle: { backgroundColor: theme.colors.bg },
       }}
     >
       <Stack.Screen name="Gender" component={GenderScreen} options={{ title: 'About you' }} />

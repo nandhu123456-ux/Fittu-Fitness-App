@@ -1,14 +1,15 @@
 import { type NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { colors } from '../../constants/colors';
 import { useOnboardingStore } from '../../store/onboardingStore';
+import { useTheme } from '../../theme';
 import type { OnboardingStackParamList } from '../../types/navigation';
 
 type Props = NativeStackScreenProps<OnboardingStackParamList, 'BodyStats'>;
 
 export default function BodyStatsScreen({ navigation }: Props) {
+  const theme = useTheme();
   const form = useOnboardingStore((s) => s.form);
   const setForm = useOnboardingStore((s) => s.setForm);
   const [age, setAge] = useState('');
@@ -49,77 +50,46 @@ export default function BodyStatsScreen({ navigation }: Props) {
     navigation.navigate('Activity');
   };
 
+  const themedStyles = useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: theme.colors.bg, justifyContent: 'center', paddingHorizontal: 32, gap: 14 },
+    heading: { fontSize: 22, fontWeight: '700', color: theme.colors.text, marginBottom: 12 },
+    input: { backgroundColor: theme.colors.surfaceHi, borderRadius: 8, paddingHorizontal: 14, paddingVertical: 12, color: theme.colors.text, fontSize: 16 },
+    error: { color: theme.colors.danger, fontSize: 14 },
+    button: { backgroundColor: theme.colors.accentAlt, borderRadius: 8, paddingVertical: 14, alignItems: 'center', marginTop: 8 },
+    buttonText: { color: theme.colors.accentText, fontSize: 16, fontWeight: '600' },
+  }), [theme]);
   return (
-    <View style={styles.container}>
-      <Text style={styles.heading}>Your body stats</Text>
+    <View style={themedStyles.container}>
+      <Text style={themedStyles.heading}>Your body stats</Text>
       <TextInput
-        style={styles.input}
+        style={themedStyles.input}
         placeholder="Age (13–100)"
-        placeholderTextColor={colors.muted}
+        placeholderTextColor={theme.colors.muted}
         keyboardType="numeric"
         value={age}
         onChangeText={setAge}
       />
       <TextInput
-        style={styles.input}
+        style={themedStyles.input}
         placeholder="Height in cm (100–250)"
-        placeholderTextColor={colors.muted}
+        placeholderTextColor={theme.colors.muted}
         keyboardType="numeric"
         value={height}
         onChangeText={setHeight}
       />
       <TextInput
-        style={styles.input}
+        style={themedStyles.input}
         placeholder="Weight in kg (25–300)"
-        placeholderTextColor={colors.muted}
+        placeholderTextColor={theme.colors.muted}
         keyboardType="numeric"
         value={weight}
         onChangeText={setWeight}
       />
-      {error !== null && <Text style={styles.error}>{error}</Text>}
-      <Pressable style={styles.button} onPress={handleContinue}>
-        <Text style={styles.buttonText}>Continue</Text>
+      {error !== null && <Text style={themedStyles.error}>{error}</Text>}
+      <Pressable style={themedStyles.button} onPress={handleContinue}>
+        <Text style={themedStyles.buttonText}>Continue</Text>
       </Pressable>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.bg,
-    justifyContent: 'center',
-    paddingHorizontal: 32,
-    gap: 14,
-  },
-  heading: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: colors.text,
-    marginBottom: 12,
-  },
-  input: {
-    backgroundColor: '#1E1E1E',
-    borderRadius: 8,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    color: colors.text,
-    fontSize: 16,
-  },
-  error: {
-    color: '#FF6B6B',
-    fontSize: 14,
-  },
-  button: {
-    backgroundColor: colors.primary,
-    borderRadius: 8,
-    paddingVertical: 14,
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  buttonText: {
-    color: colors.text,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-});
