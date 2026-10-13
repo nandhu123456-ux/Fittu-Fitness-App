@@ -4,6 +4,7 @@ export type RootTabParamList = {
   Dashboard: undefined;
   Log: { mealType?: 'breakfast' | 'lunch' | 'snack' | 'dinner' } | undefined;
   Barcode: { mealType?: MealType } | undefined;
+  PhotoLog: { mealType?: MealType } | undefined;
   Settings: undefined;
   Progress: undefined;
   Coach: undefined;
