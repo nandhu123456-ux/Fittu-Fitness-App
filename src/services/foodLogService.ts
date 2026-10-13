@@ -3,6 +3,7 @@ import { addDoc, collection, getDocs, query, serverTimestamp, where } from 'fire
 import type { FoodResult } from './foodSearch';
 import type { MealType } from './foodLogs';
 import { db } from './firebase';
+import { refreshStreak } from './streakService';
 
 export interface FoodLogEntry {
   id: string;
@@ -29,6 +30,9 @@ export async function addFoodLog(uid: string, input: { mealType: MealType; food:
     cal: rounded(food.cal * servings), protein: rounded(food.protein * servings), carbs: rounded(food.carbs * servings), fat: rounded(food.fat * servings),
     ...(input.portionGrams ? { portionGrams: input.portionGrams } : {}), createdAt: serverTimestamp(),
   });
+  // Non-critical: recompute the streak after the write. Fire-and-forget — a
+  // streak failure must never break (or delay) the food log write.
+  refreshStreak(uid).catch(() => {});
 }
 
 export async function getTodayEntries(uid: string): Promise<FoodLogEntry[]> {

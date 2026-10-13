@@ -15,6 +15,7 @@ import { getTodaysTotals, type TodayTotals } from '../services/foodLogs';
 import { getTodayMood, setMood } from '../services/moodLogs';
 import { addWater, getTodaysWater } from '../services/waterLogs';
 import { getRecentWeights, type WeightEntry } from '../services/weightLogs';
+import { refreshStreak } from '../services/streakService';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../theme';
 import type { RootTabParamList } from '../types/navigation';
@@ -42,11 +43,17 @@ export default function DashboardScreen() {
   const refresh = useCallback(async () => {
     if (!user) return;
     setRefreshing(true);
-    const [food, waterResult, weight, moodResult] = await Promise.allSettled([getTodaysTotals(user.uid), getTodaysWater(user.uid), getRecentWeights(user.uid, 14), getTodayMood(user.uid)]);
+    const [food, waterResult, weight, moodResult, streakResult] = await Promise.allSettled([getTodaysTotals(user.uid), getTodaysWater(user.uid), getRecentWeights(user.uid, 14), getTodayMood(user.uid), refreshStreak(user.uid)]);
     if (food.status === 'fulfilled') setTotals(food.value);
     if (waterResult.status === 'fulfilled') setWater(waterResult.value);
     if (weight.status === 'fulfilled') setWeights(weight.value);
     if (moodResult.status === 'fulfilled') setMoodValue(moodResult.value);
+    if (streakResult.status === 'fulfilled' && streakResult.value !== profile?.streakDays) {
+      const currentProfile = useAuthStore.getState().profile;
+      if (currentProfile && currentProfile.streakDays !== streakResult.value) {
+        useAuthStore.getState().setProfile({ ...currentProfile, streakDays: streakResult.value });
+      }
+    }
     setRefreshing(false);
   }, [user]);
   useEffect(() => { void refresh(); }, [refresh]);
