@@ -30,7 +30,7 @@ export default function LogScreen() {
   useEffect(() => {
     const trimmed = search.trim();
     if (!trimmed) { setResults([]); setLoading(false); return; }
-    const timer = setTimeout(() => { setLoading(true); setError(null); void searchFood(trimmed).then(setResults).catch(() => setError('Could not search foods.')).finally(() => setLoading(false)); }, 300);
+    const timer = setTimeout(() => { setLoading(true); setError(null); void searchFood(trimmed, user?.uid).then(setResults).catch(() => setError('Could not search foods.')).finally(() => setLoading(false)); }, 300);
     return () => clearTimeout(timer);
   }, [search]);
   const confirm = async (servings: number) => {
@@ -50,15 +50,18 @@ export default function LogScreen() {
     serving: { color: theme.colors.muted, fontSize: 12, marginTop: 4 },
     macros: { color: theme.colors.muted, fontSize: 12, marginTop: 5 },
     calories: { color: theme.colors.accent, fontSize: 14, fontWeight: '700' },
-    empty: { color: theme.colors.muted, fontSize: 14 },
+    ctaCard: { alignItems: 'center', backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 18, borderWidth: 1, gap: 12, padding: 24 },
+    ctaText: { color: theme.colors.muted, fontSize: 14, textAlign: 'center' },
+    ctaButton: { alignItems: 'center', backgroundColor: theme.colors.accent, borderRadius: 12, flexDirection: 'row', gap: 8, paddingHorizontal: 18, paddingVertical: 11 },
+    ctaButtonText: { color: theme.colors.bg, fontSize: 14, fontWeight: '700' },
     error: { color: theme.colors.danger, fontSize: 14 },
     saving: { alignItems: 'center', backgroundColor: theme.colors.accent, borderRadius: 14, bottom: 24, flexDirection: 'row', gap: 8, left: 20, padding: 14, position: 'absolute', right: 20 },
     savingText: { color: theme.colors.bg, fontWeight: '700' },
   }), [theme]);
   return <View style={themedStyles.screen}><View style={styles.header}><Text style={themedStyles.title}>Log {mealType}</Text><Text style={themedStyles.subtitle}>Search a food to add it to today.</Text></View>
     <View style={themedStyles.search}><Ionicons name="search" color={theme.colors.muted} size={20} /><TextInput autoCapitalize="none" onChangeText={setSearch} placeholder="Search Indian foods or products" placeholderTextColor={theme.colors.muted} style={themedStyles.input} value={search} /></View>
-    <View style={styles.tools}><Pressable onPress={() => navigation.navigate('Barcode')} style={themedStyles.tool}><Ionicons name="barcode-outline" color={theme.colors.accent} size={20} /><Text style={themedStyles.toolText}>Scan barcode</Text></Pressable><Pressable onPress={() => navigation.navigate('PhotoLog', { mealType })} style={themedStyles.tool}><Ionicons name="camera-outline" color={theme.colors.accent} size={20} /><Text style={themedStyles.toolText}>Snap meal</Text></Pressable></View>
-    {loading ? <View style={styles.state}><ActivityIndicator color={theme.colors.accent} /></View> : error ? <View style={styles.state}><Text style={themedStyles.error}>{error}</Text></View> : search && results.length === 0 ? <View style={styles.state}><Text style={themedStyles.empty}>No foods found. Try another name.</Text></View> : <FlatList data={results} keyExtractor={(item) => `${item.source}-${item.id}`} keyboardShouldPersistTaps="handled" renderItem={({ item }) => <Pressable onPress={() => setSelected(item)} style={themedStyles.result}><View style={styles.resultCopy}><Text style={themedStyles.name}>{item.name}</Text><Text style={themedStyles.serving}>{item.serving} · {item.source.toUpperCase()}</Text><Text style={themedStyles.macros}>P {item.protein}g · C {item.carbs}g · F {item.fat}g</Text></View><Text style={themedStyles.calories}>{item.cal} kcal</Text></Pressable>} contentContainerStyle={styles.results} />}
+    <View style={styles.tools}><Pressable onPress={() => navigation.navigate('Barcode')} style={themedStyles.tool}><Ionicons name="barcode-outline" color={theme.colors.accent} size={20} /><Text style={themedStyles.toolText}>Scan barcode</Text></Pressable><Pressable onPress={() => navigation.navigate('PhotoLog', { mealType })} style={themedStyles.tool}><Ionicons name="camera-outline" color={theme.colors.accent} size={20} /><Text style={themedStyles.toolText}>Snap meal</Text></Pressable><Pressable onPress={() => navigation.navigate('AddCustomFood', { prefillQuery: search, mealType })} style={themedStyles.tool}><Ionicons name="add-circle-outline" color={theme.colors.accent} size={20} /><Text style={themedStyles.toolText}>Add custom</Text></Pressable></View>
+    {loading ? <View style={styles.state}><ActivityIndicator color={theme.colors.accent} /></View> : error ? <View style={styles.state}><Text style={themedStyles.error}>{error}</Text></View> : search && results.length === 0 ? <View style={styles.state}><View style={themedStyles.ctaCard}><Text style={themedStyles.ctaText}>Can't find "{search}"?</Text><Pressable onPress={() => navigation.navigate('AddCustomFood', { prefillQuery: search, mealType })} style={themedStyles.ctaButton}><Ionicons color={theme.colors.bg} name="add-circle-outline" size={18} /><Text style={themedStyles.ctaButtonText}>Add it as a custom food</Text></Pressable></View></View> : <FlatList data={results} keyExtractor={(item) => `${item.source}-${item.id}`} keyboardShouldPersistTaps="handled" renderItem={({ item }) => <Pressable onPress={() => setSelected(item)} style={themedStyles.result}><View style={styles.resultCopy}><Text style={themedStyles.name}>{item.name}</Text><Text style={themedStyles.serving}>{item.serving} · {item.source.toUpperCase()}</Text><Text style={themedStyles.macros}>P {item.protein}g · C {item.carbs}g · F {item.fat}g</Text></View><Text style={themedStyles.calories}>{item.cal} kcal</Text></Pressable>} contentContainerStyle={styles.results} />}
     <PortionModal visible={selected !== null} food={selected} onClose={() => setSelected(null)} onConfirm={(servings) => void confirm(servings)} />
     {saving ? <View style={themedStyles.saving}><ActivityIndicator color={theme.colors.bg} /><Text style={themedStyles.savingText}>Adding food…</Text></View> : null}
   </View>;

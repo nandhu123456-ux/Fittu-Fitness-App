@@ -5,6 +5,7 @@ export type RootTabParamList = {
   Log: { mealType?: 'breakfast' | 'lunch' | 'snack' | 'dinner' } | undefined;
   Barcode: { mealType?: MealType } | undefined;
   PhotoLog: { mealType?: MealType } | undefined;
+  AddCustomFood: { prefillQuery?: string; mealType?: MealType } | undefined;
   Settings: undefined;
   Progress: undefined;
   Coach: undefined;

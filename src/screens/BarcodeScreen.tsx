@@ -72,6 +72,7 @@ export default function BarcodeScreen() {
   const { user } = useAuthStore();
   const [permission, requestPermission] = useCameraPermissions();
   const scanned = useRef(false);
+  const lastBarcode = useRef('');
   const [food, setFood] = useState<BarcodeFood | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -90,6 +91,7 @@ export default function BarcodeScreen() {
   const handleScan = async ({ data }: BarcodeScanningResult): Promise<void> => {
     if (scanned.current) return;
     scanned.current = true;
+    lastBarcode.current = data;
     setLoading(true);
     setNotFound(false);
     setError(null);
@@ -230,7 +232,7 @@ export default function BarcodeScreen() {
             <View style={styles.statusActions}>
               {!error && !notice && (
                 <Pressable
-                  onPress={() => setNotice('Custom food entry coming soon.')}
+                  onPress={() => navigation.navigate('AddCustomFood', { prefillQuery: lastBarcode.current })}
                   style={themedStyles.secondaryButton}
                 >
                   <Text style={themedStyles.secondaryText}>Add custom</Text>

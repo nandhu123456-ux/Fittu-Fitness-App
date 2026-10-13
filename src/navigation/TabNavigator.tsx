@@ -7,6 +7,7 @@ import CoachScreen from '../screens/CoachScreen';
 import DashboardScreen from '../screens/DashboardScreen';
 import LogScreen from '../screens/LogScreen';
 import PhotoLogScreen from '../screens/PhotoLogScreen';
+import AddCustomFoodScreen from '../screens/AddCustomFoodScreen';
 import ProgressScreen from '../screens/ProgressScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import { useTheme } from '../theme';
@@ -36,6 +37,7 @@ export default function TabNavigator() {
       <Tab.Screen name="Log" component={LogScreen} />
       <Tab.Screen name="Barcode" component={BarcodeScreen} options={{ tabBarButton: () => null }} />
       <Tab.Screen name="PhotoLog" component={PhotoLogScreen} options={{ tabBarButton: () => null }} />
+      <Tab.Screen name="AddCustomFood" component={AddCustomFoodScreen} options={{ tabBarButton: () => null }} />
       <Tab.Screen name="Settings" component={SettingsScreen} options={{ tabBarButton: () => null }} />
       <Tab.Screen name="Progress" component={ProgressScreen} />
       <Tab.Screen name="Coach" component={CoachScreen} />

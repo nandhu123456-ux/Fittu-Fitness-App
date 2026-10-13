@@ -3,12 +3,13 @@ import { collection, doc, getDoc, getDocs, limit, query, setDoc, where } from 'f
 import ifct from '../../assets/data/ifct2017.json';
 import indianDishes from '../../assets/data/indianDishes.json';
 import { db } from './firebase';
+import { getCustomFoods } from './customFoods';
 import { lookupViaVercel } from './vercelNutrition';
 
 export interface FoodResult {
   id: string;
   name: string;
-  source: 'local' | 'cache' | 'off' | 'usda';
+  source: 'local' | 'cache' | 'off' | 'usda' | 'custom';
   serving: string;
   cal: number;
   protein: number;
@@ -80,7 +81,7 @@ async function offMatches(queryText: string): Promise<FoodResult[]> {
   return results;
 }
 
-export async function searchFood(queryText: string): Promise<FoodResult[]> {
+export async function searchFood(queryText: string, uid?: string): Promise<FoodResult[]> {
   if (!normalise(queryText)) return [];
   try {
     const local = localMatches(queryText);
@@ -91,6 +92,12 @@ export async function searchFood(queryText: string): Promise<FoodResult[]> {
     if (off.length) return off;
     const vercel = await lookupViaVercel(queryText);
     if (vercel) return [vercel];
+    if (uid) {
+      const customs = await getCustomFoods(uid);
+      const needle = normalise(queryText);
+      const customHits = customs.filter((food) => normalise(food.name).includes(needle));
+      if (customHits.length) return customHits;
+    }
     return [];
   } catch {
     return [];
