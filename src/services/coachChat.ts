@@ -2,7 +2,7 @@ import { addDoc, collection, getDocs, limit, orderBy, query, serverTimestamp, Ti
 
 import { auth, db } from './firebase';
 
-const COACH_URL = 'https://be-fit-nine.vercel.app/api/coach-chat';
+const COACH_URL = 'https://be-fit-api.nanda-dev.workers.dev/api/coach-chat';
 const FALLBACK = "Sorry, I couldn't reach the coach. Try again.";
 
 interface CoachPayload {

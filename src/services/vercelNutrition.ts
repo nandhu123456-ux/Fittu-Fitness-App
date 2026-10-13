@@ -1,25 +1,15 @@
 import { auth } from './firebase';
 import type { FoodResult } from './foodSearch';
 
-const VERCEL_URL = 'https://be-fit-nine.vercel.app/api/lookup-nutrition';
-
-interface VercelPayload {
-  food?: {
-    id: string;
-    name: string;
-    serving: string;
-    cal: number;
-    protein: number;
-    carbs: number;
-    fat: number;
-  } | null;
-}
+const VERCEL_URL = 'https://be-fit-api.nanda-dev.workers.dev/api/lookup-nutrition';
 
 export async function lookupViaVercel(query: string): Promise<FoodResult | null> {
   try {
     const user = auth.currentUser;
     if (!user) return null;
+
     const idToken = await user.getIdToken();
+
     const res = await fetch(VERCEL_URL, {
       method: 'POST',
       headers: {
@@ -28,9 +18,12 @@ export async function lookupViaVercel(query: string): Promise<FoodResult | null>
       },
       body: JSON.stringify({ query }),
     });
+
     if (!res.ok) return null;
-    const data = (await res.json()) as VercelPayload;
+
+    const data = await res.json();
     if (!data.food) return null;
+
     return {
       id: data.food.id,
       name: data.food.name,

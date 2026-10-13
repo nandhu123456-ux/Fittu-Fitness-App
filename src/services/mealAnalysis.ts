@@ -1,7 +1,7 @@
 import { auth } from './firebase';
 import type { FoodResult } from './foodSearch';
 
-const ANALYZE_URL = 'https://be-fit-nine.vercel.app/api/analyze-meal';
+const ANALYZE_URL = 'https://be-fit-api.nanda-dev.workers.dev/api/analyze-meal';
 
 interface AnalyzePayload {
   food?: {
