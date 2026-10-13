@@ -1,6 +1,13 @@
 import { addDoc, collection, getDocs, limit, orderBy, query, serverTimestamp, Timestamp } from 'firebase/firestore';
 
-import { db } from './firebase';
+import { auth, db } from './firebase';
+
+const COACH_URL = 'https://be-fit-nine.vercel.app/api/coach-chat';
+const FALLBACK = "Sorry, I couldn't reach the coach. Try again.";
+
+interface CoachPayload {
+  reply?: string | null;
+}
 
 export interface CoachMessage {
   id: string;
@@ -41,22 +48,34 @@ export async function getChatHistory(uid: string, cap = 50): Promise<CoachMessag
   }
 }
 
-const REPLIES = [
-  "I hear you. Let's keep going.",
-  'One step at a time. What did you eat today?',
-  'Consistency beats perfection. Log your next meal.',
-];
-
-let replyIndex = 0;
-
 /**
- * STUB — returns a rotating hardcoded reply. Will be replaced with the real Vercel AI
- * call later; keep this signature: (uid, userMessage) => Promise<string>.
+ * Real AI coach — fetches the last 6 messages as context, POSTs to the Vercel
+ * coach-chat function, and returns the reply string. Same signature as the old
+ * stub. Returns a friendly fallback on any failure.
  */
 export async function getAssistantReply(uid: string, userMessage: string): Promise<string> {
-  void uid;
-  void userMessage;
-  const reply = REPLIES[replyIndex % REPLIES.length] as string;
-  replyIndex += 1;
-  return reply;
+  try {
+    const history = await getChatHistory(uid, 6);
+    const mapped = [...history, { role: 'user' as const, content: userMessage }]
+      .slice(-6)
+      .map((message) => ({ role: message.role, content: message.content }));
+    const user = auth.currentUser;
+    if (!user) return FALLBACK;
+    const idToken = await user.getIdToken();
+    const res = await fetch(COACH_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${idToken}`,
+      },
+      body: JSON.stringify({ message: userMessage, history: mapped }),
+    });
+    if (!res.ok) return FALLBACK;
+    const data = (await res.json()) as CoachPayload;
+    if (!data.reply) return FALLBACK;
+    return data.reply;
+  } catch (e) {
+    console.error('[coachChat] error', e);
+    return FALLBACK;
+  }
 }
