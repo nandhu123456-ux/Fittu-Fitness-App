@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import * as ImagePicker from 'expo-image-picker';
+import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import { useState } from 'react';
 import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -20,7 +21,7 @@ type Navigation = BottomTabNavigationProp<RootTabParamList, 'PhotoLog'>;
 const pickerOptions: ImagePicker.ImagePickerOptions = {
   mediaTypes: 'images',
   quality: 0.4,
-  base64: true,
+  base64: false,
   allowsEditing: true,
   aspect: [4, 3],
   exif: false,
@@ -37,16 +38,22 @@ export default function PhotoLogScreen() {
   const [status, setStatus] = useState<'idle' | 'uploading' | 'analyzing' | 'done'>('idle');
 
   const analyze = async (asset: ImagePicker.ImagePickerAsset): Promise<void> => {
-    if (!asset.base64) {
-      Alert.alert('Could not identify food.', 'Try a clearer photo.');
-      setStatus('idle');
-      return;
-    }
     setImageUri(asset.uri);
     setFood(null);
-    setStatus('analyzing');
     try {
-      const result = await analyzeMealPhoto(asset.base64, asset.mimeType ?? 'image/jpeg');
+      const manipResult = await manipulateAsync(
+        asset.uri,
+        [{ resize: { width: 800 } }],
+        { compress: 0.5, format: SaveFormat.JPEG, base64: true },
+      );
+      if (!manipResult.base64) {
+        Alert.alert('Could not identify food.', 'Try a clearer photo.');
+        setStatus('idle');
+        return;
+      }
+      setImageUri(manipResult.uri);
+      setStatus('analyzing');
+      const result = await analyzeMealPhoto(manipResult.base64, 'image/jpeg');
       if (!result) {
         Alert.alert('Could not identify food.', 'Try a clearer photo.');
         setStatus('idle');
