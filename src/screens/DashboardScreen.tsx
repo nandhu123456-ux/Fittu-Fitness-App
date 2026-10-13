@@ -11,12 +11,12 @@ import { MoodPicker } from '../components/MoodPicker';
 import { PrimaryCTA } from '../components/PrimaryCTA';
 import { WeightCard } from '../components/WeightCard';
 import { WaterModal } from '../components/WaterModal';
-import { colors } from '../constants/colors';
 import { getTodaysTotals, type TodayTotals } from '../services/foodLogs';
 import { getTodayMood, setMood } from '../services/moodLogs';
 import { addWater, getTodaysWater } from '../services/waterLogs';
 import { getRecentWeights, type WeightEntry } from '../services/weightLogs';
 import { useAuthStore } from '../store/authStore';
+import { useTheme } from '../theme';
 import type { RootTabParamList } from '../types/navigation';
 import { calculateMomentum } from '../utils/momentum';
 import { predictGoalDate } from '../utils/predictWeight';
@@ -25,6 +25,7 @@ const emptyTotals: TodayTotals = { calories: 0, protein: 0, carbs: 0, fat: 0, pe
 type Navigation = BottomTabNavigationProp<RootTabParamList, 'Dashboard'>;
 
 export default function DashboardScreen() {
+  const theme = useTheme();
   const { user, profile } = useAuthStore();
   const navigation = useNavigation<Navigation>();
   const [totals, setTotals] = useState<TodayTotals>(emptyTotals);
@@ -58,17 +59,33 @@ export default function DashboardScreen() {
   const cta = useMemo(() => getCta(now.getHours(), totals.perMeal, calories, remaining), [calories, now, remaining, totals.perMeal]);
   const prediction = profile?.goal ? predictGoalDate({ currentKg: weights[0]?.weight ?? profile.profile?.weightKg ?? profile.goal.targetWeightKg, targetKg: profile.goal.targetWeightKg, history: weights }) : null;
 
-  return <ScrollView style={styles.screen} contentContainerStyle={styles.content} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => void refresh()} tintColor={colors.accent} />}>
-    <View style={styles.header}><TouchableOpacity><Ionicons name="menu-outline" size={28} color={colors.text} /></TouchableOpacity><View style={styles.headerText}><Text style={styles.date}>{now.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })} · {now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</Text><Text style={styles.greeting}>Good {now.getHours() < 12 ? 'morning' : now.getHours() < 18 ? 'afternoon' : 'evening'}, {profile?.displayName ?? 'there'}</Text></View>{profile?.streakDays ? <View style={styles.streak}><Ionicons name="flame" size={15} color={colors.warn} /><Text style={styles.streakText}>{profile.streakDays}</Text></View> : <View style={styles.avatar}><Text style={styles.avatarText}>{(profile?.displayName ?? 'B').slice(0, 1).toUpperCase()}</Text></View>}</View>
+  const themedStyles = useMemo(() => StyleSheet.create({
+    screen: { backgroundColor: theme.colors.bg },
+    date: { color: theme.colors.muted, fontSize: 13 },
+    greeting: { color: theme.colors.text, fontSize: 22, fontWeight: '600', letterSpacing: -0.3, marginTop: 3 },
+    streak: { alignItems: 'center', backgroundColor: theme.colors.surfaceHi, borderRadius: 16, flexDirection: 'row', gap: 4, paddingHorizontal: 10, paddingVertical: 6 },
+    streakText: { color: theme.colors.text, fontSize: 13, fontWeight: '700' },
+    avatar: { alignItems: 'center', backgroundColor: theme.colors.accentAlt, borderRadius: 18, height: 36, justifyContent: 'center', width: 36 },
+    avatarText: { color: theme.colors.bg, fontWeight: '700' },
+    card: { alignItems: 'center', backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 20, borderWidth: 1, padding: 20 },
+    summary: { color: theme.colors.muted, fontSize: 12, marginTop: 4 },
+    macros: { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 20, borderWidth: 1, flexDirection: 'row', paddingVertical: 16 },
+    settings: { borderTopColor: theme.colors.border, borderTopWidth: 1, paddingTop: 20 },
+    settingsText: { color: theme.colors.muted, fontSize: 13, textAlign: 'center', textDecorationLine: 'underline' },
+    moodOverlay: { backgroundColor: theme.colors.overlay, flex: 1, justifyContent: 'flex-end' },
+    moodModal: { backgroundColor: theme.colors.surfaceHi, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 28 },
+  }), [theme]);
+  return <ScrollView style={themedStyles.screen} contentContainerStyle={styles.content} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => void refresh()} tintColor={theme.colors.accent} />}>
+    <View style={styles.header}><TouchableOpacity><Ionicons name="menu-outline" size={28} color={theme.colors.text} /></TouchableOpacity><View style={styles.headerText}><Text style={themedStyles.date}>{now.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })} · {now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</Text><Text style={themedStyles.greeting}>Good {now.getHours() < 12 ? 'morning' : now.getHours() < 18 ? 'afternoon' : 'evening'}, {profile?.displayName ?? 'there'}</Text></View>{profile?.streakDays ? <View style={themedStyles.streak}><Ionicons name="flame" size={15} color={theme.colors.warn} /><Text style={themedStyles.streakText}>{profile.streakDays}</Text></View> : <View style={themedStyles.avatar}><Text style={themedStyles.avatarText}>{(profile?.displayName ?? 'B').slice(0, 1).toUpperCase()}</Text></View>}</View>
     <InsightCard />
-    <View style={styles.card}><MomentumRing score={momentum.score} label={momentum.label} /><Text style={styles.summary}>{totals.calories} eaten · {remaining} left · {calories} goal</Text></View>
-    <View style={styles.macros}><MacroRing label="Protein" current={totals.protein} target={targets?.protein ?? 0} color={colors.protein} unit="g" /><MacroRing label="Carbs" current={totals.carbs} target={targets?.carbs ?? 0} color={colors.carbs} unit="g" /><MacroRing label="Fat" current={totals.fat} target={targets?.fat ?? 0} color={colors.fat} unit="g" /><TouchableOpacity onPress={() => setWaterModalVisible(true)} style={styles.waterRing}><MacroRing label="Water" current={water} target={2500} color={colors.water} unit="L" /></TouchableOpacity></View>
+    <View style={themedStyles.card}><MomentumRing score={momentum.score} label={momentum.label} /><Text style={themedStyles.summary}>{totals.calories} eaten · {remaining} left · {calories} goal</Text></View>
+    <View style={themedStyles.macros}><MacroRing label="Protein" current={totals.protein} target={targets?.protein ?? 0} color={theme.colors.protein} unit="g" /><MacroRing label="Carbs" current={totals.carbs} target={targets?.carbs ?? 0} color={theme.colors.carbs} unit="g" /><MacroRing label="Fat" current={totals.fat} target={targets?.fat ?? 0} color={theme.colors.fat} unit="g" /><TouchableOpacity onPress={() => setWaterModalVisible(true)} style={styles.waterRing}><MacroRing label="Water" current={water} target={2500} color={theme.colors.water} unit="L" /></TouchableOpacity></View>
     <PrimaryCTA {...cta} onPress={() => navigation.navigate('Log', cta.mealType ? { mealType: cta.mealType } : undefined)} />
     <WeightCard entries={weights} goal={goal} targetKg={profile?.goal?.targetWeightKg ?? 0} prediction={prediction} />
     <MoodPicker value={mood} onOpen={() => setMoodModalVisible(true)} onSave={async (value) => { if (!user) return; setMoodValue(value); await setMood(user.uid, value); }} />
-    <TouchableOpacity style={styles.settings} onPress={() => navigation.navigate('Settings')}><Text style={styles.settingsText}>Settings</Text></TouchableOpacity>
+    <TouchableOpacity style={themedStyles.settings} onPress={() => navigation.navigate('Settings')}><Text style={themedStyles.settingsText}>Settings</Text></TouchableOpacity>
     <WaterModal visible={waterModalVisible} onClose={() => setWaterModalVisible(false)} onAdd={async (ml) => { if (!user) return; await addWater(user.uid, ml); setWater((current) => current + ml); }} />
-    <Modal visible={moodModalVisible} transparent animationType="fade" onRequestClose={() => setMoodModalVisible(false)}><View style={styles.moodOverlay}><View style={styles.moodModal}><MoodPicker value={mood} onSave={async (value) => { if (!user) return; setMoodValue(value); await setMood(user.uid, value); setMoodModalVisible(false); }} /></View></View></Modal>
+    <Modal visible={moodModalVisible} transparent animationType="fade" onRequestClose={() => setMoodModalVisible(false)}><View style={themedStyles.moodOverlay}><View style={themedStyles.moodModal}><MoodPicker value={mood} onSave={async (value) => { if (!user) return; setMoodValue(value); await setMood(user.uid, value); setMoodModalVisible(false); }} /></View></View></Modal>
   </ScrollView>;
 }
 
@@ -81,5 +98,5 @@ function getCta(hour: number, perMeal: TodayTotals['perMeal'], target: number, r
 }
 
 const styles = StyleSheet.create({
-  screen: { backgroundColor: colors.bg }, content: { gap: 16, padding: 20, paddingBottom: 36 }, header: { alignItems: 'center', flexDirection: 'row', marginBottom: 12 }, headerText: { flex: 1, marginLeft: 12 }, date: { color: colors.muted, fontSize: 13 }, greeting: { color: colors.text, fontSize: 22, fontWeight: '600', letterSpacing: -0.3, marginTop: 3 }, streak: { alignItems: 'center', backgroundColor: colors.surfaceHi, borderRadius: 16, flexDirection: 'row', gap: 4, paddingHorizontal: 10, paddingVertical: 6 }, streakText: { color: colors.text, fontSize: 13, fontWeight: '700' }, avatar: { alignItems: 'center', backgroundColor: colors.accentAlt, borderRadius: 18, height: 36, justifyContent: 'center', width: 36 }, avatarText: { color: colors.bg, fontWeight: '700' }, card: { alignItems: 'center', backgroundColor: colors.surface, borderColor: colors.border, borderRadius: 20, borderWidth: 1, padding: 20 }, summary: { color: colors.muted, fontSize: 12, marginTop: 4 }, macros: { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: 20, borderWidth: 1, flexDirection: 'row', paddingVertical: 16 }, waterRing: { flex: 1 }, settings: { borderTopColor: 'rgba(255,255,255,0.04)', borderTopWidth: 1, paddingTop: 20 }, settingsText: { color: colors.muted, fontSize: 13, textAlign: 'center', textDecorationLine: 'underline' }, moodOverlay: { backgroundColor: 'rgba(0,0,0,0.68)', flex: 1, justifyContent: 'flex-end' }, moodModal: { backgroundColor: colors.surfaceHi, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 28 },
+  content: { gap: 16, padding: 20, paddingBottom: 36 }, header: { alignItems: 'center', flexDirection: 'row', marginBottom: 12 }, headerText: { flex: 1, marginLeft: 12 }, waterRing: { flex: 1 },
 });
