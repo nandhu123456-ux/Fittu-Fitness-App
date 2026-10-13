@@ -10,7 +10,7 @@ export function InsightCard() {
   const theme = useTheme();
   const message = insights[new Date().getDay() % insights.length];
   const themedStyles = useMemo(() => StyleSheet.create({
-    card: { alignItems: 'center', backgroundColor: theme.colors.surface, borderColor: 'rgba(46,229,157,0.15)', borderRadius: 20, borderWidth: 1, flexDirection: 'row', padding: 20 },
+    card: { alignItems: 'center', backgroundColor: theme.colors.surface, borderColor: theme.colors.accentGlow, borderRadius: 20, borderWidth: 1, flexDirection: 'row', padding: 20 },
     text: { color: theme.colors.text, fontSize: 14, fontWeight: '500', lineHeight: 20 },
     tag: { alignSelf: 'flex-end', color: theme.colors.muted, fontSize: 10, marginTop: 8 },
   }), [theme]);

@@ -26,6 +26,7 @@ export interface ThemeColors {
   accent: string;
   accentAlt: string;
   accentText: string;
+  accentGlow: string;
   success: string;
   warn: string;
   danger: string;
@@ -83,6 +84,7 @@ export const darkColors: ThemeColors = {
   accent:           '#2EE59D',
   accentAlt:        '#4CAF50',
   accentText:       '#0A0A0F',
+  accentGlow:       'rgba(46,229,157,0.15)',
   success:          '#2EE59D',
   warn:             '#FFD93D',
   danger:           '#FF6B6B',
@@ -111,6 +113,7 @@ export const lightColors: ThemeColors = {
   accent:           '#008A47',
   accentAlt:        '#00703A',
   accentText:       '#FFFFFF',
+  accentGlow:       'rgba(0,138,71,0.12)',
   success:          '#008A47',
   warn:             '#8B6914',
   danger:           '#C62828',
