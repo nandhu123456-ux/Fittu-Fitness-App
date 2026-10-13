@@ -8,10 +8,9 @@ const JWKS = createRemoteJWKSet(
 const FIRESTORE_PROJECT = process.env.FIREBASE_PROJECT_ID;
 const FIRESTORE_BASE = `https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT}/databases/(default)/documents`;
 const GEMINI_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`;
-
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${GEMINI_KEY}`;
 async function verifyFirebaseToken(idToken: string): Promise<string> {
-  const { payload } = await jwtVerify(idToken, JWKS, {
+const { payload } = await jwtVerify(idToken, JWKS, {
     issuer: `https://securetoken.google.com/${FIRESTORE_PROJECT}`,
     audience: FIRESTORE_PROJECT,
   });
