@@ -1,0 +1,10 @@
+name = "be-fit-api"
+main = "src/index.ts"
+compatibility_date = "2026-10-13"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+FIREBASE_PROJECT_ID = "be-fit-9ee5a"
+
+[observability]
+enabled = true
