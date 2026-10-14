@@ -33,11 +33,24 @@ export async function addFoodLog(uid: string, input: { mealType: MealType; food:
   // Non-critical: recompute the streak after the write. Fire-and-forget — a
   // streak failure must never break (or delay) the food log write.
   refreshStreak(uid).catch(() => {});
+  // Non-critical: record this food in the user's recents for fast re-logging.
+  import('./recentFoods')
+    .then(({ recordRecentFood }) => recordRecentFood(uid, food))
+    .catch(() => {});
 }
 
 export async function getTodayEntries(uid: string): Promise<FoodLogEntry[]> {
   try {
     const snapshots = await getDocs(query(collection(db, 'foodLogs', uid, 'entries'), where('date', '==', today())));
+    return snapshots.docs.map((snapshot) => ({ id: snapshot.id, ...snapshot.data() } as FoodLogEntry));
+  } catch {
+    return [];
+  }
+}
+
+export async function getEntriesForDate(uid: string, date: string): Promise<FoodLogEntry[]> {
+  try {
+    const snapshots = await getDocs(query(collection(db, 'foodLogs', uid, 'entries'), where('date', '==', date)));
     return snapshots.docs.map((snapshot) => ({ id: snapshot.id, ...snapshot.data() } as FoodLogEntry));
   } catch {
     return [];
