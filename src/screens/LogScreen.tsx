@@ -133,6 +133,7 @@ export default function LogScreen() {
     chipTextActive: { color: theme.colors.bg },
     sectionLabel: { color: theme.colors.muted, fontSize: 11, fontWeight: '700', letterSpacing: 1.2, marginBottom: 10 },
     primaryRow: { flexDirection: 'row', gap: 10 },
+    secondaryRow: { flexDirection: 'row', gap: 10 },
     primary: { alignItems: 'center', backgroundColor: theme.colors.surfaceHi, borderColor: theme.colors.border, borderRadius: 16, borderWidth: 1, gap: 6, height: 72, justifyContent: 'center' },
     primaryVoice: { backgroundColor: theme.colors.accent, borderColor: theme.colors.accent, flex: 2 },
     primaryHalf: { flex: 1 },
@@ -185,13 +186,19 @@ export default function LogScreen() {
             <Ionicons color={theme.colors.bg} name="mic" size={26} />
             <Text style={themedStyles.primaryTextVoice}>Voice</Text>
           </Pressable>
+        </View>
+        <View style={themedStyles.secondaryRow}>
           <Pressable onPress={() => navigation.navigate('PhotoLog', { mealType })} style={[themedStyles.primary, themedStyles.primaryHalf]}>
-            <Ionicons color={theme.colors.accent} name="camera-outline" size={24} />
+            <Ionicons color={theme.colors.accent} name="camera-outline" size={22} />
             <Text style={themedStyles.primaryText}>Photo</Text>
           </Pressable>
           <Pressable onPress={() => navigation.navigate('Barcode', { mealType })} style={[themedStyles.primary, themedStyles.primaryHalf]}>
-            <Ionicons color={theme.colors.accent} name="barcode-outline" size={24} />
+            <Ionicons color={theme.colors.accent} name="barcode-outline" size={22} />
             <Text style={themedStyles.primaryText}>Barcode</Text>
+          </Pressable>
+          <Pressable onPress={() => navigation.navigate('MenuScan', { mealType })} style={[themedStyles.primary, themedStyles.primaryHalf]}>
+            <Ionicons color={theme.colors.accent} name="restaurant-outline" size={22} />
+            <Text style={themedStyles.primaryText}>Menu</Text>
           </Pressable>
         </View>
 

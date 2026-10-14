@@ -3,6 +3,7 @@ import { handleAnalyzeMeal } from './analyze-meal';
 import { handleCoachChat } from './coach-chat';
 import { handleLookupNutrition } from './lookup-nutrition';
 import { handleParseVoice } from './parse-voice';
+import { handleMenuScan } from './menu-scan';
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -28,6 +29,7 @@ export default {
     if (url.pathname === '/api/coach-chat') return handleCoachChat(request, env);
     if (url.pathname === '/api/lookup-nutrition') return handleLookupNutrition(request, env);
     if (url.pathname === '/api/parse-voice') return handleParseVoice(request, env);
+    if (url.pathname === '/api/menu-scan') return handleMenuScan(request, env);
 
     return errorResponse('Not found', 404);
   },

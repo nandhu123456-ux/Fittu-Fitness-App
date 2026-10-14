@@ -7,6 +7,7 @@ export type RootTabParamList = {
   PhotoLog: { mealType?: MealType } | undefined;
   VoiceLog: { mealType?: MealType } | undefined;
   AddCustomFood: { prefillQuery?: string; mealType?: MealType } | undefined;
+  MenuScan: { mealType?: MealType } | undefined;
   Settings: undefined;
   Progress: undefined;
   Coach: undefined;
