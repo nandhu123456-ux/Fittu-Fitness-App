@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import type { FoodResult } from '../services/foodSearch';
 import { useTheme } from '../theme';
@@ -82,7 +82,8 @@ export function PortionModal({ visible, food, onClose, onConfirm }: Props) {
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable onPress={onClose} style={themedStyles.overlay}>
-        <Pressable onPress={(event) => event.stopPropagation()} style={themedStyles.card}>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ justifyContent: 'flex-end' }}>
+          <Pressable onPress={(event) => event.stopPropagation()} style={themedStyles.card}>
           <Text style={themedStyles.title}>{food.name}</Text>
           <Text style={themedStyles.calories}>{Math.round(perCal * amount)} kcal</Text>
           <Text style={themedStyles.macros}>P {Math.round(perProtein * amount)}g · C {Math.round(perCarbs * amount)}g · F {Math.round(perFat * amount)}g</Text>
@@ -127,7 +128,8 @@ export function PortionModal({ visible, food, onClose, onConfirm }: Props) {
             <Pressable onPress={onClose} style={themedStyles.cancel}><Text style={themedStyles.cancelText}>Cancel</Text></Pressable>
             <Pressable disabled={amount <= 0} onPress={handleConfirm} style={themedStyles.confirm}><Text style={themedStyles.confirmText}>Add to log</Text></Pressable>
           </View>
-        </Pressable>
+          </Pressable>
+        </KeyboardAvoidingView>
       </Pressable>
     </Modal>
   );

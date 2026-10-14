@@ -1,6 +1,6 @@
 import { type NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { signIn } from '../../services/auth';
 import { useTheme } from '../../theme';
@@ -42,7 +42,7 @@ export default function SignInScreen({ navigation }: Props) {
     link: { color: theme.colors.accentAlt, textAlign: 'center', fontSize: 14 },
   }), [theme]);
   return (
-    <View style={themedStyles.container}>
+    <KeyboardAvoidingView style={themedStyles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <Text style={themedStyles.heading}>Sign In</Text>
       <TextInput
         style={themedStyles.input}
@@ -72,7 +72,7 @@ export default function SignInScreen({ navigation }: Props) {
       <Pressable onPress={() => navigation.navigate('SignUp')}>
         <Text style={themedStyles.link}>No account? Sign up</Text>
       </Pressable>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 

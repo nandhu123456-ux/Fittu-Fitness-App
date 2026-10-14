@@ -3,7 +3,7 @@ import { type BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
 import { useMemo, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { addCustomFood } from '../services/customFoods';
 import type { MealType } from '../services/foodLogs';
@@ -85,7 +85,7 @@ export default function AddCustomFoodScreen() {
   }), [theme]);
 
   return (
-    <View style={themedStyles.screen}>
+    <KeyboardAvoidingView style={themedStyles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <View style={themedStyles.headerRow}>
         <Pressable hitSlop={12} onPress={() => navigation.goBack()}>
           <Ionicons color={theme.colors.text} name="chevron-back" size={26} />
@@ -167,7 +167,7 @@ export default function AddCustomFoodScreen() {
           <Text style={themedStyles.saveText}>{saving ? 'Saving…' : 'Save food'}</Text>
         </Pressable>
       </ScrollView>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 

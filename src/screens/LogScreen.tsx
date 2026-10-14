@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
@@ -204,8 +204,8 @@ export default function LogScreen() {
   }), [theme]);
 
   return (
-    <View style={themedStyles.screen}>
-      <ScrollView contentContainerStyle={themedStyles.content}>
+    <KeyboardAvoidingView style={themedStyles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <ScrollView contentContainerStyle={themedStyles.content} keyboardShouldPersistTaps="handled">
         <View>
           <Text style={themedStyles.headerTitle}>Log {mealType}</Text>
           <Text style={themedStyles.headerSub}>{eaten} / {target || '—'} kcal today</Text>
@@ -348,7 +348,7 @@ export default function LogScreen() {
           <ActivityIndicator color={theme.colors.accent} size="large" />
         </View>
       )}
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 

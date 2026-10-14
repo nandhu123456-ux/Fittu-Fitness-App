@@ -1,6 +1,6 @@
 import { type NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { useOnboardingStore } from '../../store/onboardingStore';
 import { useTheme } from '../../theme';
@@ -66,7 +66,7 @@ export default function GoalScreen({ navigation }: Props) {
     buttonText: { color: theme.colors.accentText, fontSize: 16, fontWeight: '600' },
   }), [theme]);
   return (
-    <View style={themedStyles.container}>
+    <KeyboardAvoidingView style={themedStyles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <Text style={themedStyles.heading}>What's your goal?</Text>
       {OPTIONS.map((option) => (
         <Pressable
@@ -101,7 +101,7 @@ export default function GoalScreen({ navigation }: Props) {
       <Pressable style={themedStyles.button} onPress={handleContinue}>
         <Text style={themedStyles.buttonText}>Continue</Text>
       </Pressable>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 

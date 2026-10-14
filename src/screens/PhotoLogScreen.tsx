@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
@@ -177,8 +177,8 @@ export default function PhotoLogScreen() {
 
 
   return (
-    <View style={themedStyles.screen}>
-      <ScrollView contentContainerStyle={themedStyles.content}>
+    <KeyboardAvoidingView style={themedStyles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <ScrollView contentContainerStyle={themedStyles.content} keyboardShouldPersistTaps="handled">
         {(status === 'idle' || status === 'uploading') && (
           <>
             <View>
@@ -282,7 +282,7 @@ export default function PhotoLogScreen() {
           </Pressable>
         </View>
       )}
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
