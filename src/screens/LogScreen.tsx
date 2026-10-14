@@ -10,6 +10,7 @@ import { addFoodLog, getEntriesForDate, type FoodLogEntry } from '../services/fo
 import { searchFood, type FoodResult } from '../services/foodSearch';
 import { getRecentFoods, type RecentFood } from '../services/recentFoods';
 import { recordCorrection } from '../services/foodCorrections';
+import { estimateNutritionFromName } from '../services/estimateNutrition';
 import { getTodaysTotals, type MealType } from '../services/foodLogs';
 import { shiftDate, todayLocalISO } from '../utils/streak';
 import { useAuthStore } from '../store/authStore';
@@ -20,6 +21,7 @@ type LogRoute = RouteProp<RootTabParamList, 'Log'>;
 type Navigation = BottomTabNavigationProp<RootTabParamList, 'Log'>;
 
 const MEALS: MealType[] = ['breakfast', 'lunch', 'dinner', 'snack'];
+const POPULAR = ['Roti', 'Dal', 'Rice', 'Idli', 'Dosa', 'Poha', 'Upma', 'Curd'];
 
 function inferMealType(hour: number): MealType {
   if (hour < 11) return 'breakfast';
@@ -61,6 +63,9 @@ export default function LogScreen() {
   const [recents, setRecents] = useState<RecentFood[]>([]);
   const [eaten, setEaten] = useState(0);
   const [yesterday, setYesterday] = useState<{ count: number; cal: number } | null>(null);
+  const [aiOpen, setAiOpen] = useState(false);
+  const [aiQuery, setAiQuery] = useState('');
+  const [aiLoading, setAiLoading] = useState(false);
 
   // Recents, today's totals, and yesterday's summary on mount.
   useEffect(() => {
@@ -103,6 +108,29 @@ export default function LogScreen() {
     setSelected(food);
   };
 
+  // Popular chips: resolve via local search, open the portion modal on the top hit.
+  const onPickPopular = async (name: string): Promise<void> => {
+    const results = await searchFood(name, uid);
+    if (results.length) setSelected(results[0]);
+    else setError(`Couldn't find ${name}.`);
+  };
+
+  // AI estimate from a typed name only.
+  const runEstimate = async (): Promise<void> => {
+    const q = aiQuery.trim();
+    if (q.length < 2) { setError('Type a food name first.'); return; }
+    setAiLoading(true); setError(null);
+    try {
+      const est = await estimateNutritionFromName(q);
+      if (est) { setSelected(est); setAiOpen(false); setAiQuery(''); }
+      else setError('Could not estimate that. Try a clearer name.');
+    } catch {
+      setError('Could not estimate that. Try again.');
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
   const onTapRecent = (food: RecentFood): void => {
     void commit({ id: food.id, name: food.name, source: food.source, serving: food.serving, cal: food.cal, protein: food.protein, carbs: food.carbs, fat: food.fat }, 1);
   };
@@ -132,6 +160,15 @@ export default function LogScreen() {
     chipText: { color: theme.colors.text, fontSize: 13, fontWeight: '600', textTransform: 'capitalize' },
     chipTextActive: { color: theme.colors.bg },
     sectionLabel: { color: theme.colors.muted, fontSize: 11, fontWeight: '700', letterSpacing: 1.2, marginBottom: 10 },
+    popularRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+    popularChip: { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 12, borderWidth: 1, paddingHorizontal: 14, paddingVertical: 8 },
+    popularText: { color: theme.colors.text, fontSize: 13, fontWeight: '600' },
+    aiBtn: { alignItems: 'center', borderColor: theme.colors.accent, borderRadius: 12, borderWidth: 1, flexDirection: 'row', gap: 8, justifyContent: 'center', padding: 14 },
+    aiBtnText: { color: theme.colors.accent, fontSize: 14, fontWeight: '600' },
+    aiRow: { flexDirection: 'row', gap: 8 },
+    aiInput: { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 12, borderWidth: 1, color: theme.colors.text, flex: 1, fontSize: 14, paddingHorizontal: 12, paddingVertical: 10 },
+    aiGo: { alignItems: 'center', backgroundColor: theme.colors.accent, borderRadius: 12, justifyContent: 'center', paddingHorizontal: 16 },
+    aiGoText: { color: theme.colors.bg, fontWeight: '700' },
     primaryRow: { flexDirection: 'row', gap: 10 },
     secondaryRow: { flexDirection: 'row', gap: 10 },
     primary: { alignItems: 'center', backgroundColor: theme.colors.surfaceHi, borderColor: theme.colors.border, borderRadius: 16, borderWidth: 1, gap: 6, height: 72, justifyContent: 'center' },
@@ -202,6 +239,41 @@ export default function LogScreen() {
           </Pressable>
         </View>
 
+        {recents.length === 0 && !searchOpen && (
+          <View>
+            <Text style={themedStyles.sectionLabel}>POPULAR INDIAN DISHES</Text>
+            <View style={themedStyles.popularRow}>
+              {POPULAR.map((name) => (
+                <Pressable key={name} onPress={() => void onPickPopular(name)} style={themedStyles.popularChip}>
+                  <Text style={themedStyles.popularText}>{name}</Text>
+                </Pressable>
+              ))}
+            </View>
+            {aiOpen ? (
+              <View style={[themedStyles.aiRow, { marginTop: 12 }]}>
+                <TextInput
+                  autoFocus
+                  onChangeText={setAiQuery}
+                  onSubmitEditing={() => void runEstimate()}
+                  placeholder="Type any food name…"
+                  placeholderTextColor={theme.colors.muted}
+                  returnKeyType="search"
+                  style={themedStyles.aiInput}
+                  value={aiQuery}
+                />
+                <Pressable disabled={aiLoading} onPress={() => void runEstimate()} style={themedStyles.aiGo}>
+                  {aiLoading ? <ActivityIndicator color={theme.colors.bg} /> : <Text style={themedStyles.aiGoText}>Estimate</Text>}
+                </Pressable>
+              </View>
+            ) : (
+              <Pressable onPress={() => setAiOpen(true)} style={[themedStyles.aiBtn, { marginTop: 12 }]}>
+                <Ionicons color={theme.colors.accent} name="sparkles-outline" size={18} />
+                <Text style={themedStyles.aiBtnText}>Try AI estimate for any food</Text>
+              </Pressable>
+            )}
+          </View>
+        )}
+
         {recents.length > 0 && (
           <View>
             <Text style={themedStyles.sectionLabel}>RECENT</Text>
@@ -270,7 +342,7 @@ export default function LogScreen() {
         </Pressable>
       </ScrollView>
 
-      <PortionModal visible={selected !== null} food={selected} onClose={() => setSelected(null)} onConfirm={(servings) => { if (selected) void commit(selected, servings); }} />
+      <PortionModal visible={selected !== null} food={selected} onClose={() => setSelected(null)} onConfirm={(servings, edited) => { if (selected) void commit(edited ?? selected, servings); }} />
       {saving && (
         <View style={[StyleSheet.absoluteFill, themedStyles.center, { backgroundColor: theme.colors.overlay }]}>
           <ActivityIndicator color={theme.colors.accent} size="large" />

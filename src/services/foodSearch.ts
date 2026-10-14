@@ -6,6 +6,7 @@ import indianDishes from '../../assets/data/indianDishes.json';
 import { db } from './firebase';
 import { getCustomFoods } from './customFoods';
 import { getCorrections } from './foodCorrections';
+import { estimateNutritionFromName } from './estimateNutrition';
 import { lookupViaVercel } from './vercelNutrition';
 
 export interface FoodResult {
@@ -200,6 +201,9 @@ export async function searchFood(queryText: string, uid?: string): Promise<FoodR
       const customHits = customs.filter((food) => normalise(food.name).includes(needle));
       if (customHits.length) return customHits;
     }
+    // Last resort: AI estimate from the name alone (Indian dishes not in USDA/OFF).
+    const aiEstimate = await estimateNutritionFromName(queryText);
+    if (aiEstimate) return [aiEstimate];
     return [];
   } catch {
     return [];
