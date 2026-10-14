@@ -122,7 +122,11 @@ const textResponse = parts
   .map((p: any) => p.text)
   .join('')
   .trim();
-    if (!textResponse) return errorResponse('Gemini returned no content', 502);
+    if (!textResponse) {
+      console.error('[gemini] empty text. finishReason:', geminiData?.candidates?.[0]?.finishReason);
+      console.error('[gemini] parts:', JSON.stringify(geminiData?.candidates?.[0]?.content?.parts));
+      return errorResponse('Gemini returned no content', 502);
+    }
 
     return jsonResponse({ reply: textResponse });
   } catch (error: any) {
