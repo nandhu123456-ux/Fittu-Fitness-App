@@ -1,7 +1,7 @@
 import {
   Env,
   verifyFirebaseToken,
-  fetchWithRetry,
+  callGeminiWithFallback,
   jsonResponse,
   errorResponse,
   extractAuthHeader,
@@ -110,20 +110,16 @@ Response style:
     }
     contents.push({ role: 'user', parts: [{ text: message }] });
 
-const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${env.GEMINI_API_KEY}`;
-    const geminiRes = await fetchWithRetry(geminiUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: systemPrompt }] },
-        contents,
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 1500,
-          thinkingConfig: { thinkingLevel: 'minimal' },
-        },
-      }),
+    const { res: geminiRes, model: usedModel } = await callGeminiWithFallback(env, {
+      systemInstruction: { parts: [{ text: systemPrompt }] },
+      contents,
+      generationConfig: {
+        temperature: 0.7,
+        maxOutputTokens: 1500,
+        thinkingConfig: { thinkingLevel: 'minimal' },
+      },
     });
+    console.log('[gemini] using model:', usedModel);
 
     if (!geminiRes.ok) {
       const errText = await geminiRes.text();

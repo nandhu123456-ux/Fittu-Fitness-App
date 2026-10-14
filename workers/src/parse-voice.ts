@@ -1,7 +1,7 @@
 import {
   Env,
   verifyFirebaseToken,
-  fetchWithRetry,
+  callGeminiWithFallback,
   jsonResponse,
   errorResponse,
   extractAuthHeader,
@@ -40,40 +40,36 @@ export async function handleParseVoice(request: Request, env: Env): Promise<Resp
       return errorResponse('Audio too large', 413);
     }
 
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${env.GEMINI_API_KEY}`;
-    const geminiRes = await fetchWithRetry(geminiUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              { text: PROMPT },
-              { inline_data: { mime_type: mimeType, data: audioBase64 } },
-            ],
-          },
-        ],
-        generationConfig: {
-          temperature: 0.2,
-          maxOutputTokens: 2000,
-          responseMimeType: 'application/json',
-          responseSchema: {
-            type: 'object',
-            properties: {
-              name: { type: 'string', nullable: true },
-              serving: { type: 'string' },
-              cal: { type: 'number' },
-              protein: { type: 'number' },
-              carbs: { type: 'number' },
-              fat: { type: 'number' },
-              confidence: { type: 'string', enum: ['high', 'medium', 'low'] },
-            },
-            required: ['name', 'serving', 'cal', 'protein', 'carbs', 'fat', 'confidence'],
-          },
-          thinkingConfig: { thinkingLevel: 'minimal' },
+    const { res: geminiRes, model: usedModel } = await callGeminiWithFallback(env, {
+      contents: [
+        {
+          parts: [
+            { text: PROMPT },
+            { inline_data: { mime_type: mimeType, data: audioBase64 } },
+          ],
         },
-      }),
+      ],
+      generationConfig: {
+        temperature: 0.2,
+        maxOutputTokens: 2000,
+        responseMimeType: 'application/json',
+        responseSchema: {
+          type: 'object',
+          properties: {
+            name: { type: 'string', nullable: true },
+            serving: { type: 'string' },
+            cal: { type: 'number' },
+            protein: { type: 'number' },
+            carbs: { type: 'number' },
+            fat: { type: 'number' },
+            confidence: { type: 'string', enum: ['high', 'medium', 'low'] },
+          },
+          required: ['name', 'serving', 'cal', 'protein', 'carbs', 'fat', 'confidence'],
+        },
+        thinkingConfig: { thinkingLevel: 'minimal' },
+      },
     });
+    console.log('[gemini] using model:', usedModel);
 
     if (!geminiRes.ok) {
       const errText = await geminiRes.text();

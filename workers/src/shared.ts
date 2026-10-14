@@ -38,6 +38,62 @@ export async function fetchWithRetry(
   throw new Error('Max retries exceeded');
 }
 
+const MODEL_CHAIN = [
+  'gemini-3.6-flash',
+  'gemini-3.5-flash',
+  'gemini-3.7-flash',
+  'gemini-flash-latest',
+];
+
+/**
+ * Calls Gemini, falling back across a model chain when a model is overloaded
+ * (503) or rate-limited (429). Each model is attempted up to 2 times with a
+ * short backoff before moving to the next. Non-transient errors (400/401/etc.)
+ * return immediately so we don't mask real problems.
+ */
+export async function callGeminiWithFallback(
+  env: Env,
+  body: object
+): Promise<{ res: Response; model: string }> {
+  let lastError = 'no model attempted';
+
+  for (const model of MODEL_CHAIN) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${env.GEMINI_API_KEY}`;
+
+    // Up to 2 attempts per model: 1s then 2s backoff between them.
+    for (let attempt = 0; attempt < 2; attempt++) {
+      if (attempt > 0) await new Promise((r) => setTimeout(r, 1000 * attempt));
+      try {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+
+        if (res.ok) return { res, model };
+
+        // Only fall through on transient 503/429; otherwise surface the error.
+        if (res.status !== 503 && res.status !== 429) return { res, model };
+
+        lastError = `${model}: ${res.status}`;
+        console.warn(`[gemini-fallback] ${model} returned ${res.status} (attempt ${attempt + 1})`);
+      } catch (e) {
+        lastError = `${model}: ${e instanceof Error ? e.message : String(e)}`;
+        console.warn(`[gemini-fallback] ${model} threw (attempt ${attempt + 1})`, lastError);
+      }
+    }
+  }
+
+  // All models exhausted — synthetic 503.
+  return {
+    res: new Response(
+      JSON.stringify({ error: 'All Gemini models overloaded', detail: lastError }),
+      { status: 503, headers: { 'Content-Type': 'application/json' } }
+    ),
+    model: 'none',
+  };
+}
+
 export function jsonResponse(data: unknown, status = 200): Response {
   return new Response(JSON.stringify(data), {
     status,

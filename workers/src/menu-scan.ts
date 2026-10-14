@@ -1,7 +1,7 @@
 import {
   Env,
   verifyFirebaseToken,
-  fetchWithRetry,
+  callGeminiWithFallback,
   jsonResponse,
   errorResponse,
   extractAuthHeader,
@@ -51,17 +51,13 @@ export async function handleMenuScan(request: Request, env: Env): Promise<Respon
 
     const contextPrompt = `${PROMPT}\n\nUser context: ${remainingCal ?? 'unknown'} kcal remaining, target ${targetProtein ?? 'unknown'}g protein.`;
 
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${env.GEMINI_API_KEY}`;
-    const geminiRes = await fetchWithRetry(geminiUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{
-          parts: [
-            { text: contextPrompt },
-            { inline_data: { mime_type: mimeType, data: imageBase64 } },
-          ],
-        }],
+    const { res: geminiRes, model: usedModel } = await callGeminiWithFallback(env, {
+      contents: [{
+        parts: [
+          { text: contextPrompt },
+          { inline_data: { mime_type: mimeType, data: imageBase64 } },
+        ],
+      }],
         generationConfig: {
           temperature: 0.3,
           maxOutputTokens: 3000,
@@ -92,8 +88,8 @@ export async function handleMenuScan(request: Request, env: Env): Promise<Respon
           },
           thinkingConfig: { thinkingLevel: 'minimal' },
         },
-      }),
     });
+    console.log('[gemini] using model:', usedModel);
 
     if (!geminiRes.ok) {
       const errText = await geminiRes.text();
