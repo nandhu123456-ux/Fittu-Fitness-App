@@ -51,7 +51,6 @@ export async function handleEstimateNutrition(request: Request, env: Env): Promi
           },
           required: ['name', 'serving', 'cal', 'protein', 'carbs', 'fat'],
         },
-        thinkingConfig: { thinkingLevel: 'minimal' },
       },
     });
     console.log('[gemini] using model:', usedModel);

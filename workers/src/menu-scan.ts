@@ -86,8 +86,10 @@ export async function handleMenuScan(request: Request, env: Env): Promise<Respon
             },
             required: ['menu_type', 'items'],
           },
-          thinkingConfig: { thinkingLevel: 'minimal' },
         },
+        // Note: thinkingConfig intentionally omitted — Gemini 3.7 Flash rejects
+        // thinkingLevel: 'minimal' (see CLINE_CONTEXT.md, Fix 1).
+
     });
     console.log('[gemini] using model:', usedModel);
 

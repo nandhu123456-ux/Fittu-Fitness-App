@@ -116,7 +116,6 @@ Response style:
       generationConfig: {
         temperature: 0.7,
         maxOutputTokens: 1500,
-        thinkingConfig: { thinkingLevel: 'minimal' },
       },
     });
     console.log('[gemini] using model:', usedModel);

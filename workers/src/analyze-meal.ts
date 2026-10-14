@@ -77,7 +77,6 @@ export async function handleAnalyzeMeal(request: Request, env: Env): Promise<Res
         thinkingConfig: { thinkingLevel: 'minimal' },
       },
     });
-    console.log('[gemini] using model:', usedModel);
 
     if (!geminiRes.ok) {
       const errText = await geminiRes.text();

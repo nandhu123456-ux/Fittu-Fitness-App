@@ -66,7 +66,6 @@ export async function handleParseVoice(request: Request, env: Env): Promise<Resp
           },
           required: ['name', 'serving', 'cal', 'protein', 'carbs', 'fat', 'confidence'],
         },
-        thinkingConfig: { thinkingLevel: 'minimal' },
       },
     });
     console.log('[gemini] using model:', usedModel);

@@ -76,7 +76,8 @@ export async function callGeminiWithFallback(
         if (res.status !== 503 && res.status !== 429) return { res, model };
 
         lastError = `${model}: ${res.status}`;
-        console.warn(`[gemini-fallback] ${model} returned ${res.status} (attempt ${attempt + 1})`);
+        const errBody = await res.clone().text();
+        console.warn(`[gemini-fallback] ${model} returned ${res.status}: ${errBody.slice(0, 200)}`);
       } catch (e) {
         lastError = `${model}: ${e instanceof Error ? e.message : String(e)}`;
         console.warn(`[gemini-fallback] ${model} threw (attempt ${attempt + 1})`, lastError);
