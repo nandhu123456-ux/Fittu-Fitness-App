@@ -2,6 +2,7 @@ import { Env, jsonResponse, errorResponse } from './shared';
 import { handleAnalyzeMeal } from './analyze-meal';
 import { handleCoachChat } from './coach-chat';
 import { handleLookupNutrition } from './lookup-nutrition';
+import { handleParseVoice } from './parse-voice';
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -26,6 +27,7 @@ export default {
     if (url.pathname === '/api/analyze-meal') return handleAnalyzeMeal(request, env);
     if (url.pathname === '/api/coach-chat') return handleCoachChat(request, env);
     if (url.pathname === '/api/lookup-nutrition') return handleLookupNutrition(request, env);
+    if (url.pathname === '/api/parse-voice') return handleParseVoice(request, env);
 
     return errorResponse('Not found', 404);
   },
