@@ -7,10 +7,9 @@ import {
   extractAuthHeader,
 } from './shared';
 
-const PROMPT = `You are a nutrition analyst. Identify the food in this photo and estimate its nutrition.
-
-Rules:
-- If you cannot identify any food, return null for name and confidence "low".
+const PROMPT = `You are a nutrition analyst. Identify ALL food items visible in this photo.
+- Return each dish/item on the plate as a SEPARATE item. If a plate contains multiple dishes, list them separately.
+- If you cannot identify anything, return {items: []}.
 - Assume a typical single serving if portion is unclear.
 - Round calories to whole numbers.
 - Round macros to 1 decimal place.
@@ -60,15 +59,24 @@ const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemin
           responseSchema: {
             type: 'object',
             properties: {
-              name: { type: 'string', nullable: true },
-              serving: { type: 'string' },
-              cal: { type: 'number' },
-              protein: { type: 'number' },
-              carbs: { type: 'number' },
-              fat: { type: 'number' },
-              confidence: { type: 'string', enum: ['high', 'medium', 'low'] },
+              items: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    name: { type: 'string', nullable: true },
+                    serving: { type: 'string' },
+                    cal: { type: 'number' },
+                    protein: { type: 'number' },
+                    carbs: { type: 'number' },
+                    fat: { type: 'number' },
+                    confidence: { type: 'string', enum: ['high', 'medium', 'low'] },
+                  },
+                  required: ['name', 'serving', 'cal', 'protein', 'carbs', 'fat', 'confidence'],
+                },
+              },
             },
-            required: ['name', 'serving', 'cal', 'protein', 'carbs', 'fat', 'confidence'],
+            required: ['items'],
           },
           thinkingConfig: { thinkingLevel: 'minimal' },
         },
@@ -102,11 +110,8 @@ const textResponse = parts
       return errorResponse('Gemini returned invalid JSON', 502);
     }
 
-    if (!parsed.name) {
-      return jsonResponse({ error: 'Could not identify food in photo', food: parsed }, 422);
-    }
-
-    return jsonResponse({ food: parsed });
+    const items = Array.isArray(parsed.items) ? parsed.items : [];
+    return jsonResponse({ items });
   } catch (error: any) {
     console.error('[handler] error:', error.message);
     return errorResponse('Internal error', 500);
