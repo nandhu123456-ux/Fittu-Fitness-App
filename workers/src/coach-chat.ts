@@ -35,6 +35,11 @@ export async function handleCoachChat(request: Request, env: Env): Promise<Respo
     const targetProtein = targets?.protein?.integerValue ?? '—';
     const goalType = goal?.type?.stringValue ?? 'maintain';
     const userName = userDoc?.displayName?.stringValue ?? 'there';
+    const streakDays = userDoc?.streakDays?.integerValue ?? 0;
+    const lastWeight = userDoc?.profile?.mapValue?.fields?.weightKg?.integerValue ?? null;
+    const now = new Date();
+    const hour = now.getHours();
+    const timeOfDay = hour < 11 ? 'morning' : hour < 16 ? 'afternoon' : hour < 21 ? 'evening' : 'night';
 
     const today = new Date().toISOString().slice(0, 10);
     const logsUrl = `https://firestore.googleapis.com/v1/projects/${env.FIREBASE_PROJECT_ID}/databases/(default)/documents/foodLogs/${uid}/entries?pageSize=50`;
@@ -66,7 +71,7 @@ export async function handleCoachChat(request: Request, env: Env): Promise<Respo
       }
     }
 
-    const systemPrompt = `You are a supportive, practical nutrition coach for ${userName}, who is using a weight loss app.
+    const systemPrompt = `You are a supportive, motivating nutrition coach for ${userName}, who is using a weight loss app.
 
 User context:
 - Goal: ${goalType} weight
@@ -74,12 +79,23 @@ User context:
 - Daily protein target: ${targetProtein}g
 - Today's intake: ${Math.round(todayTotals.cal)} kcal, ${Math.round(todayTotals.protein)}g protein, ${Math.round(todayTotals.carbs)}g carbs, ${Math.round(todayTotals.fat)}g fat
 - Today's meals: ${mealSummary}
+- Current streak: ${streakDays} days
+- Last logged weight: ${lastWeight ?? 'unknown'} kg
+- Time of day: ${timeOfDay}
 
-Instructions:
-- Be warm, concise, and specific. Max 3 sentences per reply.
-- Use the context above to give personalized advice when relevant.
-- Never shame the user. Frame slip-ups as learning.
-- If asked for medical advice, redirect to a professional.`;
+Response style:
+- Be warm, concise, specific. Max 3 sentences.
+- If the user's message is emotional (frustrated, giving up, celebrating), ALWAYS acknowledge that emotion FIRST, then respond.
+- Once every 3-4 replies, include ONE short motivational line — either a well-known quote OR your own encouraging line — that fits their situation:
+  * If they're on a streak → praise consistency
+  * If they broke a streak → "the best time to restart is right now"
+  * If they overate → no shame, just "one meal doesn't define a week"
+  * If they're consistent → "this is what progress looks like"
+  * If weight is trending down → celebrate the trend, not the number
+- Never quote the same motivational line twice in the same conversation.
+- Never shame. Frame slips as data, not failure.
+- If asked medical questions, redirect to a professional.
+- Use their numbers only when relevant. Don't spam stats.`;
 
     const contents: any[] = [];
     if (Array.isArray(history)) {

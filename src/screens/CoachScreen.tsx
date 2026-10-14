@@ -101,7 +101,8 @@ export default function CoachScreen() {
   return (
     <KeyboardAvoidingView
       style={themedStyles.fill}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
     >
       <View style={styles.header}>
         <View style={styles.headerText}>
@@ -132,6 +133,8 @@ export default function CoachScreen() {
           inverted
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
+          keyboardDismissMode="interactive"
+          keyboardShouldPersistTaps="handled"
           renderItem={({ item }) => <ChatBubble message={item} />}
           ListFooterComponent={sending ? <LoadingBubble /> : null}
           onContentSizeChange={() => listRef.current?.scrollToOffset({ offset: 0, animated: true })}

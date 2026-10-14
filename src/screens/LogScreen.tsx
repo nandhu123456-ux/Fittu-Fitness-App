@@ -249,28 +249,6 @@ export default function LogScreen() {
                 </Pressable>
               ))}
             </View>
-            {aiOpen ? (
-              <View style={[themedStyles.aiRow, { marginTop: 12 }]}>
-                <TextInput
-                  autoFocus
-                  onChangeText={setAiQuery}
-                  onSubmitEditing={() => void runEstimate()}
-                  placeholder="Type any food name…"
-                  placeholderTextColor={theme.colors.muted}
-                  returnKeyType="search"
-                  style={themedStyles.aiInput}
-                  value={aiQuery}
-                />
-                <Pressable disabled={aiLoading} onPress={() => void runEstimate()} style={themedStyles.aiGo}>
-                  {aiLoading ? <ActivityIndicator color={theme.colors.bg} /> : <Text style={themedStyles.aiGoText}>Estimate</Text>}
-                </Pressable>
-              </View>
-            ) : (
-              <Pressable onPress={() => setAiOpen(true)} style={[themedStyles.aiBtn, { marginTop: 12 }]}>
-                <Ionicons color={theme.colors.accent} name="sparkles-outline" size={18} />
-                <Text style={themedStyles.aiBtnText}>Try AI estimate for any food</Text>
-              </Pressable>
-            )}
           </View>
         )}
 
@@ -335,6 +313,30 @@ export default function LogScreen() {
         )}
 
         {notice && <Text style={themedStyles.noticeText}>{notice}</Text>}
+
+        {/* Always visible: AI estimate fallback */}
+        {aiOpen ? (
+          <View style={themedStyles.aiRow}>
+            <TextInput
+              autoFocus
+              onChangeText={setAiQuery}
+              onSubmitEditing={() => void runEstimate()}
+              placeholder="Type any food name…"
+              placeholderTextColor={theme.colors.muted}
+              returnKeyType="search"
+              style={themedStyles.aiInput}
+              value={aiQuery}
+            />
+            <Pressable disabled={aiLoading} onPress={() => void runEstimate()} style={themedStyles.aiGo}>
+              {aiLoading ? <ActivityIndicator color={theme.colors.bg} /> : <Text style={themedStyles.aiGoText}>Estimate</Text>}
+            </Pressable>
+          </View>
+        ) : (
+          <Pressable onPress={() => setAiOpen(true)} style={themedStyles.aiBtn}>
+            <Ionicons color={theme.colors.accent} name="search" size={18} />
+            <Text style={themedStyles.aiBtnText}>Can't find it? Estimate with AI</Text>
+          </Pressable>
+        )}
 
         <Pressable onPress={() => navigation.navigate('AddCustomFood', { mealType })} style={themedStyles.link}>
           <Ionicons color={theme.colors.muted} name="add-circle-outline" size={18} />
