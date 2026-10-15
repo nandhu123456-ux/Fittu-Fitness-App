@@ -1,0 +1,155 @@
+import { useMemo } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+
+import { useTheme } from '../theme';
+
+interface DashboardHeroProps {
+  displayName: string;
+  streakDays: number;
+  avatarLetter: string;
+  onMenuPress?: () => void;
+}
+
+const QUOTES = [
+  'Discipline today, a stronger tomorrow.',
+  'Small steps, big change.',
+  'Consistency beats perfection.',
+  'One meal at a time.',
+  'Your future self is watching.',
+  'Progress, not perfection.',
+  'Show up. Every day.',
+];
+
+export function DashboardHero({
+  displayName,
+  streakDays,
+  avatarLetter,
+  onMenuPress,
+}: DashboardHeroProps) {
+  const theme = useTheme();
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'morning' : hour < 18 ? 'afternoon' : 'evening';
+  const quote = QUOTES[new Date().getDay() % QUOTES.length];
+
+  const themedStyles = useMemo(
+    () =>
+      StyleSheet.create({
+        container: {
+          backgroundColor: theme.colors.bg,
+          borderRadius: 20,
+          overflow: 'hidden',
+          position: 'relative',
+          padding: 20,
+          paddingTop: 16,
+        },
+        glow: {
+          position: 'absolute',
+          width: 120,
+          height: 120,
+          borderRadius: 60,
+          backgroundColor: theme.colors.accentGlow,
+          opacity: 0.4,
+          top: -30,
+          right: -30,
+        },
+        row: {
+          flexDirection: 'row',
+          alignItems: 'center',
+        },
+        title: {
+          fontSize: 20,
+          fontWeight: '700',
+          color: theme.colors.accent,
+        },
+        subtitle: {
+          fontSize: 11,
+          color: theme.colors.muted,
+          marginTop: 2,
+        },
+        pill: {
+          backgroundColor: theme.colors.surfaceHi,
+          borderRadius: 999,
+          paddingHorizontal: 12,
+          paddingVertical: 6,
+          alignSelf: 'flex-start',
+        },
+        pillText: {
+          fontSize: 13,
+          fontWeight: '600',
+          color: theme.colors.text,
+        },
+        avatar: {
+          width: 40,
+          height: 40,
+          borderRadius: 20,
+          backgroundColor: theme.colors.accentAlt,
+          alignItems: 'center',
+          justifyContent: 'center',
+        },
+        avatarLetter: {
+          color: theme.colors.bg,
+          fontWeight: '700',
+          fontSize: 14,
+        },
+        date: {
+          fontSize: 13,
+          color: theme.colors.muted,
+          marginTop: 12,
+        },
+        greeting: {
+          fontSize: 28,
+          fontWeight: '700',
+          color: theme.colors.text,
+          marginTop: 8,
+        },
+        quote: {
+          fontSize: 13,
+          fontStyle: 'italic',
+          color: theme.colors.muted,
+          marginTop: 6,
+        },
+      }),
+    [theme],
+  );
+
+  return (
+    <View style={themedStyles.container}>
+      <View style={themedStyles.glow} />
+      <View style={themedStyles.row}>
+        <Pressable onPress={onMenuPress} hitSlop={8}>
+          <Ionicons name="menu-outline" size={24} color={theme.colors.text} />
+        </Pressable>
+        <View style={styles.copy}>
+          <Text style={themedStyles.title}>Be_fit</Text>
+          <Text style={themedStyles.subtitle}>Eat better. Live stronger.</Text>
+        </View>
+        <View style={themedStyles.pill}>
+          <Ionicons name="flame" size={16} color={theme.colors.warn} />
+          <Text style={themedStyles.pillText}>{streakDays} day streak</Text>
+        </View>
+        <View style={themedStyles.avatar}>
+          <Text style={themedStyles.avatarLetter}>{avatarLetter}</Text>
+        </View>
+      </View>
+      <Text
+        style={themedStyles.date}
+      >
+        {new Date().toLocaleDateString(undefined, {
+          weekday: 'long',
+          month: 'short',
+          day: 'numeric',
+        })}
+      </Text>
+      <Text style={themedStyles.greeting}>Good {greeting}, {displayName}</Text>
+      <Text style={themedStyles.quote}>{quote}</Text>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  copy: {
+    flex: 1,
+    marginLeft: 12,
+  },
+});
