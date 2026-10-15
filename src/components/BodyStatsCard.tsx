@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 import { useTheme } from '../theme';
+import { calculateBodyStats } from '../utils/bodyStats';
 
 interface BodyStatsCardProps {
   weightKg: number;
@@ -19,22 +20,12 @@ export function BodyStatsCard({
 }: BodyStatsCardProps) {
   const theme = useTheme();
 
-  const bmi = weightKg / Math.pow(heightCm / 100, 2);
-  const bmiRounded = Math.round(bmi * 10) / 10;
-  const genderFactor = gender === 'male' ? 1 : 0;
-  const bodyFatPct = 1.2 * bmi + 0.23 * age - 10.8 * genderFactor - 5.4;
-  const bodyFatRounded = Math.round(bodyFatPct * 10) / 10;
-  const leanMassKg = weightKg * (1 - bodyFatPct / 100);
-  const leanMassRounded = Math.round(leanMassKg * 10) / 10;
+  // Same math as before, now shared with ProgressScreen.
+  const stats = calculateBodyStats({ weightKg, heightCm, age, gender });
 
-  const hasInvalid =
-    Number.isNaN(bmiRounded) || bmiRounded <= 0 ||
-    Number.isNaN(bodyFatRounded) || bodyFatRounded <= 0 ||
-    Number.isNaN(leanMassRounded) || leanMassRounded <= 0;
-
-  const valueBmi = hasInvalid ? '—' : bmiRounded.toFixed(1);
-  const valueBodyFat = hasInvalid ? '—' : `${bodyFatRounded}%`;
-  const valueLeanMass = hasInvalid ? '—' : `${leanMassRounded} kg`;
+  const valueBmi = stats ? stats.bmi.toFixed(1) : '—';
+  const valueBodyFat = stats ? `${stats.bodyFatPct}%` : '—';
+  const valueLeanMass = stats ? `${stats.leanMassKg} kg` : '—';
 
   const themedStyles = useMemo(
     () =>

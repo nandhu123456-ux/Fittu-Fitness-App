@@ -68,5 +68,6 @@ export default function WeightScreen() {
 }
 
 const styles = StyleSheet.create({
-  list: { padding: 20, paddingBottom: 100 }, empty: { alignItems: 'center', marginTop: 100 },
+  // Horizontal padding is supplied by the ProgressScreen shell this is embedded in.
+  list: { paddingBottom: 100 }, empty: { alignItems: 'center', marginTop: 100 },
 });
