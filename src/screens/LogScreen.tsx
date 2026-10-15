@@ -204,8 +204,8 @@ export default function LogScreen() {
   }), [theme]);
 
   return (
-    <KeyboardAvoidingView style={themedStyles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView contentContainerStyle={themedStyles.content} keyboardShouldPersistTaps="handled">
+    <KeyboardAvoidingView style={themedStyles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={Platform.OS === 'ios' ? 88 : 24}>
+      <ScrollView contentContainerStyle={themedStyles.content} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
         <View>
           <Text style={themedStyles.headerTitle}>Log {mealType}</Text>
           <Text style={themedStyles.headerSub}>{eaten} / {target || '—'} kcal today</Text>

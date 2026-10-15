@@ -30,7 +30,10 @@ export default function CoachScreen() {
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [retryKey, setRetryKey] = useState(0);
   const listRef = useRef<FlatList<CoachMessage>>(null);
+  const sendingRef = useRef(false);
 
   useEffect(() => {
     if (!user) {
@@ -52,7 +55,9 @@ export default function CoachScreen() {
 
   const handleSend = async () => {
     const content = input.trim();
-    if (!content || sending || !user) return;
+    if (!content || !user) return;
+    if (sendingRef.current) return;
+    sendingRef.current = true;
     const optimistic: CoachMessage = {
       id: `local-${Date.now()}`,
       role: 'user',
@@ -62,6 +67,7 @@ export default function CoachScreen() {
     setMessages((prev) => [...prev, optimistic]);
     setInput('');
     setSending(true);
+    setError(null);
     void sendMessage(user.uid, content);
     try {
       const reply = await getAssistantReply(user.uid, content);
@@ -70,9 +76,26 @@ export default function CoachScreen() {
         ...prev,
         { id: `local-${Date.now()}`, role: 'assistant', content: reply, ts: null as unknown as CoachMessage['ts'] },
       ]);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Could not reach the coach.';
+      setError(msg);
+      setMessages((prev) => [
+        ...prev,
+        { id: `local-retry-${Date.now()}`, role: 'assistant', content: 'Sorry, that failed. Tap retry to try again.', ts: null as unknown as CoachMessage['ts'] },
+      ]);
     } finally {
       setSending(false);
+      sendingRef.current = false;
     }
+  };
+
+  const retryLast = (): void => {
+    if (sendingRef.current || !user) return;
+    const lastUser = [...messages].reverse().find((m) => m.role === 'user');
+    if (!lastUser) return;
+    setInput(lastUser.content);
+    setError(null);
+    setRetryKey((k) => k + 1);
   };
 
   const themedStyles = useMemo(() => StyleSheet.create({
@@ -156,8 +179,15 @@ export default function CoachScreen() {
           style={[themedStyles.send, (!input.trim() || sending) && themedStyles.sendDisabled]}
         >
           <Ionicons color={theme.colors.bg} name="arrow-up" size={22} />
-        </Pressable>
+</Pressable>
       </View>
+      {error ? (
+        <Pressable onPress={retryLast} style={styles.errorRow}>
+          <Ionicons color={theme.colors.danger} name="alert-circle" size={16} />
+          <Text style={[styles.errorText, { color: theme.colors.danger }]}>{error}</Text>
+          <Text style={[styles.retryText, { color: theme.colors.accent }]}>Retry</Text>
+        </Pressable>
+      ) : null}
     </KeyboardAvoidingView>
   );
 }
@@ -184,5 +214,8 @@ const styles = StyleSheet.create({
   headerText: { flex: 1 },
   list: { paddingHorizontal: 16, paddingVertical: 12 },
   loadingRow: { alignItems: 'flex-start', marginVertical: 4 },
+  errorRow: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 16, paddingVertical: 8 },
+  errorText: { flex: 1, fontSize: 13 },
+  retryText: { fontSize: 13, fontWeight: '600' },
 });
 

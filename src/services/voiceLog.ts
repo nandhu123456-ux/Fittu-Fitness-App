@@ -17,17 +17,23 @@ interface VoiceResponse {
   items?: VoiceItem[];
 }
 
+export interface VoiceParseResult {
+  food: FoodResult | null;
+  transcript: string;
+}
+
 /**
- * Sends recorded audio to the Worker's Groq Whisper parser and returns a
- * FoodResult (the first parsed item). `audioBase64` is the raw base64 payload
- * (no data: prefix), `mimeType` e.g. 'audio/m4a' or 'audio/webm'. Returns null
- * on any failure (auth, network, unparseable audio) — callers treat null as
- * "couldn't understand".
+ * Sends recorded audio to the Worker's Groq Whisper parser and returns both
+ * the recognised transcript and a FoodResult (the first parsed item).
+ * `audioBase64` is the raw base64 payload (no data: prefix), `mimeType` e.g.
+ * 'audio/m4a' or 'audio/webm'. Returns `{ food: null, transcript }` on any
+ * failure where a transcript was still recovered; `{ food: null, transcript: '' }`
+ * when nothing could be understood.
  */
-export async function parseVoice(audioBase64: string, mimeType: string): Promise<FoodResult | null> {
+export async function parseVoice(audioBase64: string, mimeType: string): Promise<VoiceParseResult> {
   try {
     const user = auth.currentUser;
-    if (!user) return null;
+    if (!user) return { food: null, transcript: '' };
 
     const idToken = await user.getIdToken();
 
@@ -41,24 +47,30 @@ export async function parseVoice(audioBase64: string, mimeType: string): Promise
     });
 
     const data: VoiceResponse = await res.json();
-    // Non-200 or no usable items → treat as "couldn't understand".
-    if (!res.ok || !Array.isArray(data.items) || data.items.length === 0) return null;
+    const transcript = typeof data.transcript === 'string' ? data.transcript.trim() : '';
+
+    if (!res.ok || !Array.isArray(data.items) || data.items.length === 0) {
+      return { food: null, transcript };
+    }
 
     const item = data.items[0];
-    if (!item || !item.name) return null;
+    if (!item || !item.name) return { food: null, transcript };
 
     return {
-      id: `voice_${Date.now()}`,
-      name: String(item.name),
-      source: 'usda',
-      serving: String(item.quantity ?? '1 serving'),
-      cal: Number(item.cal ?? 0),
-      protein: Number(item.protein ?? 0),
-      carbs: Number(item.carbs ?? 0),
-      fat: Number(item.fat ?? 0),
+      food: {
+        id: `voice_${Date.now()}`,
+        name: String(item.name),
+        source: 'usda',
+        serving: String(item.quantity ?? '1 serving'),
+        cal: Number(item.cal ?? 0),
+        protein: Number(item.protein ?? 0),
+        carbs: Number(item.carbs ?? 0),
+        fat: Number(item.fat ?? 0),
+      },
+      transcript,
     };
   } catch (e) {
     console.error('[voiceLog] error', e);
-    return null;
+    return { food: null, transcript: '' };
   }
 }
