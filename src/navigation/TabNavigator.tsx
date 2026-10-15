@@ -6,7 +6,6 @@ import { CenterFAB } from '../components/CenterFAB';
 import { LogMenuModal } from '../components/LogMenuModal';
 
 import BarcodeScreen from '../screens/BarcodeScreen';
-import CoachScreen from '../screens/CoachScreen';
 import DashboardScreen from '../screens/DashboardScreen';
 import LogScreen from '../screens/LogScreen';
 import PhotoLogScreen from '../screens/PhotoLogScreen';
@@ -15,6 +14,7 @@ import ProgressScreen from '../screens/ProgressScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import VoiceLogScreen from '../screens/VoiceLogScreen';
 import MenuScanScreen from '../screens/MenuScanScreen';
+import ProfileScreen from '../screens/ProfileScreen';
 import { useTheme } from '../theme';
 import type { RootTabParamList } from '../types/navigation';
 
@@ -60,8 +60,8 @@ export default function TabNavigator() {
       <Tab.Screen name="AddCustomFood" component={AddCustomFoodScreen} options={{ tabBarButton: () => null }} />
       <Tab.Screen name="Settings" component={SettingsScreen} options={{ tabBarButton: () => null }} />
       <Tab.Screen name="Progress" component={ProgressScreen} />
-      {/* Route name stays "Coach" — other screens navigate to it. Label + header only. */}
-      <Tab.Screen name="Coach" component={CoachScreen} options={{ title: 'Profile' }} />
+      {/* Route name stays "Coach" — the screen now renders the Profile UI; the AI chat is a modal. */}
+      <Tab.Screen name="Coach" component={ProfileScreen} options={{ title: 'Profile' }} />
     </Tab.Navigator>
     <LogMenuModal visible={logMenuVisible} onClose={() => setLogMenuVisible(false)} />
     </>

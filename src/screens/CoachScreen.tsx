@@ -23,7 +23,12 @@ import {
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../theme';
 
-export default function CoachScreen() {
+interface Props {
+  /** When provided, a close button appears in the header (used by the modal wrapper). */
+  onClose?: () => void;
+}
+
+export default function CoachScreen({ onClose }: Props) {
   const theme = useTheme();
   const { user } = useAuthStore();
   const [messages, setMessages] = useState<CoachMessage[]>([]);
@@ -128,6 +133,11 @@ export default function CoachScreen() {
       keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
     >
       <View style={styles.header}>
+        {onClose ? (
+          <Pressable hitSlop={8} onPress={onClose} style={styles.close}>
+            <Ionicons color={theme.colors.text} name="close" size={22} />
+          </Pressable>
+        ) : null}
         <View style={styles.headerText}>
           <Text style={themedStyles.title}>Coach</Text>
           <Text style={themedStyles.subtitle}>Your nutrition assistant</Text>
@@ -209,8 +219,9 @@ function LoadingBubble() {
 
 const styles = StyleSheet.create({
   center: { alignItems: 'center', justifyContent: 'center' },
+  close: { padding: 4 },
   padded: { paddingHorizontal: 32 },
-  header: { alignItems: 'center', flexDirection: 'row', paddingHorizontal: 20, paddingTop: 16, paddingBottom: 12 },
+  header: { alignItems: 'center', flexDirection: 'row', gap: 8, paddingHorizontal: 20, paddingTop: 16, paddingBottom: 12 },
   headerText: { flex: 1 },
   list: { paddingHorizontal: 16, paddingVertical: 12 },
   loadingRow: { alignItems: 'flex-start', marginVertical: 4 },
