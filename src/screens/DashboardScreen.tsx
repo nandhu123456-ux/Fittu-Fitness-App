@@ -93,6 +93,7 @@ export default function DashboardScreen() {
     bullet: { color: theme.colors.muted, fontSize: 12, marginBottom: 4 },
     detailsPill: { alignSelf: 'flex-start', borderColor: theme.colors.border, borderRadius: 999, borderWidth: 1, marginTop: 10, paddingHorizontal: 12, paddingVertical: 6 },
     detailsPillText: { color: theme.colors.accent, fontSize: 12, fontWeight: '600' },
+    moodCard: { backgroundColor: theme.colors.surface, borderRadius: 20, padding: 16 },
     moodOverlay: { backgroundColor: theme.colors.overlay, flex: 1, justifyContent: 'flex-end' },
     moodModal: { backgroundColor: theme.colors.surfaceHi, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 28 },
   }), [theme]);
@@ -173,7 +174,9 @@ export default function DashboardScreen() {
         <BodyStatsCard weightKg={profile?.profile?.weightKg ?? 0} heightCm={profile?.profile?.heightCm ?? 0} age={profile?.profile?.age ?? 0} gender={profile?.profile?.gender ?? 'male'} />
       </View>
     </View>
-    <MoodPicker value={mood} onOpen={() => setMoodModalVisible(true)} onSave={async (value) => { if (!user) return; setMoodValue(value); await setMood(user.uid, value); }} />
+    <View style={themedStyles.moodCard}>
+      <MoodPicker value={mood} onOpen={() => setMoodModalVisible(true)} onSave={async (value) => { if (!user) return; setMoodValue(value); await setMood(user.uid, value); }} />
+    </View>
     <TouchableOpacity style={themedStyles.settings} onPress={() => navigation.navigate('Settings')}><Text style={themedStyles.settingsText}>Settings</Text></TouchableOpacity>
     <WaterModal visible={waterModalVisible} onClose={() => setWaterModalVisible(false)} onAdd={async (ml) => { if (!user) return; await addWater(user.uid, ml); setWater((current) => current + ml); }} />
     <Modal visible={moodModalVisible} transparent animationType="fade" onRequestClose={() => setMoodModalVisible(false)}><View style={themedStyles.moodOverlay}><View style={themedStyles.moodModal}><MoodPicker value={mood} onSave={async (value) => { if (!user) return; setMoodValue(value); await setMood(user.uid, value); setMoodModalVisible(false); }} /></View></View></Modal>
