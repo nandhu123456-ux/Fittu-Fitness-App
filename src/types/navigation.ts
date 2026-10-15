@@ -24,12 +24,15 @@ export type RootStackParamList = {
   Activity: undefined;
   Goal: undefined;
   Summary: undefined;
+  /** Visual-only intro slides, shown before Gender the first time. */
+  Intro1: undefined;
+  Intro2: undefined;
 };
 
 export type AuthStackParamList = Pick<RootStackParamList, 'Welcome' | 'SignIn' | 'SignUp'>;
 
 export type OnboardingStackParamList = Pick<
   RootStackParamList,
-  'Gender' | 'BodyStats' | 'Activity' | 'Goal' | 'Summary'
+  'Gender' | 'BodyStats' | 'Activity' | 'Goal' | 'Summary' | 'Intro1' | 'Intro2'
 >;
 
