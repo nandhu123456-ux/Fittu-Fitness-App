@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { RouteProp } from '@react-navigation/native';
 
 import { PortionModal } from '../components/PortionModal';
+import { SearchHeader, type SearchHeaderAction } from '../components/SearchHeader';
 import { addFoodLog, getEntriesForDate, type FoodLogEntry } from '../services/foodLogService';
 import { searchFood, type FoodResult } from '../services/foodSearch';
 import { getRecentFoods, type RecentFood } from '../services/recentFoods';
@@ -21,7 +22,15 @@ import type { RootTabParamList } from '../types/navigation';
 type LogRoute = RouteProp<RootTabParamList, 'Log'>;
 type Navigation = BottomTabNavigationProp<RootTabParamList, 'Log'>;
 
-const MEALS: MealType[] = ['breakfast', 'lunch', 'dinner', 'snack'];
+type MealFilter = 'all' | MealType;
+
+const FILTERS: { value: MealFilter; label: string }[] = [
+  { value: 'all', label: 'All' },
+  { value: 'breakfast', label: 'Breakfast' },
+  { value: 'lunch', label: 'Lunch' },
+  { value: 'dinner', label: 'Dinner' },
+  { value: 'snack', label: 'Snacks' },
+];
 const POPULAR = ['Roti', 'Dal', 'Rice', 'Idli', 'Dosa', 'Poha', 'Upma', 'Curd'];
 
 function inferMealType(hour: number): MealType {
@@ -54,9 +63,8 @@ export default function LogScreen() {
   // Live today total so the header updates the moment a food is logged.
   const { totals } = useTodayFoodLogs(uid);
 
-  const [mealType, setMealType] = useState<MealType>(() => route.params?.mealType ?? inferMealType(new Date().getHours()));
+  const [filter, setFilter] = useState<MealFilter>(() => route.params?.mealType ?? 'all');
   const [search, setSearch] = useState('');
-  const [searchOpen, setSearchOpen] = useState(false);
   const [results, setResults] = useState<FoodResult[]>([]);
   const [selected, setSelected] = useState<FoodResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -69,19 +77,25 @@ export default function LogScreen() {
   const [aiQuery, setAiQuery] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
 
+  // "All" resolves to a meal slot by time of day so every log gets one.
+  const mealType: MealType = filter === 'all' ? inferMealType(new Date().getHours()) : filter;
+
+  const reloadRecents = (): void => {
+    if (uid) getRecentFoods(uid).then(setRecents);
+  };
+
   // Recents and yesterday's summary on mount; today's total is live.
   useEffect(() => {
     if (!uid) return;
-    getRecentFoods(uid).then(setRecents);
+    reloadRecents();
     const y = shiftDate(todayLocalISO(), -1);
     getEntriesForDate(uid, y).then((entries) => {
       if (entries.length) setYesterday({ count: entries.length, cal: Math.round(entries.reduce((s, e) => s + e.cal, 0)) });
     });
   }, [uid]);
 
-  // Debounced search (only when the search box is open).
+  // Debounced search. The bar is always visible now, so this runs as you type.
   useEffect(() => {
-    if (!searchOpen) return;
     const trimmed = search.trim();
     if (!trimmed) { setResults([]); setLoading(false); return; }
     const timer = setTimeout(() => {
@@ -89,7 +103,7 @@ export default function LogScreen() {
       void searchFood(trimmed, uid).then(setResults).catch(() => setError('Could not search foods.')).finally(() => setLoading(false));
     }, 300);
     return () => clearTimeout(timer);
-  }, [search, searchOpen, uid]);
+  }, [search, uid]);
 
   const commit = async (food: FoodResult, servings: number): Promise<void> => {
     if (!uid) return;
@@ -97,6 +111,22 @@ export default function LogScreen() {
       setSaving(true);
       await addFoodLog(uid, { mealType, food, servings });
       setSelected(null);
+      reloadRecents();
+    } catch {
+      setError('Could not add this food. Please try again.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // The "+" button on a recent row: instant 1-serving log, no portion modal.
+  const quickLog = async (food: RecentFood): Promise<void> => {
+    if (!uid) return;
+    try {
+      setSaving(true);
+      await addFoodLog(uid, { mealType, food, servings: 1 });
+      setNotice(`${food.name} added to log`);
+      reloadRecents();
     } catch {
       setError('Could not add this food. Please try again.');
     } finally {
@@ -111,8 +141,8 @@ export default function LogScreen() {
 
   // Popular chips: resolve via local search, open the portion modal on the top hit.
   const onPickPopular = async (name: string): Promise<void> => {
-    const results = await searchFood(name, uid);
-    if (results.length) setSelected(results[0]);
+    const found = await searchFood(name, uid);
+    if (found.length) setSelected(found[0]);
     else setError(`Couldn't find ${name}.`);
   };
 
@@ -132,172 +162,108 @@ export default function LogScreen() {
     }
   };
 
-  const onTapRecent = (food: RecentFood): void => {
-    void commit({ id: food.id, name: food.name, source: food.source, serving: food.serving, cal: food.cal, protein: food.protein, carbs: food.carbs, fat: food.fat }, 1);
-  };
-
   const logYesterday = async (): Promise<void> => {
     if (!uid) return;
     const entries = await getEntriesForDate(uid, shiftDate(todayLocalISO(), -1));
     if (!entries.length) { setNotice('Nothing logged yesterday.'); return; }
     setSaving(true);
     try {
-      for (const entry of entries) await addFoodLog(uid, { mealType: entry.mealType, food: entryToFood(entry), servings: 1 });
+      for (const entry of entries) await addFoodLog(uid, { mealType, food: entryToFood(entry), servings: 1 });
       setNotice(`Logged ${entries.length} items from yesterday.`);
+      reloadRecents();
     } catch {
       setError('Could not copy yesterday. Please try again.');
     } finally {
       setSaving(false);
     }
   };
+
+  // Quick-capture buttons, kept accessible at the top of the screen.
+  const actions = useMemo<SearchHeaderAction[]>(() => [
+    { icon: 'mic-outline', label: 'Voice', onPress: () => navigation.navigate('VoiceLog', { mealType }) },
+    { icon: 'camera-outline', label: 'Photo', onPress: () => navigation.navigate('PhotoLog', { mealType }) },
+    { icon: 'barcode-outline', label: 'Barcode', onPress: () => navigation.navigate('Barcode', { mealType }) },
+    { icon: 'restaurant-outline', label: 'Menu', onPress: () => navigation.navigate('MenuScan', { mealType }) },
+  ], [navigation, mealType]);
+
   const themedStyles = useMemo(() => StyleSheet.create({
     screen: { backgroundColor: theme.colors.bg, flex: 1 },
-    content: { padding: 20, gap: 20 },
-    headerTitle: { color: theme.colors.text, fontSize: 26, fontWeight: '700', textTransform: 'capitalize' },
-    headerSub: { color: theme.colors.muted, fontSize: 13, marginTop: 4 },
-    chipRow: { flexDirection: 'row', gap: 8, marginTop: 14 },
+    content: { padding: 20, gap: 18 },
+    headerRow: { alignItems: 'center', flexDirection: 'row', gap: 10 },
+    headerTitle: { color: theme.colors.text, fontSize: 20, fontWeight: '600' },
+    chipRow: { flexDirection: 'row', gap: 8, paddingVertical: 2 },
     chip: { alignItems: 'center', backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 20, borderWidth: 1, paddingHorizontal: 14, paddingVertical: 8 },
     chipActive: { backgroundColor: theme.colors.accent, borderColor: theme.colors.accent },
-    chipText: { color: theme.colors.text, fontSize: 13, fontWeight: '600', textTransform: 'capitalize' },
+    chipText: { color: theme.colors.text, fontSize: 13, fontWeight: '600' },
     chipTextActive: { color: theme.colors.bg },
-    sectionLabel: { color: theme.colors.muted, fontSize: 11, fontWeight: '700', letterSpacing: 1.2, marginBottom: 10 },
+    sectionRow: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 },
+    sectionLabel: { color: theme.colors.muted, fontSize: 11, fontWeight: '700', letterSpacing: 1.2, textTransform: 'uppercase' },
+    seeAll: { color: theme.colors.accent, fontSize: 13, fontWeight: '600' },
+    mealCard: { alignItems: 'center', backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 16, borderWidth: 1, flexDirection: 'row', gap: 12, padding: 12 },
+    mealThumb: { alignItems: 'center', backgroundColor: theme.colors.surfaceHi, borderRadius: 12, height: 48, justifyContent: 'center', width: 48 },
+    mealInfo: { flex: 1 },
+    mealName: { color: theme.colors.text, fontSize: 15, fontWeight: '600' },
+    mealMeta: { color: theme.colors.muted, fontSize: 12, marginTop: 2 },
+    addBtn: { alignItems: 'center', backgroundColor: theme.colors.accent, borderRadius: 16, height: 32, justifyContent: 'center', width: 32 },
     popularRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
     popularChip: { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 12, borderWidth: 1, paddingHorizontal: 14, paddingVertical: 8 },
     popularText: { color: theme.colors.text, fontSize: 13, fontWeight: '600' },
-    aiBtn: { alignItems: 'center', borderColor: theme.colors.accent, borderRadius: 12, borderWidth: 1, flexDirection: 'row', gap: 8, justifyContent: 'center', padding: 14 },
-    aiBtnText: { color: theme.colors.accent, fontSize: 14, fontWeight: '600' },
-    aiRow: { flexDirection: 'row', gap: 8 },
-    aiInput: { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 12, borderWidth: 1, color: theme.colors.text, flex: 1, fontSize: 14, paddingHorizontal: 12, paddingVertical: 10 },
-    aiGo: { alignItems: 'center', backgroundColor: theme.colors.accent, borderRadius: 12, justifyContent: 'center', paddingHorizontal: 16 },
-    aiGoText: { color: theme.colors.bg, fontWeight: '700' },
-    primaryRow: { flexDirection: 'row', gap: 10 },
-    secondaryRow: { flexDirection: 'row', gap: 10 },
-    primary: { alignItems: 'center', backgroundColor: theme.colors.surfaceHi, borderColor: theme.colors.border, borderRadius: 16, borderWidth: 1, gap: 6, height: 72, justifyContent: 'center' },
-    primaryVoice: { backgroundColor: theme.colors.accent, borderColor: theme.colors.accent, flex: 2 },
-    primaryHalf: { flex: 1 },
-    primaryText: { color: theme.colors.text, fontSize: 12, fontWeight: '600' },
-    primaryTextVoice: { color: theme.colors.bg },
-    recent: { alignItems: 'center', backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 14, borderWidth: 1, marginRight: 10, paddingHorizontal: 14, paddingVertical: 10, width: 120 },
-    recentName: { color: theme.colors.text, fontSize: 14, fontWeight: '600' },
-    recentCal: { color: theme.colors.muted, fontSize: 12, marginTop: 2 },
-    sameCard: { alignItems: 'center', backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 16, borderWidth: 1, flexDirection: 'row', gap: 12, padding: 16 },
-    sameBody: { flex: 1 },
-    sameTitle: { color: theme.colors.text, fontSize: 15, fontWeight: '600' },
-    sameSub: { color: theme.colors.muted, fontSize: 12, marginTop: 2 },
-    sameBtn: { backgroundColor: theme.colors.accent, borderRadius: 12, paddingHorizontal: 16, paddingVertical: 10 },
-    sameBtnText: { color: theme.colors.bg, fontSize: 13, fontWeight: '700' },
-    searchToggle: { alignItems: 'center', flexDirection: 'row', gap: 8 },
-    searchToggleText: { color: theme.colors.accent, fontSize: 15, fontWeight: '600' },
-    searchBox: { alignItems: 'center', backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 16, borderWidth: 1, flexDirection: 'row', paddingHorizontal: 14 },
-    input: { color: theme.colors.text, flex: 1, fontSize: 15, paddingHorizontal: 10, paddingVertical: 14 },
     result: { alignItems: 'center', backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 16, borderWidth: 1, flexDirection: 'row', justifyContent: 'space-between', marginTop: 10, padding: 14 },
     resultCopy: { flex: 1, paddingRight: 10 },
     resultName: { color: theme.colors.text, fontSize: 15, fontWeight: '600' },
     resultMeta: { color: theme.colors.muted, fontSize: 12, marginTop: 3 },
     resultCal: { color: theme.colors.accent, fontSize: 14, fontWeight: '700' },
-    link: { alignItems: 'center', flexDirection: 'row', gap: 6 },
+    link: { alignItems: 'center', flexDirection: 'row', gap: 6, marginTop: 4 },
     linkText: { color: theme.colors.muted, fontSize: 13 },
     linkAccent: { color: theme.colors.accent, fontSize: 14, fontWeight: '600' },
     center: { alignItems: 'center', paddingVertical: 24 },
     empty: { color: theme.colors.muted, fontSize: 14 },
     errorText: { color: theme.colors.danger, fontSize: 14 },
     noticeText: { color: theme.colors.accent, fontSize: 14, fontWeight: '600' },
+    sameCard: { alignItems: 'center', backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 16, borderWidth: 1, flexDirection: 'row', gap: 12, padding: 16 },
+    sameBody: { flex: 1 },
+    sameTitle: { color: theme.colors.text, fontSize: 15, fontWeight: '600' },
+    sameSub: { color: theme.colors.muted, fontSize: 12, marginTop: 2 },
+    sameBtn: { backgroundColor: theme.colors.accent, borderRadius: 12, paddingHorizontal: 16, paddingVertical: 10 },
+    sameBtnText: { color: theme.colors.bg, fontSize: 13, fontWeight: '700' },
   }), [theme]);
 
   return (
     <KeyboardAvoidingView style={themedStyles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={Platform.OS === 'ios' ? 88 : 24}>
       <ScrollView contentContainerStyle={themedStyles.content} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
-        <View>
-          <Text style={themedStyles.headerTitle}>Log {mealType}</Text>
-          <Text style={themedStyles.headerSub}>{Math.round(totals.calories)} / {target || '—'} kcal today</Text>
-          <View style={themedStyles.chipRow}>
-            {MEALS.map((m) => (
-              <Pressable key={m} onPress={() => setMealType(m)} style={[themedStyles.chip, mealType === m && themedStyles.chipActive]}>
-                <Text style={[themedStyles.chipText, mealType === m && themedStyles.chipTextActive]}>{m}</Text>
-              </Pressable>
-            ))}
-          </View>
+        <View style={themedStyles.headerRow}>
+          <Pressable hitSlop={8} onPress={() => navigation.goBack()}>
+            <Ionicons color={theme.colors.text} name="chevron-back" size={22} />
+          </Pressable>
+          <Text style={themedStyles.headerTitle}>Log Your Meal</Text>
+          <Ionicons color={theme.colors.muted} name="ellipsis-vertical" size={20} />
         </View>
 
-        <View style={themedStyles.primaryRow}>
-          <Pressable onPress={() => navigation.navigate('VoiceLog', { mealType })} style={[themedStyles.primary, themedStyles.primaryVoice]}>
-            <Ionicons color={theme.colors.bg} name="mic" size={26} />
-            <Text style={themedStyles.primaryTextVoice}>Voice</Text>
-          </Pressable>
-        </View>
-        <View style={themedStyles.secondaryRow}>
-          <Pressable onPress={() => navigation.navigate('PhotoLog', { mealType })} style={[themedStyles.primary, themedStyles.primaryHalf]}>
-            <Ionicons color={theme.colors.accent} name="camera-outline" size={22} />
-            <Text style={themedStyles.primaryText}>Photo</Text>
-          </Pressable>
-          <Pressable onPress={() => navigation.navigate('Barcode', { mealType })} style={[themedStyles.primary, themedStyles.primaryHalf]}>
-            <Ionicons color={theme.colors.accent} name="barcode-outline" size={22} />
-            <Text style={themedStyles.primaryText}>Barcode</Text>
-          </Pressable>
-          <Pressable onPress={() => navigation.navigate('MenuScan', { mealType })} style={[themedStyles.primary, themedStyles.primaryHalf]}>
-            <Ionicons color={theme.colors.accent} name="restaurant-outline" size={22} />
-            <Text style={themedStyles.primaryText}>Menu</Text>
-          </Pressable>
-        </View>
+        <SearchHeader
+          aiLoading={aiLoading}
+          aiOpen={aiOpen}
+          aiQuery={aiQuery}
+          actions={actions}
+          onChangeText={setSearch}
+          onAiQueryChange={setAiQuery}
+          onRunEstimate={() => void runEstimate()}
+          onToggleAi={() => setAiOpen((v) => !v)}
+          value={search}
+        />
 
-        {recents.length === 0 && !searchOpen && (
-          <View>
-            <Text style={themedStyles.sectionLabel}>POPULAR INDIAN DISHES</Text>
-            <View style={themedStyles.popularRow}>
-              {POPULAR.map((name) => (
-                <Pressable key={name} onPress={() => void onPickPopular(name)} style={themedStyles.popularChip}>
-                  <Text style={themedStyles.popularText}>{name}</Text>
-                </Pressable>
-              ))}
-            </View>
-          </View>
-        )}
-
-          {recents.length > 0 && (
-          <View>
-            <Text style={themedStyles.sectionLabel}>RECENT</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {recents.map((food) => (
-                <Pressable
-                  key={food.id}
-                  onPress={() => setSelected(food)}
-                  style={themedStyles.recent}
-                >
-                  <Text numberOfLines={1} style={themedStyles.recentName}>{food.name}</Text>
-                  <Text style={themedStyles.recentCal}>{Math.round(food.cal)} kcal</Text>
-                </Pressable>
-              ))}
-            </ScrollView>
-          </View>
-        )}
-
-        {yesterday && (
-          <View style={themedStyles.sameCard}>
-            <Ionicons color={theme.colors.accent} name="repeat" size={26} />
-            <View style={themedStyles.sameBody}>
-              <Text style={themedStyles.sameTitle}>Same as yesterday?</Text>
-              <Text style={themedStyles.sameSub}>{yesterday.count} items · {yesterday.cal} kcal</Text>
-            </View>
-            <Pressable disabled={saving} onPress={() => void logYesterday()} style={themedStyles.sameBtn}>
-              <Text style={themedStyles.sameBtnText}>Log all</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={themedStyles.chipRow}>
+          {FILTERS.map((option) => (
+            <Pressable key={option.value} onPress={() => setFilter(option.value)} style={[themedStyles.chip, filter === option.value && themedStyles.chipActive]}>
+              <Text style={[themedStyles.chipText, filter === option.value && themedStyles.chipTextActive]}>{option.label}</Text>
             </Pressable>
-          </View>
-        )}
+          ))}
+        </ScrollView>
 
-        {!searchOpen ? (
-          <Pressable onPress={() => setSearchOpen(true)} style={themedStyles.searchToggle}>
-            <Ionicons color={theme.colors.accent} name="search" size={20} />
-            <Text style={themedStyles.searchToggleText}>Search foods</Text>
-          </Pressable>
-        ) : (
+        {search.trim().length > 0 ? (
           <View>
-            <View style={themedStyles.searchBox}>
-              <Ionicons color={theme.colors.muted} name="search" size={20} />
-              <TextInput autoCapitalize="none" autoFocus onChangeText={setSearch} placeholder="Search foods" placeholderTextColor={theme.colors.muted} style={themedStyles.input} value={search} />
-            </View>
             {loading ? <View style={themedStyles.center}><ActivityIndicator color={theme.colors.accent} /></View>
               : error ? <Text style={themedStyles.errorText}>{error}</Text>
-              : search && results.length === 0 ? (
+              : results.length === 0 ? (
                 <View style={themedStyles.center}>
                   <Text style={themedStyles.empty}>No foods found.</Text>
                   <Pressable onPress={() => navigation.navigate('AddCustomFood', { prefillQuery: search, mealType })} style={themedStyles.link}>
@@ -315,33 +281,58 @@ export default function LogScreen() {
                 </Pressable>
               ))}
           </View>
-        )}
+        ) : null}
+        {!search.trim() && error ? <Text style={themedStyles.errorText}>{error}</Text> : null}
 
-        {notice && <Text style={themedStyles.noticeText}>{notice}</Text>}
+        <View style={themedStyles.sectionRow}>
+          <Text style={themedStyles.sectionLabel}>Recent Meals</Text>
+          <Text style={themedStyles.seeAll}>See all</Text>
+        </View>
 
-        {/* Always visible: AI estimate fallback */}
-        {aiOpen ? (
-          <View style={themedStyles.aiRow}>
-            <TextInput
-              autoFocus
-              onChangeText={setAiQuery}
-              onSubmitEditing={() => void runEstimate()}
-              placeholder="Type any food name…"
-              placeholderTextColor={theme.colors.muted}
-              returnKeyType="search"
-              style={themedStyles.aiInput}
-              value={aiQuery}
-            />
-            <Pressable disabled={aiLoading} onPress={() => void runEstimate()} style={themedStyles.aiGo}>
-              {aiLoading ? <ActivityIndicator color={theme.colors.bg} /> : <Text style={themedStyles.aiGoText}>Estimate</Text>}
-            </Pressable>
+        {recents.length > 0 ? (
+          <View>
+            {recents.map((food) => (
+              <Pressable key={food.id} onPress={() => setSelected(food)} style={themedStyles.mealCard}>
+                <View style={themedStyles.mealThumb}>
+                  <Ionicons color={theme.colors.muted} name="restaurant-outline" size={22} />
+                </View>
+                <View style={themedStyles.mealInfo}>
+                  <Text numberOfLines={1} style={themedStyles.mealName}>{food.name}</Text>
+                  <Text style={themedStyles.mealMeta}>{food.serving} · {Math.round(food.cal)} kcal</Text>
+                </View>
+                <Pressable hitSlop={8} onPress={() => void quickLog(food)} style={themedStyles.addBtn}>
+                  <Ionicons color={theme.colors.bg} name="add" size={20} />
+                </Pressable>
+              </Pressable>
+            ))}
           </View>
         ) : (
-          <Pressable onPress={() => setAiOpen(true)} style={themedStyles.aiBtn}>
-            <Ionicons color={theme.colors.accent} name="search" size={18} />
-            <Text style={themedStyles.aiBtnText}>Can't find it? Estimate with AI</Text>
-          </Pressable>
+          <View>
+            <Text style={themedStyles.sectionLabel}>Popular Indian Dishes</Text>
+            <View style={themedStyles.popularRow}>
+              {POPULAR.map((name) => (
+                <Pressable key={name} onPress={() => void onPickPopular(name)} style={themedStyles.popularChip}>
+                  <Text style={themedStyles.popularText}>{name}</Text>
+                </Pressable>
+              ))}
+            </View>
+          </View>
         )}
+
+        {notice ? <Text style={themedStyles.noticeText}>{notice}</Text> : null}
+
+        {yesterday ? (
+          <View style={themedStyles.sameCard}>
+            <Ionicons color={theme.colors.accent} name="repeat" size={26} />
+            <View style={themedStyles.sameBody}>
+              <Text style={themedStyles.sameTitle}>Same as yesterday?</Text>
+              <Text style={themedStyles.sameSub}>{yesterday.count} items · {yesterday.cal} kcal</Text>
+            </View>
+            <Pressable disabled={saving} onPress={() => void logYesterday()} style={themedStyles.sameBtn}>
+              <Text style={themedStyles.sameBtnText}>Log all</Text>
+            </Pressable>
+          </View>
+        ) : null}
 
         <Pressable onPress={() => navigation.navigate('AddCustomFood', { mealType })} style={themedStyles.link}>
           <Ionicons color={theme.colors.muted} name="add-circle-outline" size={18} />
@@ -358,4 +349,3 @@ export default function LogScreen() {
     </KeyboardAvoidingView>
   );
 }
-
