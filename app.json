@@ -56,7 +56,13 @@
             "android.permission.health.READ_DISTANCE"
           ]
         }
-      ]
+      ],
+      "expo-build-properties",
+        {
+          "android": {
+            "minSdkVersion": 26
+          }
+        }
     ]
   }
 }
