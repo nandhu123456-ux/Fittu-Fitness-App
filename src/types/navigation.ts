@@ -11,6 +11,7 @@ export type RootTabParamList = {
   Settings: undefined;
   Progress: undefined;
   Coach: undefined;
+  LogMenu: undefined;
 };
 
 /** Auth + onboarding routes; the root renders one of three navigators from these. */
