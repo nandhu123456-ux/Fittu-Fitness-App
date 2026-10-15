@@ -14,6 +14,7 @@ import { StatCard } from '../components/StatCard';
 import { DashboardHero } from '../components/DashboardHero';
 import { TodaysMealsCard } from '../components/TodaysMealsCard';
 import { BodyStatsCard } from '../components/BodyStatsCard';
+import { QuickLogRow } from '../components/QuickLogRow';
 import { getTodaysTotals, type TodayTotals } from '../services/foodLogs';
 import { getTodayMood, setMood } from '../services/moodLogs';
 import { addWater, getTodaysWater } from '../services/waterLogs';
@@ -177,6 +178,14 @@ export default function DashboardScreen() {
     <View style={themedStyles.moodCard}>
       <MoodPicker value={mood} onOpen={() => setMoodModalVisible(true)} onSave={async (value) => { if (!user) return; setMoodValue(value); await setMood(user.uid, value); }} />
     </View>
+    <QuickLogRow
+      items={[
+        { icon: 'barcode-outline', label: 'Scan', onPress: () => navigation.navigate('Barcode') },
+        { icon: 'camera-outline', label: 'Snap', onPress: () => navigation.navigate('PhotoLog', {}) },
+        { icon: 'mic-outline', label: 'Voice', onPress: () => navigation.navigate('VoiceLog', {}) },
+        { icon: 'search-outline', label: 'Search', onPress: () => navigation.navigate('Log', {}) },
+      ]}
+    />
     <TouchableOpacity style={themedStyles.settings} onPress={() => navigation.navigate('Settings')}><Text style={themedStyles.settingsText}>Settings</Text></TouchableOpacity>
     <WaterModal visible={waterModalVisible} onClose={() => setWaterModalVisible(false)} onAdd={async (ml) => { if (!user) return; await addWater(user.uid, ml); setWater((current) => current + ml); }} />
     <Modal visible={moodModalVisible} transparent animationType="fade" onRequestClose={() => setMoodModalVisible(false)}><View style={themedStyles.moodOverlay}><View style={themedStyles.moodModal}><MoodPicker value={mood} onSave={async (value) => { if (!user) return; setMoodValue(value); await setMood(user.uid, value); setMoodModalVisible(false); }} /></View></View></Modal>
