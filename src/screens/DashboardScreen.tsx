@@ -107,7 +107,13 @@ export default function DashboardScreen() {
         avatarLetter={(profile?.displayName ?? 'B').slice(0, 1).toUpperCase()}
         onMenuPress={() => navigation.navigate('Settings')}
       />
-    <InsightCard />
+    <InsightCard
+        remaining={remaining}
+        target={calories}
+        eaten={totals.calories}
+        protein={totals.protein}
+        targetProtein={targets?.protein ?? 0}
+      />
     <View style={styles.statCards}>
 <StatCard
         icon='footsteps-outline'
