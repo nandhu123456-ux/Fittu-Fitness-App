@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { RecordingPresets, getRecordingPermissionsAsync, requestRecordingPermissionsAsync, setAudioModeAsync, useAudioRecorder } from 'expo-audio';
+import { RecordingPresets, getRecordingPermissionsAsync, requestRecordingPermissionsAsync, setAudioModeAsync, useAudioRecorder, useAudioRecorderState } from 'expo-audio';
 import * as FileSystem from 'expo-file-system';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
@@ -34,6 +34,7 @@ export default function VoiceLogScreen() {
   const mealType = route.params?.mealType ?? 'snack';
 
   const recorder = useAudioRecorder({ ...RecordingPresets.HIGH_QUALITY, isMeteringEnabled: true });
+  const recorderState = useAudioRecorderState(recorder);
 
   const [granted, setGranted] = useState(false);
   const [recording, setRecording] = useState(false);
@@ -81,6 +82,7 @@ export default function VoiceLogScreen() {
       await recorder.prepareToRecordAsync();
       recorder.record();
       setRecording(true);
+      console.log('[voice] recording started, permission granted:', granted);
     } catch {
       setError('Could not start recording.');
     }
@@ -99,7 +101,17 @@ export default function VoiceLogScreen() {
         return;
       }
       const base64 = await FileSystem.readAsStringAsync(uri, { encoding: 'base64' });
+      console.log('[voice] recording stopped, uri:', uri, 'durationMs:', recorderState.durationMillis);
+      console.log('[voice] base64 length:', base64.length, 'mime:', mimeFromUri(uri));
+
+      if (base64.length < 5000) {
+        alert('Recording too short — please speak for at least 2 seconds');
+        setParsing(false);
+        return;
+      }
+
       const result = await parseVoice(base64, mimeFromUri(uri));
+      console.log('[voice] parse result:', result ? JSON.stringify(result) : 'null');
       if (!result) {
         setError("Couldn't understand that. Try speaking a food and quantity.");
         setParsing(false);

@@ -4,6 +4,7 @@ export interface Env {
   FIREBASE_PROJECT_ID: string;
   GEMINI_API_KEY: string;
   USDA_API_KEY: string;
+  GROQ_API_KEY: string;
 }
 
 const JWKS = createRemoteJWKSet(
@@ -109,6 +110,25 @@ export function jsonResponse(data: unknown, status = 200): Response {
 
 export function errorResponse(message: string, status = 500): Response {
   return jsonResponse({ error: message }, status);
+}
+
+/**
+ * Thin wrapper around the Groq chat completions endpoint.
+ * Used for text-only model calls (parsing transcripts, etc.).
+ */
+export async function callGroq(
+  env: Env,
+  body: object
+): Promise<Response> {
+  const url = 'https://api.groq.com/openai/v1/chat/completions';
+  return fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${env.GROQ_API_KEY}`,
+    },
+    body: JSON.stringify(body),
+  });
 }
 
 export async function fetchFirestoreDoc(

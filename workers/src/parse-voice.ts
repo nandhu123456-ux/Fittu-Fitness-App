@@ -1,20 +1,39 @@
 import {
   Env,
   verifyFirebaseToken,
-  callGeminiWithFallback,
+  callGroq,
   jsonResponse,
   errorResponse,
   extractAuthHeader,
 } from './shared';
 
-const PROMPT = `You are a nutrition parser. The user spoke a food description out loud. Extract the food name and estimate its nutrition.
+const TRANSCRIBE_URL = 'https://api.groq.com/openai/v1/audio/transcriptions';
+
+const MIME_EXT_MAP: Record<string, string> = {
+  'audio/m4a': 'm4a',
+  'audio/mp4': 'm4a',
+  'audio/mpeg': 'mp3',
+  'audio/wav': 'wav',
+  'audio/webm': 'webm',
+  'audio/aac': 'aac',
+  'audio/ogg': 'ogg',
+};
+
+const PARSE_PROMPT = `You are a nutrition analyst. The user said: "{transcript}"
+
+Extract every food item mentioned with estimated nutrition. Split multi-item descriptions into separate entries.
+
+Return ONLY valid JSON:
+{
+  "items": [
+    { "name": "Roti", "quantity": "2 pieces", "cal": 210, "protein": 6, "carbs": 40, "fat": 2 }
+  ]
+}
 
 Rules:
-- Interpret natural spoken phrases like "two rotis and a bowl of dal" or "one chicken biryani".
-- If multiple foods are spoken, pick the single most prominent food and note the quantity in the serving.
-- If you cannot understand the audio, return null for name and confidence "low".
-- Round calories to whole numbers.
-- Round macros to 1 decimal place.`;
+- Use typical Indian portion sizes
+- Round calories to whole numbers, macros to 1 decimal
+- If no food is mentioned, return {"items": []}`;
 
 export async function handleParseVoice(request: Request, env: Env): Promise<Response> {
   try {
@@ -40,68 +59,66 @@ export async function handleParseVoice(request: Request, env: Env): Promise<Resp
       return errorResponse('Audio too large', 413);
     }
 
-    const { res: geminiRes, model: usedModel } = await callGeminiWithFallback(env, {
-      contents: [
-        {
-          parts: [
-            { text: PROMPT },
-            { inline_data: { mime_type: mimeType, data: audioBase64 } },
-          ],
-        },
-      ],
-      generationConfig: {
-        temperature: 0.2,
-        maxOutputTokens: 2000,
-        responseMimeType: 'application/json',
-        responseSchema: {
-          type: 'object',
-          properties: {
-            name: { type: 'string', nullable: true },
-            serving: { type: 'string' },
-            cal: { type: 'number' },
-            protein: { type: 'number' },
-            carbs: { type: 'number' },
-            fat: { type: 'number' },
-            confidence: { type: 'string', enum: ['high', 'medium', 'low'] },
-          },
-          required: ['name', 'serving', 'cal', 'protein', 'carbs', 'fat', 'confidence'],
-        },
-      },
+    // ---- Step 1: Transcribe via Groq Whisper ----
+    const binary = Uint8Array.from(atob(audioBase64), (c) => c.charCodeAt(0));
+    const ext = MIME_EXT_MAP[mimeType] ?? 'm4a';
+
+    const formData = new FormData();
+    const blob = new Blob([binary], { type: mimeType });
+    formData.append('file', blob, `audio.${ext}`);
+    formData.append('model', 'whisper-large-v3');
+    formData.append('response_format', 'json');
+    formData.append('language', 'en');
+    formData.append('prompt', 'Food logging. Indian dishes like roti, dal, idli, dosa, biryani.');
+
+    const transcribeRes = await fetch(TRANSCRIBE_URL, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${env.GROQ_API_KEY}` },
+      body: formData,
     });
-    console.log('[gemini] using model:', usedModel);
 
-    if (!geminiRes.ok) {
-      const errText = await geminiRes.text();
-      console.error('[gemini] error', geminiRes.status, errText);
-      return errorResponse('Gemini API error', 502);
+    if (!transcribeRes.ok) {
+      const err = await transcribeRes.text();
+      console.error('[whisper] error', transcribeRes.status, err);
+      return errorResponse('Transcription failed', 502);
     }
 
-    const geminiData: any = await geminiRes.json();
-    const parts = geminiData?.candidates?.[0]?.content?.parts ?? [];
-    const textResponse = parts
-      .filter((p: any) => typeof p?.text === 'string' && p.text.length > 0 && !p.thought)
-      .map((p: any) => p.text)
-      .join('')
-      .trim();
-    if (!textResponse) {
-      console.error('[gemini] empty text. finishReason:', geminiData?.candidates?.[0]?.finishReason);
-      console.error('[gemini] parts:', JSON.stringify(geminiData?.candidates?.[0]?.content?.parts));
-      return errorResponse('Gemini returned no content', 502);
+    const { text: transcript } = await transcribeRes.json();
+    if (!transcript || typeof transcript !== 'string' || transcript.trim().length === 0) {
+      return jsonResponse({ transcript: '', items: [] });
     }
+
+    // ---- Step 2: Parse transcript to food items via Groq text model ----
+    const parsePrompt = PARSE_PROMPT.replace('{transcript}', transcript);
+
+    const parseRes = await callGroq(env, {
+      model: 'openai/gpt-oss-120b',
+      messages: [{ role: 'user', content: parsePrompt }],
+      temperature: 0.2,
+      max_tokens: 1500,
+      response_format: { type: 'json_object' },
+    });
+
+    if (!parseRes.ok) {
+      console.error('[parse-voice] groq text error', parseRes.status);
+      return errorResponse('Parse failed', 502);
+    }
+
+    const parseData: any = await parseRes.json();
+    const parseText = parseData?.choices?.[0]?.message?.content ?? '';
 
     let parsed: any;
     try {
-      parsed = JSON.parse(textResponse);
+      parsed = JSON.parse(parseText);
     } catch {
-      console.error('[gemini] non-JSON:', textResponse.slice(0, 200));
-      return errorResponse('Gemini returned invalid JSON', 502);
+      console.error('[parse-voice] non-JSON:', parseText.slice(0, 200));
+      return errorResponse('Invalid JSON from parser', 502);
     }
 
-    if (!parsed.name) {
-      return jsonResponse({ error: 'Could not understand the audio', food: parsed }, 422);
-    }
-
-    return jsonResponse({ food: parsed });
+    return jsonResponse({
+      transcript: transcript.trim(),
+      items: Array.isArray(parsed.items) ? parsed.items : [],
+    });
   } catch (error: any) {
     console.error('[handler] error:', error.message);
     return errorResponse('Internal error', 500);
