@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
@@ -22,10 +22,7 @@ import type { RootTabParamList } from '../types/navigation';
 type LogRoute = RouteProp<RootTabParamList, 'Log'>;
 type Navigation = BottomTabNavigationProp<RootTabParamList, 'Log'>;
 
-type MealFilter = 'all' | MealType;
-
-const FILTERS: { value: MealFilter; label: string }[] = [
-  { value: 'all', label: 'All' },
+const FILTERS: { value: MealType; label: string }[] = [
   { value: 'breakfast', label: 'Breakfast' },
   { value: 'lunch', label: 'Lunch' },
   { value: 'dinner', label: 'Dinner' },
@@ -63,7 +60,10 @@ export default function LogScreen() {
   // Live today total so the header updates the moment a food is logged.
   const { totals } = useTodayFoodLogs(uid);
 
-  const [filter, setFilter] = useState<MealFilter>(() => route.params?.mealType ?? 'all');
+  // Selected meal; a chip is highlighted on mount (inferred by time of day) but
+  // it is NOT confirmed until the user taps a chip (or arrives with a param).
+  const [mealType, setMealType] = useState<MealType>(() => route.params?.mealType ?? inferMealType(new Date().getHours()));
+  const [mealConfirmed, setMealConfirmed] = useState<boolean>(!!route.params?.mealType);
   const [search, setSearch] = useState('');
   const [results, setResults] = useState<FoodResult[]>([]);
   const [selected, setSelected] = useState<FoodResult | null>(null);
@@ -77,8 +77,12 @@ export default function LogScreen() {
   const [aiQuery, setAiQuery] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
 
-  // "All" resolves to a meal slot by time of day so every log gets one.
-  const mealType: MealType = filter === 'all' ? inferMealType(new Date().getHours()) : filter;
+  // Every meal-logging action and the Custom-food navigation pass through here.
+  const ensureMealConfirmed = (): boolean => {
+    if (mealConfirmed) return true;
+    Alert.alert('Pick a meal first', 'Select Breakfast, Lunch, Dinner, or Snacks before logging.', [{ text: 'OK' }]);
+    return false;
+  };
 
   const reloadRecents = (): void => {
     if (uid) getRecentFoods(uid).then(setRecents);
@@ -106,6 +110,7 @@ export default function LogScreen() {
   }, [search, uid]);
 
   const commit = async (food: FoodResult, servings: number): Promise<void> => {
+    if (!ensureMealConfirmed()) return;
     if (!uid) return;
     try {
       setSaving(true);
@@ -120,7 +125,9 @@ export default function LogScreen() {
   };
 
   // The "+" button on a recent row: instant 1-serving log, no portion modal.
+  // Writes via addFoodLog directly, so it needs its own guard.
   const quickLog = async (food: RecentFood): Promise<void> => {
+    if (!ensureMealConfirmed()) return;
     if (!uid) return;
     try {
       setSaving(true);
@@ -196,6 +203,8 @@ export default function LogScreen() {
     chipActive: { backgroundColor: theme.colors.accent, borderColor: theme.colors.accent },
     chipText: { color: theme.colors.text, fontSize: 13, fontWeight: '600' },
     chipTextActive: { color: theme.colors.bg },
+    customChip: { alignItems: 'center', borderColor: theme.colors.accent, borderRadius: 20, borderStyle: 'dashed', borderWidth: 1, flexDirection: 'row', gap: 6, paddingHorizontal: 14, paddingVertical: 8 },
+    customChipText: { color: theme.colors.accent, fontSize: 13, fontWeight: '600' },
     sectionRow: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 },
     sectionLabel: { color: theme.colors.muted, fontSize: 11, fontWeight: '700', letterSpacing: 1.2, textTransform: 'uppercase' },
     seeAll: { color: theme.colors.accent, fontSize: 13, fontWeight: '600' },
@@ -214,7 +223,6 @@ export default function LogScreen() {
     resultMeta: { color: theme.colors.muted, fontSize: 12, marginTop: 3 },
     resultCal: { color: theme.colors.accent, fontSize: 14, fontWeight: '700' },
     link: { alignItems: 'center', flexDirection: 'row', gap: 6, marginTop: 4 },
-    linkText: { color: theme.colors.muted, fontSize: 13 },
     linkAccent: { color: theme.colors.accent, fontSize: 14, fontWeight: '600' },
     center: { alignItems: 'center', paddingVertical: 24 },
     empty: { color: theme.colors.muted, fontSize: 14 },
@@ -253,10 +261,28 @@ export default function LogScreen() {
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={themedStyles.chipRow}>
           {FILTERS.map((option) => (
-            <Pressable key={option.value} onPress={() => setFilter(option.value)} style={[themedStyles.chip, filter === option.value && themedStyles.chipActive]}>
-              <Text style={[themedStyles.chipText, filter === option.value && themedStyles.chipTextActive]}>{option.label}</Text>
+            <Pressable
+              key={option.value}
+              onPress={() => {
+                setMealType(option.value);
+                setMealConfirmed(true);
+              }}
+              style={[themedStyles.chip, mealType === option.value && themedStyles.chipActive]}
+            >
+              <Text style={[themedStyles.chipText, mealType === option.value && themedStyles.chipTextActive]}>{option.label}</Text>
             </Pressable>
           ))}
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => {
+              if (!ensureMealConfirmed()) return;
+              navigation.navigate('AddCustomFood', { mealType });
+            }}
+            style={themedStyles.customChip}
+          >
+            <Ionicons color={theme.colors.accent} name="add-circle-outline" size={18} />
+            <Text style={themedStyles.customChipText}>Custom</Text>
+          </Pressable>
         </ScrollView>
 
         {search.trim().length > 0 ? (
@@ -292,7 +318,14 @@ export default function LogScreen() {
         {recents.length > 0 ? (
           <View>
             {recents.map((food) => (
-              <Pressable key={food.id} onPress={() => setSelected(food)} style={themedStyles.mealCard}>
+              <Pressable
+                key={food.id}
+                onPress={() => {
+                  if (!ensureMealConfirmed()) return;
+                  setSelected(food);
+                }}
+                style={themedStyles.mealCard}
+              >
                 <View style={themedStyles.mealThumb}>
                   <Ionicons color={theme.colors.muted} name="restaurant-outline" size={22} />
                 </View>
@@ -333,11 +366,6 @@ export default function LogScreen() {
             </Pressable>
           </View>
         ) : null}
-
-        <Pressable onPress={() => navigation.navigate('AddCustomFood', { mealType })} style={themedStyles.link}>
-          <Ionicons color={theme.colors.muted} name="add-circle-outline" size={18} />
-          <Text style={themedStyles.linkText}>Add custom food</Text>
-        </Pressable>
       </ScrollView>
 
       <PortionModal visible={selected !== null} food={selected} onClose={() => setSelected(null)} onConfirm={(servings, edited) => { if (selected) void commit(edited ?? selected, servings); }} />
