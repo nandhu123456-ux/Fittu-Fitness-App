@@ -25,6 +25,7 @@ import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../theme';
 import type { RootTabParamList } from '../types/navigation';
 import { calculateMomentum } from '../utils/momentum';
+import { formatCalories, formatGrams } from '../utils/format';
 import { predictGoalDate } from '../utils/predictWeight';
 
 const emptyTotals: TodayTotals = { calories: 0, protein: 0, carbs: 0, fat: 0, perMeal: {} };
@@ -45,6 +46,7 @@ export default function DashboardScreen() {
   const targets = profile?.targets;
   const calories = targets?.calories ?? 0;
   const health = useHealthData(true);
+  const waterTarget = 2500;
 
   const refresh = useCallback(async () => {
     if (!user) return;
@@ -133,13 +135,13 @@ export default function DashboardScreen() {
         subtitleColor={health.data ? theme.colors.muted : theme.colors.accent}
         onPress={health.data ? undefined : () => navigation.navigate('Settings')}
       />
-  <StatCard
-    icon='water-outline'
-    iconColor={theme.colors.protein}
-    label='Protein'
-    value={`${totals.protein}g`}
-    subtitle={`of ${targets?.protein ?? 0}g`}
-  />
+      <StatCard
+        icon='water-outline'
+        iconColor={theme.colors.water}
+        label='Protein'
+        value={`${formatGrams(totals.protein)}g`}
+        subtitle={`of ${formatGrams(targets?.protein ?? 0)}g`}
+      />
   <View style={styles.dayStreak}>
     <StatCard
       icon='star-outline'
@@ -160,9 +162,9 @@ export default function DashboardScreen() {
     <View style={themedStyles.ringCard}>
       <MomentumRing score={momentum.score} label={momentum.label} />
       <View style={themedStyles.bulletList}>
-        <Text style={[themedStyles.bullet, { color: theme.colors.accent }]}>• {remaining} kcal left</Text>
-        <Text style={[themedStyles.bullet, { color: theme.colors.text }]}>• {totals.calories} eaten</Text>
-        <Text style={[themedStyles.bullet, { color: theme.colors.muted }]}>• {calories} goal</Text>
+        <Text style={[themedStyles.bullet, { color: theme.colors.accent }]}>• {formatCalories(remaining)} kcal left</Text>
+        <Text style={[themedStyles.bullet, { color: theme.colors.text }]}>• {formatCalories(totals.calories)} eaten</Text>
+        <Text style={[themedStyles.bullet, { color: theme.colors.muted }]}>• {formatCalories(calories)} goal</Text>
       </View>
     </View>
     <TouchableOpacity style={themedStyles.detailsPill}>
@@ -173,7 +175,7 @@ export default function DashboardScreen() {
     <TodaysMealsCard perMeal={perMealForCard} onMealPress={(m) => navigation.navigate('Log', { mealType: m })} />
   </View>
 </View>
-    <View style={themedStyles.macros}><MacroRing label="Protein" current={totals.protein} target={targets?.protein ?? 0} color={theme.colors.protein} unit="g" /><MacroRing label="Carbs" current={totals.carbs} target={targets?.carbs ?? 0} color={theme.colors.carbs} unit="g" /><MacroRing label="Fat" current={totals.fat} target={targets?.fat ?? 0} color={theme.colors.fat} unit="g" /><TouchableOpacity onPress={() => setWaterModalVisible(true)} style={styles.waterRing}><MacroRing label="Water" current={water} target={2500} color={theme.colors.water} unit="L" /></TouchableOpacity></View>
+    <View style={themedStyles.macros}><MacroRing label="Protein" current={totals.protein} target={targets?.protein ?? 0} color={theme.colors.protein} unit="g" /><MacroRing label="Carbs" current={totals.carbs} target={targets?.carbs ?? 0} color={theme.colors.carbs} unit="g" /><MacroRing label="Fat" current={totals.fat} target={targets?.fat ?? 0} color={theme.colors.fat} unit="g" /><TouchableOpacity onPress={() => setWaterModalVisible(true)} style={styles.waterRing}><MacroRing label="Water" current={water} target={waterTarget} color={theme.colors.water} unit="L" /></TouchableOpacity></View>
     <PrimaryCTA {...cta} onPress={() => navigation.navigate('Log', cta.mealType ? { mealType: cta.mealType } : undefined)} />
     <View style={{ flexDirection: 'row', gap: 12 }}>
       <View style={{ flex: 1.2 }}>

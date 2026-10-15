@@ -11,16 +11,6 @@ interface DashboardHeroProps {
   onMenuPress?: () => void;
 }
 
-const QUOTES = [
-  'Discipline today, a stronger tomorrow.',
-  'Small steps, big change.',
-  'Consistency beats perfection.',
-  'One meal at a time.',
-  'Your future self is watching.',
-  'Progress, not perfection.',
-  'Show up. Every day.',
-];
-
 export function DashboardHero({
   displayName,
   streakDays,
@@ -30,28 +20,17 @@ export function DashboardHero({
   const theme = useTheme();
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'morning' : hour < 18 ? 'afternoon' : 'evening';
-  const quote = QUOTES[new Date().getDay() % QUOTES.length];
 
   const themedStyles = useMemo(
     () =>
       StyleSheet.create({
         container: {
-          backgroundColor: theme.colors.bg,
+          backgroundColor: theme.colors.surface,
+          borderColor: theme.colors.border,
           borderRadius: 20,
-          overflow: 'hidden',
-          position: 'relative',
+          borderWidth: 1,
           padding: 20,
           paddingTop: 16,
-        },
-        glow: {
-          position: 'absolute',
-          width: 120,
-          height: 120,
-          borderRadius: 60,
-          backgroundColor: theme.colors.accentGlow,
-          opacity: 0.4,
-          top: -30,
-          right: -30,
         },
         row: {
           flexDirection: 'row',
@@ -60,7 +39,7 @@ export function DashboardHero({
         title: {
           fontSize: 20,
           fontWeight: '700',
-          color: theme.colors.accent,
+          color: theme.colors.text,
         },
         subtitle: {
           fontSize: 11,
@@ -83,12 +62,12 @@ export function DashboardHero({
           width: 40,
           height: 40,
           borderRadius: 20,
-          backgroundColor: theme.colors.accentAlt,
+          backgroundColor: theme.colors.accent,
           alignItems: 'center',
           justifyContent: 'center',
         },
         avatarLetter: {
-          color: theme.colors.bg,
+          color: theme.colors.accentText,
           fontWeight: '700',
           fontSize: 14,
         },
@@ -102,12 +81,7 @@ export function DashboardHero({
           fontWeight: '700',
           color: theme.colors.text,
           marginTop: 8,
-        },
-        quote: {
-          fontSize: 13,
-          fontStyle: 'italic',
-          color: theme.colors.muted,
-          marginTop: 6,
+          letterSpacing: -0.5,
         },
       }),
     [theme],
@@ -115,7 +89,6 @@ export function DashboardHero({
 
   return (
     <View style={themedStyles.container}>
-      <View style={themedStyles.glow} />
       <View style={themedStyles.row}>
         <Pressable onPress={onMenuPress} hitSlop={8}>
           <Ionicons name="menu-outline" size={24} color={theme.colors.text} />
@@ -132,9 +105,7 @@ export function DashboardHero({
           <Text style={themedStyles.avatarLetter}>{avatarLetter}</Text>
         </View>
       </View>
-      <Text
-        style={themedStyles.date}
-      >
+      <Text style={themedStyles.date}>
         {new Date().toLocaleDateString(undefined, {
           weekday: 'long',
           month: 'short',
@@ -142,7 +113,6 @@ export function DashboardHero({
         })}
       </Text>
       <Text style={themedStyles.greeting}>Good {greeting}, {displayName}</Text>
-      <Text style={themedStyles.quote}>{quote}</Text>
     </View>
   );
 }
