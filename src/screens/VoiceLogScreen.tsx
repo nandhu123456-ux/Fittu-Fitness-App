@@ -38,15 +38,16 @@ export default function VoiceLogScreen() {
 
   const [granted, setGranted] = useState(false);
   const [recording, setRecording] = useState(false);
-  const [parsing, setParsing] = useState(false);
+  const [transcribing, setTranscribing] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [food, setFood] = useState<FoodResult | null>(null);
+  const [pendingFood, setPendingFood] = useState<FoodResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [transcript, setTranscript] = useState('');
   const [editingTranscript, setEditingTranscript] = useState(false);
   const [editedText, setEditedText] = useState('');
   const [textFallback, setTextFallback] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
   const [parseError, setParseError] = useState(false);
 
   useEffect(() => {
@@ -78,6 +79,11 @@ export default function VoiceLogScreen() {
     fallbackInput: { color: theme.colors.text, fontSize: 15, lineHeight: 22, padding: 8 },
     fallbackGo: { alignItems: 'center', backgroundColor: theme.colors.accent, borderRadius: 12, marginTop: 12, padding: 14 },
     fallbackGoText: { color: theme.colors.bg, fontWeight: '700' },
+    reviewCard: { alignItems: 'center', backgroundColor: theme.colors.surface, borderColor: theme.colors.accent, borderRadius: 16, borderWidth: 1, marginTop: 16, padding: 16, width: '100%' },
+    reviewTitle: { color: theme.colors.accent, fontSize: 12, fontWeight: '700', letterSpacing: 1.2, marginTop: 4, textTransform: 'uppercase' },
+    reviewName: { color: theme.colors.text, fontSize: 18, fontWeight: '700', marginTop: 6 },
+    reviewMeta: { color: theme.colors.muted, fontSize: 13, marginTop: 2 },
+    reviewActions: { flexDirection: 'row', gap: 8, marginTop: 14 },
   }), [theme, recording]);
 
 
@@ -109,10 +115,9 @@ export default function VoiceLogScreen() {
     }
   };
 
-  const stopAndParse = async (): Promise<void> => {
-    if (submitting) return;
+  const stopRecording = async (): Promise<void> => {
     setRecording(false);
-    setParsing(true);
+    setTranscribing(true);
     setError(null);
     setParseError(false);
     try {
@@ -120,64 +125,78 @@ export default function VoiceLogScreen() {
       const uri = recorder.uri;
       if (!uri) {
         setError('No recording found. Try again.');
-        setParsing(false);
+        setTranscribing(false);
         return;
       }
       const base64 = await FileSystem.readAsStringAsync(uri, { encoding: 'base64' });
 
       if (base64.length < 5000) {
         setError('Recording too short — please speak for at least 2 seconds');
-        setParsing(false);
+        setTranscribing(false);
         return;
       }
 
+      // Stage 1: transcribe audio only. Food analysis is NOT triggered here.
       const result: VoiceParseResult = await parseVoice(base64, mimeFromUri(uri));
       const text = result.transcript.trim();
       setTranscript(text);
       setEditedText(text);
-      if (result.food) {
-        setFood(result.food);
-      } else if (text) {
-        setParseError(true);
-        setError("Couldn't extract food from that. Edit the transcript and try again.");
-      } else {
+      if (!text) {
         setParseError(true);
         setError("Couldn't understand that. Try speaking a food and quantity.");
       }
     } catch {
       setError('Could not process the recording.');
     } finally {
-      setParsing(false);
+      setTranscribing(false);
     }
   };
 
-  const submitTranscript = async (): Promise<void> => {
-    const text = editedText.trim();
-    if (!text || submitting || !user) return;
-    setSubmitting(true);
+  const analyzeTranscript = async (): Promise<void> => {
+    const text = editingTranscript ? editedText.trim() : transcript.trim();
+    if (!text || analyzing || !user) return;
+    setAnalyzing(true);
     setError(null);
     setParseError(false);
     try {
-      const result = await parseVoice(text, 'audio/mpeg');
+      const result: VoiceParseResult = await parseVoice(text, 'audio/mpeg');
       if (result.food) {
-        setFood(result.food);
-        setTranscript(result.transcript || text);
+        setPendingFood(result.food);
       } else {
         setParseError(true);
-        setError("Couldn't extract food from that. Try a clearer description.");
+        setError("Couldn't extract food from that. Edit the transcript and try again.");
       }
     } catch {
       setError('Could not process that. Please try again.');
     } finally {
-      setSubmitting(false);
+      setAnalyzing(false);
     }
+  };
+
+  const confirmPending = (): void => {
+    if (pendingFood) setFood(pendingFood);
+    setPendingFood(null);
+  };
+
+  const rejectPending = (): void => {
+    setPendingFood(null);
   };
 
   const retry = (): void => {
     setParseError(false);
     setTranscript('');
     setEditedText('');
+    setPendingFood(null);
     setError(null);
+  };
+
+  const recordAgain = (): void => {
+    setTranscript('');
+    setEditedText('');
+    setPendingFood(null);
+    setParseError(false);
+    setError(null);
+    setEditingTranscript(false);
   };
 
   const useTextFallback = (): void => {
@@ -216,28 +235,35 @@ export default function VoiceLogScreen() {
     );
   }
 
-  return (
+return (
     <KeyboardAvoidingView style={themedStyles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={Platform.OS === 'ios' ? 88 : 24}>
-      <ScrollView contentContainerStyle={themedStyles.scroll} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={themedStyles.scroll} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
         <Text style={themedStyles.title}>Speak your food</Text>
         <Text style={themedStyles.hint}>Tap the mic, say something like "two rotis and dal", then tap again.</Text>
 
-        {parsing ? (
+        {transcribing ? (
           <>
             <View style={themedStyles.micOff}>
               <ActivityIndicator color={theme.colors.accent} size="large" />
             </View>
-            <Text style={themedStyles.status}>Understanding your food…</Text>
+            <Text style={themedStyles.status}>Transcribing…</Text>
           </>
-        ) : submitting ? (
+        ) : analyzing ? (
           <>
             <View style={themedStyles.micOff}>
               <ActivityIndicator color={theme.colors.accent} size="large" />
             </View>
-            <Text style={themedStyles.status}>Extracting food…</Text>
+            <Text style={themedStyles.status}>Analysing meal…</Text>
+          </>
+        ) : pendingFood ? (
+          <>
+            <View style={themedStyles.micOff}>
+              <Ionicons color={theme.colors.accent} name="restaurant" size={56} />
+            </View>
+            <Text style={themedStyles.status}>Meal ready to review</Text>
           </>
         ) : (
-          <Pressable onPress={() => (recording ? void stopAndParse() : void startRecording())} style={themedStyles.mic}>
+          <Pressable onPress={() => (recording ? void stopRecording() : void startRecording())} style={themedStyles.mic}>
             <Ionicons color={theme.colors.bg} name={recording ? 'stop' : 'mic'} size={52} />
           </Pressable>
         )}
@@ -246,7 +272,7 @@ export default function VoiceLogScreen() {
         {transcript ? (
           <View style={themedStyles.transcriptCard}>
             <View style={themedStyles.transcriptHead}>
-              <Text style={themedStyles.transcriptLabel}>Recognised speech</Text>
+              <Text style={themedStyles.transcriptLabel}>Your meal</Text>
               <Pressable onPress={() => setEditingTranscript((v) => !v)} hitSlop={8}>
                 <Ionicons color={theme.colors.accent} name={editingTranscript ? 'checkmark' : 'pencil'} size={18} />
               </Pressable>
@@ -255,24 +281,27 @@ export default function VoiceLogScreen() {
               <TextInput
                 multiline
                 onChangeText={setEditedText}
-                onSubmitEditing={() => void submitTranscript()}
                 placeholder="Edit transcript"
                 placeholderTextColor={theme.colors.muted}
                 style={themedStyles.transcriptInput}
                 value={editedText}
               />
             ) : (
-              <Text style={themedStyles.transcriptText}>{editedText || transcript}</Text>
+              <Text style={themedStyles.transcriptText}>"{editedText || transcript}"</Text>
             )}
-            {parseError ? (
+            {parseError && !pendingFood ? (
               <View style={themedStyles.transcriptActions}>
-                <Pressable onPress={retry} style={themedStyles.transcriptBtn}>
-                  <Text style={themedStyles.transcriptBtnText}>Retry recording</Text>
+                <Pressable onPress={recordAgain} style={themedStyles.transcriptBtn}>
+                  <Text style={themedStyles.transcriptBtnText}>Record again</Text>
                 </Pressable>
                 <Pressable onPress={useTextFallback} style={[themedStyles.transcriptBtn, themedStyles.transcriptBtnAccent]}>
                   <Text style={[themedStyles.transcriptBtnText, themedStyles.transcriptBtnTextAccent]}>Type it instead</Text>
                 </Pressable>
               </View>
+            ) : !pendingFood ? (
+              <Pressable disabled={!editedText.trim() || analyzing} onPress={() => void analyzeTranscript()} style={[themedStyles.transcriptBtn, themedStyles.transcriptBtnAccent]}>
+                <Text style={[themedStyles.transcriptBtnText, themedStyles.transcriptBtnTextAccent]}>Analyse meal</Text>
+              </Pressable>
             ) : null}
           </View>
         ) : null}
@@ -287,9 +316,26 @@ export default function VoiceLogScreen() {
               style={themedStyles.fallbackInput}
               value={editedText}
             />
-            <Pressable disabled={!editedText.trim() || submitting} onPress={() => void submitTranscript()} style={themedStyles.fallbackGo}>
-              <Text style={themedStyles.fallbackGoText}>Find food</Text>
+            <Pressable disabled={!editedText.trim() || analyzing} onPress={() => void analyzeTranscript()} style={themedStyles.fallbackGo}>
+              <Text style={themedStyles.fallbackGoText}>Analyse meal</Text>
             </Pressable>
+          </View>
+        ) : null}
+
+        {pendingFood ? (
+          <View style={themedStyles.reviewCard}>
+            <Ionicons color={theme.colors.accent} name="restaurant-outline" size={20} />
+            <Text style={themedStyles.reviewTitle}>Review before saving</Text>
+            <Text style={themedStyles.reviewName}>{pendingFood.name}</Text>
+            <Text style={themedStyles.reviewMeta}>{pendingFood.serving} · {pendingFood.cal} kcal</Text>
+            <View style={themedStyles.reviewActions}>
+              <Pressable onPress={rejectPending} style={themedStyles.transcriptBtn}>
+                <Text style={themedStyles.transcriptBtnText}>Back to edit</Text>
+              </Pressable>
+              <Pressable onPress={confirmPending} style={[themedStyles.transcriptBtn, themedStyles.transcriptBtnAccent]}>
+                <Text style={[themedStyles.transcriptBtnText, themedStyles.transcriptBtnTextAccent]}>Confirm</Text>
+              </Pressable>
+            </View>
           </View>
         ) : null}
 
@@ -301,7 +347,7 @@ export default function VoiceLogScreen() {
       </ScrollView>
       <PortionModal
         food={food}
-        onClose={() => { setFood(null); setTranscript(''); setEditedText(''); setParseError(false); setTextFallback(false); }}
+        onClose={() => { setFood(null); setPendingFood(null); setTranscript(''); setEditedText(''); setParseError(false); setTextFallback(false); }}
         onConfirm={(servings) => void confirm(servings)}
         visible={food !== null}
       />
