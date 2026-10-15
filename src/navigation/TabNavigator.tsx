@@ -60,7 +60,8 @@ export default function TabNavigator() {
       <Tab.Screen name="AddCustomFood" component={AddCustomFoodScreen} options={{ tabBarButton: () => null }} />
       <Tab.Screen name="Settings" component={SettingsScreen} options={{ tabBarButton: () => null }} />
       <Tab.Screen name="Progress" component={ProgressScreen} />
-      <Tab.Screen name="Coach" component={CoachScreen} />
+      {/* Route name stays "Coach" — other screens navigate to it. Label + header only. */}
+      <Tab.Screen name="Coach" component={CoachScreen} options={{ title: 'Profile' }} />
     </Tab.Navigator>
     <LogMenuModal visible={logMenuVisible} onClose={() => setLogMenuVisible(false)} />
     </>
