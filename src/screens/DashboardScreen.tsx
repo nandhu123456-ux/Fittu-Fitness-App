@@ -20,6 +20,7 @@ import { getTodayMood, setMood } from '../services/moodLogs';
 import { addWater, getTodaysWater } from '../services/waterLogs';
 import { getRecentWeights, type WeightEntry } from '../services/weightLogs';
 import { refreshStreak } from '../services/streakService';
+import { useHealthData } from '../hooks/useHealthData';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../theme';
 import type { RootTabParamList } from '../types/navigation';
@@ -43,6 +44,7 @@ export default function DashboardScreen() {
   const [moodModalVisible, setMoodModalVisible] = useState(false);
   const targets = profile?.targets;
   const calories = targets?.calories ?? 0;
+  const health = useHealthData(true);
 
   const refresh = useCallback(async () => {
     if (!user) return;
@@ -107,24 +109,24 @@ export default function DashboardScreen() {
       />
     <InsightCard />
     <View style={styles.statCards}>
-  <StatCard
-    icon='footsteps-outline'
-    iconColor={theme.colors.muted}
-    label='Steps'
-    value='—'
-    subtitle='Connect'
-    subtitleColor={theme.colors.accent}
-    onPress={() => navigation.navigate('Settings')}
-  />
-  <StatCard
-    icon='flame-outline'
-    iconColor={theme.colors.muted}
-    label='Kcal burned'
-    value='—'
-    subtitle='Connect'
-    subtitleColor={theme.colors.accent}
-    onPress={() => navigation.navigate('Settings')}
-  />
+<StatCard
+        icon='footsteps-outline'
+        iconColor={health.data ? theme.colors.accent : theme.colors.muted}
+        label='Steps'
+        value={health.data ? health.data.steps.toLocaleString() : '—'}
+        subtitle={health.data ? `${Math.round((health.data.steps / 10000) * 100)}% of goal` : (health.loading ? 'Loading…' : 'Connect')}
+        subtitleColor={health.data ? theme.colors.muted : theme.colors.accent}
+        onPress={health.data ? undefined : () => navigation.navigate('Settings')}
+      />
+      <StatCard
+        icon='flame-outline'
+        iconColor={health.data ? theme.colors.warn : theme.colors.muted}
+        label='Kcal burned'
+        value={health.data ? health.data.caloriesBurned.toLocaleString() : '—'}
+        subtitle={health.data ? 'Today' : (health.loading ? 'Loading…' : 'Connect')}
+        subtitleColor={health.data ? theme.colors.muted : theme.colors.accent}
+        onPress={health.data ? undefined : () => navigation.navigate('Settings')}
+      />
   <StatCard
     icon='water-outline'
     iconColor={theme.colors.protein}
