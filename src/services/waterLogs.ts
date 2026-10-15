@@ -1,8 +1,10 @@
 import { doc, getDoc, increment, setDoc } from 'firebase/firestore';
 
 import { db } from './firebase';
+import { todayLocalISO } from '../utils/streak';
 
-const today = (): string => new Date().toISOString().slice(0, 10);
+// Local timezone, not UTC, so late-night water rolls to the correct calendar day.
+const today = (): string => todayLocalISO();
 
 export async function getTodaysWater(uid: string): Promise<number> {
   try {

@@ -1,8 +1,10 @@
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 import { db } from './firebase';
+import { todayLocalISO } from '../utils/streak';
 
-const today = (): string => new Date().toISOString().slice(0, 10);
+// Local timezone, not UTC, so late-night moods roll to the correct calendar day.
+const today = (): string => todayLocalISO();
 
 export async function getTodayMood(uid: string): Promise<string | null> {
   try {

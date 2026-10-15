@@ -1,6 +1,7 @@
 import { collection, getDocs, query, where } from 'firebase/firestore';
 
 import { db } from './firebase';
+import { todayLocalISO } from '../utils/streak';
 
 export type MealType = 'breakfast' | 'lunch' | 'snack' | 'dinner';
 
@@ -12,7 +13,8 @@ export interface TodayTotals {
   perMeal: Partial<Record<MealType, boolean>>;
 }
 
-const today = (): string => new Date().toISOString().slice(0, 10);
+// Local timezone, not UTC, so late-night logs roll to the correct calendar day.
+const today = (): string => todayLocalISO();
 
 export async function getTodaysTotals(uid: string): Promise<TodayTotals> {
   const empty: TodayTotals = { calories: 0, protein: 0, carbs: 0, fat: 0, perMeal: {} };

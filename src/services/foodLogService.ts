@@ -4,6 +4,7 @@ import type { FoodResult } from './foodSearch';
 import type { MealType } from './foodLogs';
 import { db } from './firebase';
 import { refreshStreak } from './streakService';
+import { todayLocalISO } from '../utils/streak';
 
 export interface FoodLogEntry {
   id: string;
@@ -20,7 +21,8 @@ export interface FoodLogEntry {
   portionGrams?: number;
 }
 
-const today = (): string => new Date().toISOString().slice(0, 10);
+// Local timezone, not UTC, so late-night logs roll to the correct calendar day.
+const today = (): string => todayLocalISO();
 const rounded = (value: number): number => Math.round(value * 10) / 10;
 
 export async function addFoodLog(uid: string, input: { mealType: MealType; food: FoodResult; servings: number; portionGrams?: number }): Promise<void> {

@@ -1,6 +1,7 @@
 import { addDoc, collection, deleteDoc, doc, getDocs, limit, orderBy, query } from 'firebase/firestore';
 
 import { db } from './firebase';
+import { todayLocalISO } from '../utils/streak';
 
 export interface WeightEntry {
   id: string;
@@ -31,6 +32,7 @@ export async function deleteWeight(uid: string, entryId: string): Promise<void> 
 
 export async function addWeight(uid: string, weight: number, note?: string): Promise<void> {
   await addDoc(collection(db, 'weightLogs', uid, 'entries'), {
-    date: new Date().toISOString().slice(0, 10), weight, ...(note ? { note } : {}),
+    // Local timezone, not UTC, so late-night entries roll to the correct calendar day.
+    date: todayLocalISO(), weight, ...(note ? { note } : {}),
   });
 }
