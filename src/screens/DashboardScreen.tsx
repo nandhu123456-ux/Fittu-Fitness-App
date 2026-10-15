@@ -15,12 +15,11 @@ import { DashboardHero } from '../components/DashboardHero';
 import { TodaysMealsCard } from '../components/TodaysMealsCard';
 import { BodyStatsCard } from '../components/BodyStatsCard';
 import { QuickLogRow } from '../components/QuickLogRow';
-import { getTodaysTotals, type TodayTotals } from '../services/foodLogs';
-import { getTodayMood, setMood } from '../services/moodLogs';
-import { addWater, getTodaysWater } from '../services/waterLogs';
-import { getRecentWeights, type WeightEntry } from '../services/weightLogs';
+import { setMood } from '../services/moodLogs';
+import { addWater } from '../services/waterLogs';
 import { refreshStreak } from '../services/streakService';
 import { useHealthData } from '../hooks/useHealthData';
+import { useRecentWeights, useTodayFoodLogs, useTodayMood, useTodayWater, useUserDoc, type PerMealFlags } from '../hooks/useRealtime';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../theme';
 import type { RootTabParamList } from '../types/navigation';
@@ -28,17 +27,22 @@ import { calculateMomentum } from '../utils/momentum';
 import { formatCalories, formatGrams } from '../utils/format';
 import { predictGoalDate } from '../utils/predictWeight';
 
-const emptyTotals: TodayTotals = { calories: 0, protein: 0, carbs: 0, fat: 0, perMeal: {} };
 type Navigation = BottomTabNavigationProp<RootTabParamList, 'Dashboard'>;
 
 export default function DashboardScreen() {
   const theme = useTheme();
   const { user, profile } = useAuthStore();
   const navigation = useNavigation<Navigation>();
-  const [totals, setTotals] = useState<TodayTotals>(emptyTotals);
-  const [water, setWater] = useState(0);
-  const [weights, setWeights] = useState<WeightEntry[]>([]);
-  const [mood, setMoodValue] = useState<string | null>(null);
+  const uid = user?.uid;
+
+  // Real-time Firestore listeners: any write from any screen updates these.
+  const { totals, perMeal, perMealFlags } = useTodayFoodLogs(uid);
+  const { ml: water } = useTodayWater(uid);
+  const { entries: weights } = useRecentWeights(uid, 14);
+  const { mood } = useTodayMood(uid);
+  // Pushes users/{uid} into the auth store so profile-driven UI stays current.
+  useUserDoc(uid);
+
   const [refreshing, setRefreshing] = useState(false);
   const [now, setNow] = useState(new Date());
   const [waterModalVisible, setWaterModalVisible] = useState(false);
@@ -48,22 +52,18 @@ export default function DashboardScreen() {
   const health = useHealthData(true);
   const waterTarget = 2500;
 
+  // Pull-to-refresh only recomputes the streak — every other value is live.
   const refresh = useCallback(async () => {
-    if (!user) return;
+    if (!uid) return;
     setRefreshing(true);
-    const [food, waterResult, weight, moodResult, streakResult] = await Promise.allSettled([getTodaysTotals(user.uid), getTodaysWater(user.uid), getRecentWeights(user.uid, 14), getTodayMood(user.uid), refreshStreak(user.uid)]);
-    if (food.status === 'fulfilled') setTotals(food.value);
-    if (waterResult.status === 'fulfilled') setWater(waterResult.value);
-    if (weight.status === 'fulfilled') setWeights(weight.value);
-    if (moodResult.status === 'fulfilled') setMoodValue(moodResult.value);
-    if (streakResult.status === 'fulfilled' && streakResult.value !== profile?.streakDays) {
-      const currentProfile = useAuthStore.getState().profile;
-      if (currentProfile && currentProfile.streakDays !== streakResult.value) {
-        useAuthStore.getState().setProfile({ ...currentProfile, streakDays: streakResult.value });
-      }
+    const streak = await refreshStreak(uid).catch(() => null);
+    if (streak !== null && streak !== useAuthStore.getState().profile?.streakDays) {
+      const current = useAuthStore.getState().profile;
+      if (current) useAuthStore.getState().setProfile({ ...current, streakDays: streak });
     }
     setRefreshing(false);
-  }, [user]);
+  }, [uid]);
+
   useEffect(() => { void refresh(); }, [refresh]);
   useEffect(() => { const timer = setInterval(() => setNow(new Date()), 60_000); return () => clearInterval(timer); }, []);
 
@@ -71,14 +71,8 @@ export default function DashboardScreen() {
   const trend = weights.length < 2 ? 'flat' : (goal === 'lose' ? weights[0].weight <= weights[1].weight : goal === 'gain' ? weights[0].weight >= weights[1].weight : Math.abs(weights[0].weight - weights[1].weight) < 0.2) ? 'desired' : 'opposite';
   const momentum = calculateMomentum({ calories: totals.calories, targetCalories: calories, protein: totals.protein, targetProtein: targets?.protein ?? 0, streakDays: profile?.streakDays ?? 0, weightTrend: trend, goal });
   const remaining = Math.max(0, calories - totals.calories);
-  const cta = useMemo(() => getCta(now.getHours(), totals.perMeal, calories, remaining), [calories, now, remaining, totals.perMeal]);
+  const cta = useMemo(() => getCta(now.getHours(), perMealFlags, calories, remaining), [calories, now, remaining, perMealFlags]);
   const prediction = profile?.goal ? predictGoalDate({ currentKg: weights[0]?.weight ?? profile.profile?.weightKg ?? profile.goal.targetWeightKg, targetKg: profile.goal.targetWeightKg, history: weights }) : null;
-  const perMealForCard: Record<string, { cal: number; count: number }> = {
-    breakfast: { cal: 0, count: totals.perMeal.breakfast ? 1 : 0 },
-    lunch: { cal: 0, count: totals.perMeal.lunch ? 1 : 0 },
-    dinner: { cal: 0, count: totals.perMeal.dinner ? 1 : 0 },
-    snack: { cal: 0, count: totals.perMeal.snack ? 1 : 0 },
-  };
 
   const themedStyles = useMemo(() => StyleSheet.create({
     screen: { backgroundColor: theme.colors.bg },
@@ -172,7 +166,7 @@ export default function DashboardScreen() {
     </TouchableOpacity>
   </View>
   <View style={{ flex: 1 }}>
-    <TodaysMealsCard perMeal={perMealForCard} onMealPress={(m) => navigation.navigate('Log', { mealType: m })} />
+    <TodaysMealsCard perMeal={perMeal} onMealPress={(m) => navigation.navigate('Log', { mealType: m })} />
   </View>
 </View>
     <View style={themedStyles.macros}><MacroRing label="Protein" current={totals.protein} target={targets?.protein ?? 0} color={theme.colors.protein} unit="g" /><MacroRing label="Carbs" current={totals.carbs} target={targets?.carbs ?? 0} color={theme.colors.carbs} unit="g" /><MacroRing label="Fat" current={totals.fat} target={targets?.fat ?? 0} color={theme.colors.fat} unit="g" /><TouchableOpacity onPress={() => setWaterModalVisible(true)} style={styles.waterRing}><MacroRing label="Water" current={water} target={waterTarget} color={theme.colors.water} unit="L" /></TouchableOpacity></View>
@@ -186,7 +180,7 @@ export default function DashboardScreen() {
       </View>
     </View>
     <View style={themedStyles.moodCard}>
-      <MoodPicker value={mood} onOpen={() => setMoodModalVisible(true)} onSave={async (value) => { if (!user) return; setMoodValue(value); await setMood(user.uid, value); }} />
+      <MoodPicker value={mood} onOpen={() => setMoodModalVisible(true)} onSave={async (value) => { if (!user) return; await setMood(user.uid, value); }} />
     </View>
     <QuickLogRow
       items={[
@@ -197,12 +191,12 @@ export default function DashboardScreen() {
       ]}
     />
     <TouchableOpacity style={themedStyles.settings} onPress={() => navigation.navigate('Settings')}><Text style={themedStyles.settingsText}>Settings</Text></TouchableOpacity>
-    <WaterModal visible={waterModalVisible} onClose={() => setWaterModalVisible(false)} onAdd={async (ml) => { if (!user) return; await addWater(user.uid, ml); setWater((current) => current + ml); }} />
-    <Modal visible={moodModalVisible} transparent animationType="fade" onRequestClose={() => setMoodModalVisible(false)}><View style={themedStyles.moodOverlay}><View style={themedStyles.moodModal}><MoodPicker value={mood} onSave={async (value) => { if (!user) return; setMoodValue(value); await setMood(user.uid, value); setMoodModalVisible(false); }} /></View></View></Modal>
+    <WaterModal visible={waterModalVisible} onClose={() => setWaterModalVisible(false)} onAdd={async (ml) => { if (!user) return; await addWater(user.uid, ml); }} />
+    <Modal visible={moodModalVisible} transparent animationType="fade" onRequestClose={() => setMoodModalVisible(false)}><View style={themedStyles.moodOverlay}><View style={themedStyles.moodModal}><MoodPicker value={mood} onSave={async (value) => { if (!user) return; await setMood(user.uid, value); setMoodModalVisible(false); }} /></View></View></Modal>
   </ScrollView>;
 }
 
-function getCta(hour: number, perMeal: TodayTotals['perMeal'], target: number, remaining: number) {
+function getCta(hour: number, perMeal: PerMealFlags, target: number, remaining: number) {
   if (hour < 10 && !perMeal.breakfast) return { mealType: 'breakfast' as const, icon: 'sunny-outline' as const, title: 'Log breakfast', subtitle: `~${Math.round(target * 0.25)} kcal to stay on track` };
   if (hour < 14 && !perMeal.lunch) return { mealType: 'lunch' as const, icon: 'restaurant-outline' as const, title: 'Log lunch', subtitle: `~${Math.round(target * 0.3)} kcal budget` };
   if (hour < 17 && !perMeal.snack) return { mealType: 'snack' as const, icon: 'nutrition-outline' as const, title: 'Log a snack', subtitle: `Keep hunger down ~${Math.round(target * 0.1)} kcal` };

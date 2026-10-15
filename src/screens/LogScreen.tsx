@@ -11,7 +11,8 @@ import { searchFood, type FoodResult } from '../services/foodSearch';
 import { getRecentFoods, type RecentFood } from '../services/recentFoods';
 import { recordCorrection } from '../services/foodCorrections';
 import { estimateNutritionFromName } from '../services/estimateNutrition';
-import { getTodaysTotals, type MealType } from '../services/foodLogs';
+import { type MealType } from '../services/foodLogs';
+import { useTodayFoodLogs } from '../hooks/useRealtime';
 import { shiftDate, todayLocalISO } from '../utils/streak';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../theme';
@@ -50,6 +51,8 @@ export default function LogScreen() {
   const user = useAuthStore((state) => state.user);
   const target = useAuthStore((state) => state.profile?.targets?.calories) ?? 0;
   const uid = user?.uid;
+  // Live today total so the header updates the moment a food is logged.
+  const { totals } = useTodayFoodLogs(uid);
 
   const [mealType, setMealType] = useState<MealType>(() => route.params?.mealType ?? inferMealType(new Date().getHours()));
   const [search, setSearch] = useState('');
@@ -61,17 +64,15 @@ export default function LogScreen() {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [recents, setRecents] = useState<RecentFood[]>([]);
-  const [eaten, setEaten] = useState(0);
   const [yesterday, setYesterday] = useState<{ count: number; cal: number } | null>(null);
   const [aiOpen, setAiOpen] = useState(false);
   const [aiQuery, setAiQuery] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
 
-  // Recents, today's totals, and yesterday's summary on mount.
+  // Recents and yesterday's summary on mount; today's total is live.
   useEffect(() => {
     if (!uid) return;
     getRecentFoods(uid).then(setRecents);
-    getTodaysTotals(uid).then((t) => setEaten(Math.round(t.calories)));
     const y = shiftDate(todayLocalISO(), -1);
     getEntriesForDate(uid, y).then((entries) => {
       if (entries.length) setYesterday({ count: entries.length, cal: Math.round(entries.reduce((s, e) => s + e.cal, 0)) });
@@ -208,7 +209,7 @@ export default function LogScreen() {
       <ScrollView contentContainerStyle={themedStyles.content} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
         <View>
           <Text style={themedStyles.headerTitle}>Log {mealType}</Text>
-          <Text style={themedStyles.headerSub}>{eaten} / {target || '—'} kcal today</Text>
+          <Text style={themedStyles.headerSub}>{Math.round(totals.calories)} / {target || '—'} kcal today</Text>
           <View style={themedStyles.chipRow}>
             {MEALS.map((m) => (
               <Pressable key={m} onPress={() => setMealType(m)} style={[themedStyles.chip, mealType === m && themedStyles.chipActive]}>
@@ -252,12 +253,16 @@ export default function LogScreen() {
           </View>
         )}
 
-        {recents.length > 0 && (
+          {recents.length > 0 && (
           <View>
             <Text style={themedStyles.sectionLabel}>RECENT</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               {recents.map((food) => (
-                <Pressable key={food.id} onLongPress={() => setSelected(food)} onPress={() => onTapRecent(food)} style={themedStyles.recent}>
+                <Pressable
+                  key={food.id}
+                  onPress={() => setSelected(food)}
+                  style={themedStyles.recent}
+                >
                   <Text numberOfLines={1} style={themedStyles.recentName}>{food.name}</Text>
                   <Text style={themedStyles.recentCal}>{Math.round(food.cal)} kcal</Text>
                 </Pressable>
