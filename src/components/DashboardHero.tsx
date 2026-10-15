@@ -6,7 +6,8 @@ import { useTheme } from '../theme';
 
 interface DashboardHeroProps {
   displayName: string;
-  streakDays: number;
+  /** Omitted on layouts that show the streak as a stat card instead. */
+  streakDays?: number;
   avatarLetter: string;
   onMenuPress?: () => void;
 }
@@ -97,10 +98,12 @@ export function DashboardHero({
           <Text style={themedStyles.title}>Be_fit</Text>
           <Text style={themedStyles.subtitle}>Eat better. Live stronger.</Text>
         </View>
-        <View style={themedStyles.pill}>
-          <Ionicons name="flame" size={16} color={theme.colors.warn} />
-          <Text style={themedStyles.pillText}>{streakDays} day streak</Text>
-        </View>
+        {streakDays === undefined ? null : (
+          <View style={themedStyles.pill}>
+            <Ionicons name="flame" size={16} color={theme.colors.warn} />
+            <Text style={themedStyles.pillText}>{streakDays} day streak</Text>
+          </View>
+        )}
         <View style={themedStyles.avatar}>
           <Text style={themedStyles.avatarLetter}>{avatarLetter}</Text>
         </View>

@@ -24,7 +24,7 @@ import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../theme';
 import type { RootTabParamList } from '../types/navigation';
 import { calculateMomentum } from '../utils/momentum';
-import { formatCalories, formatGrams } from '../utils/format';
+import { formatCalories, formatWeight } from '../utils/format';
 import { predictGoalDate } from '../utils/predictWeight';
 
 type Navigation = BottomTabNavigationProp<RootTabParamList, 'Dashboard'>;
@@ -71,6 +71,13 @@ export default function DashboardScreen() {
   const trend = weights.length < 2 ? 'flat' : (goal === 'lose' ? weights[0].weight <= weights[1].weight : goal === 'gain' ? weights[0].weight >= weights[1].weight : Math.abs(weights[0].weight - weights[1].weight) < 0.2) ? 'desired' : 'opposite';
   const momentum = calculateMomentum({ calories: totals.calories, targetCalories: calories, protein: totals.protein, targetProtein: targets?.protein ?? 0, streakDays: profile?.streakDays ?? 0, weightTrend: trend, goal });
   const remaining = Math.max(0, calories - totals.calories);
+  const burned = health.data ? health.data.caloriesBurned : 0;
+  // Ring fill = share of the calorie goal consumed.
+  const caloriePct = calories > 0 ? Math.min(100, Math.round((totals.calories / calories) * 100)) : 0;
+  const waterLiters = (water / 1000).toFixed(1);
+  const waterTargetLiters = (waterTarget / 1000).toFixed(1);
+  const currentWeight = profile?.profile?.weightKg ?? 0;
+  const weightValue = currentWeight > 0 ? formatWeight(currentWeight) : '—';
   const cta = useMemo(() => getCta(now.getHours(), perMealFlags, calories, remaining), [calories, now, remaining, perMealFlags]);
   const prediction = profile?.goal ? predictGoalDate({ currentKg: weights[0]?.weight ?? profile.profile?.weightKg ?? profile.goal.targetWeightKg, targetKg: profile.goal.targetWeightKg, history: weights }) : null;
 
@@ -93,14 +100,15 @@ export default function DashboardScreen() {
     detailsPill: { alignSelf: 'flex-start', borderColor: theme.colors.border, borderRadius: 999, borderWidth: 1, marginTop: 10, paddingHorizontal: 12, paddingVertical: 6 },
     detailsPillText: { color: theme.colors.accent, fontSize: 12, fontWeight: '600' },
     moodCard: { backgroundColor: theme.colors.surface, borderRadius: 20, padding: 16 },
+    statRow: { flexDirection: 'row', gap: 8 },
+    streakBox: { flex: 1, gap: 8 },
     moodOverlay: { backgroundColor: theme.colors.overlay, flex: 1, justifyContent: 'flex-end' },
     moodModal: { backgroundColor: theme.colors.surfaceHi, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 28 },
   }), [theme]);
   return <ScrollView style={themedStyles.screen} contentContainerStyle={styles.content} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => void refresh()} tintColor={theme.colors.accent} />}>
           <DashboardHero
-        displayName={profile?.displayName ?? 'there'}
-        streakDays={profile?.streakDays ?? 0}
         avatarLetter={(profile?.displayName ?? 'B').slice(0, 1).toUpperCase()}
+        displayName={profile?.displayName ?? 'there'}
         onMenuPress={() => navigation.navigate('Settings')}
       />
     <InsightCard
@@ -110,55 +118,67 @@ export default function DashboardScreen() {
         protein={totals.protein}
         targetProtein={targets?.protein ?? 0}
       />
-    <View style={styles.statCards}>
-<StatCard
+    <View style={themedStyles.statRow}>
+      <StatCard
         icon='footsteps-outline'
         iconColor={health.data ? theme.colors.accent : theme.colors.muted}
         label='Steps'
         value={health.data ? health.data.steps.toLocaleString() : '—'}
-        subtitle={health.data ? `${Math.round((health.data.steps / 10000) * 100)}% of goal` : (health.loading ? 'Loading…' : 'Connect')}
-        subtitleColor={health.data ? theme.colors.muted : theme.colors.accent}
-        onPress={health.data ? undefined : () => navigation.navigate('Settings')}
-      />
-      <StatCard
-        icon='flame-outline'
-        iconColor={health.data ? theme.colors.warn : theme.colors.muted}
-        label='Kcal burned'
-        value={health.data ? health.data.caloriesBurned.toLocaleString() : '—'}
-        subtitle={health.data ? 'Today' : (health.loading ? 'Loading…' : 'Connect')}
+        subtitle={health.data ? `${Math.round((health.data.steps / 10000) * 100)}% of 10k goal` : (health.loading ? 'Loading…' : 'Connect')}
         subtitleColor={health.data ? theme.colors.muted : theme.colors.accent}
         onPress={health.data ? undefined : () => navigation.navigate('Settings')}
       />
       <StatCard
         icon='water-outline'
         iconColor={theme.colors.water}
-        label='Protein'
-        value={`${formatGrams(totals.protein)}g`}
-        subtitle={`of ${formatGrams(targets?.protein ?? 0)}g`}
+        label='Water'
+        value={`${waterLiters}L`}
+        subtitle={`of ${waterTargetLiters}L`}
       />
-  <View style={styles.dayStreak}>
-    <StatCard
-      icon='star-outline'
-      iconColor={theme.colors.warn}
-      label='Day streak'
-      value={`${profile?.streakDays ?? 0}`}
-      subtitle=''
-    />
-    <View style={styles.dotRow}>
-      {Array.from({ length: 7 }, (_, i) => i < (profile?.streakDays ?? 0)).map((filled, i) => (
-        <View key={i} style={[styles.dot, { borderColor: theme.colors.border, backgroundColor: filled ? theme.colors.accent : 'transparent' }]} />
-      ))}
+      <StatCard
+        icon='bed-outline'
+        iconColor={theme.colors.muted}
+        label='Sleep'
+        value='—'
+        subtitle='Connect'
+        subtitleColor={theme.colors.accent}
+        onPress={() => navigation.navigate('Settings')}
+      />
+      <StatCard
+        icon='scale-outline'
+        iconColor={theme.colors.accent}
+        label='Weight'
+        value={weightValue}
+        subtitle={currentWeight > 0 ? 'kg' : 'Log weight'}
+        subtitleColor={currentWeight > 0 ? theme.colors.muted : theme.colors.accent}
+        onPress={currentWeight > 0 ? undefined : () => navigation.navigate('Progress')}
+      />
     </View>
-  </View>
-</View>
+    {/* Streak + momentum kept as small stat cards now that the hero no longer shows them. */}
+    <View style={themedStyles.statRow}>
+      <StatCard
+        icon='star-outline'
+        iconColor={theme.colors.warn}
+        label='Day streak'
+        subtitle=''
+        value={`${profile?.streakDays ?? 0}`}
+      />
+      <StatCard
+        icon='trending-up-outline'
+        iconColor={theme.colors.accent}
+        label='Momentum'
+        subtitle={momentum.label}
+        value={`${momentum.score}`}
+      />
+    </View>
 <View style={{ flexDirection: 'row', gap: 12 }}>
   <View style={{ flex: 1.4 }}>
     <View style={themedStyles.ringCard}>
-      <MomentumRing score={momentum.score} label={momentum.label} />
+      <MomentumRing score={caloriePct} title="Calories" headline={formatCalories(remaining)} caption={`of ${formatCalories(calories)} kcal`} />
       <View style={themedStyles.bulletList}>
-        <Text style={[themedStyles.bullet, { color: theme.colors.accent }]}>• {formatCalories(remaining)} kcal left</Text>
-        <Text style={[themedStyles.bullet, { color: theme.colors.text }]}>• {formatCalories(totals.calories)} eaten</Text>
-        <Text style={[themedStyles.bullet, { color: theme.colors.muted }]}>• {formatCalories(calories)} goal</Text>
+        <Text style={[themedStyles.bullet, { color: theme.colors.accent }]}>● {formatCalories(remaining)} Remaining</Text>
+        <Text style={[themedStyles.bullet, { color: theme.colors.warn }]}>● {burned.toLocaleString()} Burned</Text>
+        <Text style={[themedStyles.bullet, { color: theme.colors.muted }]}>● {formatCalories(totals.calories)} Consumed</Text>
       </View>
     </View>
     <TouchableOpacity style={themedStyles.detailsPill}>
@@ -206,10 +226,6 @@ function getCta(hour: number, perMeal: PerMealFlags, target: number, remaining: 
 
 const styles = StyleSheet.create({
   content: { gap: 16, padding: 20, paddingBottom: 36 },
-  statCards: { flexDirection: 'row', gap: 8 },
-  dayStreak: { flex: 1 },
-  dotRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 },
-  dot: { width: 10, height: 10, borderRadius: 5, borderWidth: 1 },
   waterRing: { flex: 1 },
 });
 
