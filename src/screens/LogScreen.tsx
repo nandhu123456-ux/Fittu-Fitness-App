@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+﻿import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -198,12 +198,12 @@ export default function LogScreen() {
     content: { padding: 20, gap: 18 },
     headerRow: { alignItems: 'center', flexDirection: 'row', gap: 10 },
     headerTitle: { color: theme.colors.text, fontSize: 20, fontWeight: '600' },
-    chipRow: { flexDirection: 'row', gap: 8, paddingVertical: 2 },
-    chip: { alignItems: 'center', backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 20, borderWidth: 1, paddingHorizontal: 14, paddingVertical: 8 },
+    chipRowContainer: { flexDirection: 'row', gap: 8, paddingVertical: 2 },
+    chip: { alignItems: 'center', backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 20, borderWidth: 1, paddingHorizontal: 12, paddingVertical: 6 },
     chipActive: { backgroundColor: theme.colors.accent, borderColor: theme.colors.accent },
     chipText: { color: theme.colors.text, fontSize: 13, fontWeight: '600' },
     chipTextActive: { color: theme.colors.bg },
-    customChip: { alignItems: 'center', borderColor: theme.colors.accent, borderRadius: 20, borderStyle: 'dashed', borderWidth: 1, flexDirection: 'row', gap: 6, paddingHorizontal: 14, paddingVertical: 8 },
+    customChip: { alignItems: 'center', borderColor: theme.colors.accent, borderRadius: 20, borderStyle: 'dashed', borderWidth: 1, flexDirection: 'row', paddingHorizontal: 10, paddingVertical: 6 },
     customChipText: { color: theme.colors.accent, fontSize: 13, fontWeight: '600' },
     sectionRow: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 },
     sectionLabel: { color: theme.colors.muted, fontSize: 11, fontWeight: '700', letterSpacing: 1.2, textTransform: 'uppercase' },
@@ -259,7 +259,12 @@ export default function LogScreen() {
           value={search}
         />
 
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={themedStyles.chipRow}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          scrollEnabled
+          contentContainerStyle={{ gap: 8, paddingRight: 20 }}
+        >
           {FILTERS.map((option) => (
             <Pressable
               key={option.value}
@@ -272,44 +277,24 @@ export default function LogScreen() {
               <Text style={[themedStyles.chipText, mealType === option.value && themedStyles.chipTextActive]}>{option.label}</Text>
             </Pressable>
           ))}
-          <Pressable
-            accessibilityRole="button"
-            onPress={() => {
-              if (!ensureMealConfirmed()) return;
-              navigation.navigate('AddCustomFood', { mealType });
-            }}
-            style={themedStyles.customChip}
-          >
-            <Ionicons color={theme.colors.accent} name="add-circle-outline" size={18} />
-            <Text style={themedStyles.customChipText}>Custom</Text>
+          <Pressable onPress={() => { if (!ensureMealConfirmed()) return; navigation.navigate('AddCustomFood', { mealType }); }} style={themedStyles.customChip}>
+            <Ionicons color={theme.colors.accent} name='add-circle-outline' size={18} />
           </Pressable>
         </ScrollView>
-
-        {search.trim().length > 0 ? (
-          <View>
-            {loading ? <View style={themedStyles.center}><ActivityIndicator color={theme.colors.accent} /></View>
-              : error ? <Text style={themedStyles.errorText}>{error}</Text>
-              : results.length === 0 ? (
-                <View style={themedStyles.center}>
-                  <Text style={themedStyles.empty}>No foods found.</Text>
-                  <Pressable onPress={() => navigation.navigate('AddCustomFood', { prefillQuery: search, mealType })} style={themedStyles.link}>
-                    <Ionicons color={theme.colors.accent} name="add-circle-outline" size={18} />
-                    <Text style={themedStyles.linkAccent}>Add "{search}" as custom food</Text>
-                  </Pressable>
-                </View>
-              ) : results.map((item) => (
-                <Pressable key={`${item.source}-${item.id}`} onPress={() => onPickResult(item)} style={themedStyles.result}>
-                  <View style={themedStyles.resultCopy}>
-                    <Text style={themedStyles.resultName}>{item.name}</Text>
-                    <Text style={themedStyles.resultMeta}>{item.serving} · {item.source.toUpperCase()} · P {item.protein}g C {item.carbs}g F {item.fat}g</Text>
-                  </View>
-                  <Text style={themedStyles.resultCal}>{Math.round(item.cal)} kcal</Text>
-                </Pressable>
-              ))}
+        {yesterday ? (
+          <View style={themedStyles.sameCard}>
+            <Ionicons color={theme.colors.accent} name='repeat' size={26} />
+            <View style={themedStyles.sameBody}>
+              <Text style={themedStyles.sameTitle}>Same as yesterday?</Text>
+              <Text style={themedStyles.sameSub}>{yesterday.count} items · {yesterday.cal} kcal</Text>
+            </View>
+            <Pressable disabled={saving} onPress={() => void logYesterday()} style={themedStyles.sameBtn}>
+              <Text style={themedStyles.sameBtnText}>Log all</Text>
+            </Pressable>
           </View>
         ) : null}
-        {!search.trim() && error ? <Text style={themedStyles.errorText}>{error}</Text> : null}
 
+        {/* RECENT MEALS */}
         <View style={themedStyles.sectionRow}>
           <Text style={themedStyles.sectionLabel}>Recent Meals</Text>
           <Text style={themedStyles.seeAll}>See all</Text>
@@ -341,31 +326,38 @@ export default function LogScreen() {
           </View>
         ) : (
           <View>
-            <Text style={themedStyles.sectionLabel}>Popular Indian Dishes</Text>
-            <View style={themedStyles.popularRow}>
-              {POPULAR.map((name) => (
-                <Pressable key={name} onPress={() => void onPickPopular(name)} style={themedStyles.popularChip}>
-                  <Text style={themedStyles.popularText}>{name}</Text>
-                </Pressable>
-              ))}
-            </View>
+            <Text style={themedStyles.noticeText}>{notice}</Text>
           </View>
         )}
 
-        {notice ? <Text style={themedStyles.noticeText}>{notice}</Text> : null}
-
-        {yesterday ? (
-          <View style={themedStyles.sameCard}>
-            <Ionicons color={theme.colors.accent} name="repeat" size={26} />
-            <View style={themedStyles.sameBody}>
-              <Text style={themedStyles.sameTitle}>Same as yesterday?</Text>
-              <Text style={themedStyles.sameSub}>{yesterday.count} items · {yesterday.cal} kcal</Text>
-            </View>
-            <Pressable disabled={saving} onPress={() => void logYesterday()} style={themedStyles.sameBtn}>
-              <Text style={themedStyles.sameBtnText}>Log all</Text>
-            </Pressable>
+        {/* Search results (when searching) */}
+        {search.trim().length > 0 ? (
+          <View>
+            {loading ? (
+              <View style={themedStyles.center}>
+                <ActivityIndicator color={theme.colors.accent} />
+              </View>
+            ) : error ? (
+              <Text style={themedStyles.errorText}>{error}</Text>
+            ) : results.length === 0 ? (
+              <View style={themedStyles.center}>
+                <Text style={themedStyles.empty}>No foods found.</Text>
+              </View>
+            ) : (
+              results.map((item) => (
+                <Pressable key={`${item.source}-${item.id}`} onPress={() => onPickResult(item)} style={themedStyles.result}>
+                  <View style={themedStyles.resultCopy}>
+                    <Text style={themedStyles.resultName}>{item.name}</Text>
+                    <Text style={themedStyles.resultMeta}>{item.serving} · {item.source.toUpperCase()} · P {item.protein}g C {item.carbs}g F {item.fat}g</Text>
+                  </View>
+                  <Text style={themedStyles.resultCal}>{Math.round(item.cal)} kcal</Text>
+                </Pressable>
+              ))
+            )}
           </View>
         ) : null}
+        {!search.trim() && error ? <Text style={themedStyles.errorText}>{error}</Text> : null}
+
       </ScrollView>
 
       <PortionModal visible={selected !== null} food={selected} onClose={() => setSelected(null)} onConfirm={(servings, edited) => { if (selected) void commit(edited ?? selected, servings); }} />
