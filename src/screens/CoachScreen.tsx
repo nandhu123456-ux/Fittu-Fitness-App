@@ -3,7 +3,6 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
-  KeyboardAvoidingView,
   Platform,
   Pressable,
   StyleSheet,
@@ -11,6 +10,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 
 import { ChatBubble } from '../components/ChatBubble';
 import {
@@ -129,7 +129,7 @@ export default function CoachScreen({ onClose }: Props) {
   return (
     <KeyboardAvoidingView
       style={themedStyles.fill}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
     >
       <View style={styles.header}>

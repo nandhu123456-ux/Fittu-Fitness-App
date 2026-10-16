@@ -3,6 +3,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 
 import RootNavigator from './src/navigation/RootNavigator';
 import { useTheme } from './src/theme';
@@ -44,7 +45,9 @@ export default function App() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <AppShell />
+      <KeyboardProvider>
+        <AppShell />
+      </KeyboardProvider>
     </GestureHandlerRootView>
   );
 }

@@ -1,6 +1,7 @@
 ﻿import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { RouteProp } from '@react-navigation/native';
