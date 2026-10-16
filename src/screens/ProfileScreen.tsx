@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -10,7 +10,7 @@ import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../theme';
 import type { RootTabParamList } from '../types/navigation';
 
-type Navigation = BottomTabNavigationProp<RootTabParamList, 'Coach'>;
+type Navigation = BottomTabNavigationProp<RootTabParamList, 'Profile'>;
 
 interface ProfileRow {
   key: string;
@@ -24,7 +24,6 @@ export default function ProfileScreen() {
   const theme = useTheme();
   const navigation = useNavigation<Navigation>();
   const { user, profile } = useAuthStore();
-  const [coachOpen, setCoachOpen] = useState(false);
 
   const displayName = profile?.displayName ?? user?.displayName ?? 'there';
   const email = user?.email ?? profile?.email ?? '';
@@ -104,7 +103,7 @@ export default function ProfileScreen() {
         ))}
       </View>
 
-      <Pressable onPress={() => setCoachOpen(true)} style={themedStyles.coachCard}>
+      <Pressable onPress={() => navigation.navigate('Coach')} style={themedStyles.coachCard}>
         <Ionicons color={theme.colors.accent} name="sparkles" size={24} />
         <View style={themedStyles.coachText}>
           <Text style={themedStyles.coachTitle}>AI Coach</Text>
@@ -117,8 +116,6 @@ export default function ProfileScreen() {
         <Ionicons color={theme.colors.danger} name="log-out-outline" size={20} />
         <Text style={themedStyles.signOutText}>Sign Out</Text>
       </Pressable>
-
-      <CoachChatModal onClose={() => setCoachOpen(false)} visible={coachOpen} />
     </ScrollView>
   );
 }

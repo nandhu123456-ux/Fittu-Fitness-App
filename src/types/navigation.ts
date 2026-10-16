@@ -11,6 +11,7 @@ export type RootTabParamList = {
   Settings: undefined;
   Progress: undefined;
   Coach: undefined;
+  Profile: undefined;
   LogMenu: undefined;
 };
 

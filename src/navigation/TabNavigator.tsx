@@ -1,19 +1,12 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { useMemo, useState } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import { useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 
-import { CenterFAB } from '../components/CenterFAB';
-import { LogMenuModal } from '../components/LogMenuModal';
-
-import BarcodeScreen from '../screens/BarcodeScreen';
+import CoachScreen from '../screens/CoachScreen';
 import DashboardScreen from '../screens/DashboardScreen';
 import LogScreen from '../screens/LogScreen';
-import PhotoLogScreen from '../screens/PhotoLogScreen';
-import AddCustomFoodScreen from '../screens/AddCustomFoodScreen';
 import ProgressScreen from '../screens/ProgressScreen';
-import SettingsScreen from '../screens/SettingsScreen';
-import VoiceLogScreen from '../screens/VoiceLogScreen';
-import MenuScanScreen from '../screens/MenuScanScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import { useTheme } from '../theme';
 import type { RootTabParamList } from '../types/navigation';
@@ -22,16 +15,21 @@ const Tab = createBottomTabNavigator<RootTabParamList>();
 
 const EmptyScreen = () => null;
 
+function iconFor(name: keyof typeof Ionicons.glyphMap) {
+  return ({ color, size }: { color: string; size: number }) => (
+    <Ionicons name={name} color={color} size={size} />
+  );
+}
+
 export default function TabNavigator() {
   const theme = useTheme();
-  const [logMenuVisible, setLogMenuVisible] = useState(false);
   const themedStyles = useMemo(() => StyleSheet.create({
     header: { backgroundColor: theme.colors.bg },
     headerTitle: { color: theme.colors.text },
     tabBar: { backgroundColor: theme.colors.surface, borderTopColor: theme.colors.border },
+    tabBarLabelStyle: { fontSize: 10, fontWeight: '500' },
   }), [theme]);
   return (
-    <>
     <Tab.Navigator
       initialRouteName="Dashboard"
       screenOptions={{
@@ -40,30 +38,23 @@ export default function TabNavigator() {
         tabBarStyle: themedStyles.tabBar,
         tabBarActiveTintColor: theme.colors.accent,
         tabBarInactiveTintColor: theme.colors.muted,
+        tabBarLabelStyle: themedStyles.tabBarLabelStyle,
       }}
     >
-      <Tab.Screen name="Dashboard" component={DashboardScreen} />
-      <Tab.Screen name="Log" component={LogScreen} />
-      <Tab.Screen name="Barcode" component={BarcodeScreen} options={{ tabBarButton: () => null }} />
-      <Tab.Screen name="PhotoLog" component={PhotoLogScreen} options={{ tabBarButton: () => null }} />
-      <Tab.Screen name="VoiceLog" component={VoiceLogScreen} options={{ tabBarButton: () => null }} />
-      <Tab.Screen name="MenuScan" component={MenuScanScreen} options={{ tabBarButton: () => null }} />
-      <Tab.Screen
-        name="LogMenu"
-        component={EmptyScreen}
-        options={{
-          tabBarButton: (props) => (
-            <CenterFAB {...props} onPress={() => setLogMenuVisible(true)} />
-          ),
-        }}
-      />
-      <Tab.Screen name="AddCustomFood" component={AddCustomFoodScreen} options={{ tabBarButton: () => null }} />
-      <Tab.Screen name="Settings" component={SettingsScreen} options={{ tabBarButton: () => null }} />
-      <Tab.Screen name="Progress" component={ProgressScreen} />
-      {/* Route name stays "Coach" — the screen now renders the Profile UI; the AI chat is a modal. */}
-      <Tab.Screen name="Coach" component={ProfileScreen} options={{ title: 'Profile' }} />
+      <Tab.Screen name="Dashboard" component={DashboardScreen} options={{ tabBarLabel: 'Home', tabBarIcon: iconFor('home-outline') }} />
+      <Tab.Screen name="Log" component={LogScreen} options={{ tabBarLabel: 'Log', tabBarIcon: iconFor('add-circle-outline') }} />
+      <Tab.Screen name="Coach" component={CoachScreen} options={{ tabBarLabel: 'Coach', tabBarIcon: iconFor('chatbubble-outline') }} />
+      <Tab.Screen name="Progress" component={ProgressScreen} options={{ tabBarLabel: 'Progress', tabBarIcon: iconFor('stats-chart-outline') }} />
+      <Tab.Screen name="Profile" component={ProfileScreen} options={{ tabBarLabel: 'Profile', tabBarIcon: iconFor('person-outline') }} />
+
+      {/* Hidden routes — still navigable programmatically, just not in the tab bar. */}
+      <Tab.Screen name="Barcode" component={EmptyScreen} options={{ tabBarButton: () => null }} />
+      <Tab.Screen name="PhotoLog" component={EmptyScreen} options={{ tabBarButton: () => null }} />
+      <Tab.Screen name="VoiceLog" component={EmptyScreen} options={{ tabBarButton: () => null }} />
+      <Tab.Screen name="MenuScan" component={EmptyScreen} options={{ tabBarButton: () => null }} />
+      <Tab.Screen name="AddCustomFood" component={EmptyScreen} options={{ tabBarButton: () => null }} />
+      <Tab.Screen name="Settings" component={EmptyScreen} options={{ tabBarButton: () => null }} />
+      <Tab.Screen name="LogMenu" component={EmptyScreen} options={{ tabBarButton: () => null }} />
     </Tab.Navigator>
-    <LogMenuModal visible={logMenuVisible} onClose={() => setLogMenuVisible(false)} />
-    </>
   );
 }
