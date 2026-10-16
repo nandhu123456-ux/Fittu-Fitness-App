@@ -8,6 +8,7 @@ import { InsightCard } from '../components/InsightCard';
 import { WeekStrip } from '../components/WeekStrip';
 import { CaloriesMacrosCard } from '../components/CaloriesMacrosCard';
 import { StatCardsRow } from '../components/StatCardsRow';
+import { DayDetailModal } from '../components/DayDetailModal';
 import { WaterModal } from '../components/WaterModal';
 import { addWater } from '../services/waterLogs';
 import { refreshStreak } from '../services/streakService';
@@ -34,6 +35,7 @@ export default function DashboardScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [now, setNow] = useState(new Date());
   const [waterModalVisible, setWaterModalVisible] = useState(false);
+  const [dayDetailDate, setDayDetailDate] = useState<string | null>(null);
   const targets = profile?.targets;
   const calories = targets?.calories ?? 0;
   const health = useHealthData(true);
@@ -91,7 +93,7 @@ export default function DashboardScreen() {
         </TouchableOpacity>
       </View>
 
-      <WeekStrip />
+      <WeekStrip onDayPress={(date) => setDayDetailDate(date)} />
 
       <CaloriesMacrosCard
         eaten={totals.calories}
@@ -115,6 +117,11 @@ export default function DashboardScreen() {
       />
 
       <WaterModal visible={waterModalVisible} onClose={() => setWaterModalVisible(false)} onAdd={async (ml) => { if (!user) return; await addWater(user.uid, ml); }} />
+      <DayDetailModal
+        visible={dayDetailDate !== null}
+        date={dayDetailDate}
+        onClose={() => setDayDetailDate(null)}
+      />
     </ScrollView>
   );
 }
