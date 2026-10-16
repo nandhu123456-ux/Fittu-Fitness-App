@@ -1,4 +1,5 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import * as SplashScreen from 'expo-splash-screen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
@@ -11,9 +12,13 @@ import { onAuthChange } from './src/services/auth';
 import { getUserProfile } from './src/services/user';
 import { useAuthStore } from './src/store/authStore';
 import { useOnboardingStore } from './src/store/onboardingStore';
+import AnimatedSplash from './src/components/AnimatedSplash';
+
+SplashScreen.preventAutoHideAsync().catch(() => {});
 
 export default function App() {
   const [fontsLoaded] = useFonts({ ...Ionicons.font });
+  const [splashDone, setSplashDone] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthChange(async (user) => {
@@ -41,12 +46,17 @@ export default function App() {
     return unsubscribe;
   }, []);
 
+  useEffect(() => {
+    SplashScreen.hideAsync().catch(() => {});
+  }, []);
+
   if (!fontsLoaded) return null;
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <KeyboardProvider>
         <AppShell />
+        {!splashDone && <AnimatedSplash onFinish={() => setSplashDone(true)} />}
       </KeyboardProvider>
     </GestureHandlerRootView>
   );
