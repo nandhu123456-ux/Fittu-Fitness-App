@@ -146,7 +146,7 @@ interface ThemeStore {
   toggle: () => void;
 }
 
-const initialMode = (storage.getString('mode') as ThemeMode | undefined) ?? 'system';
+const initialMode = (storage.getString('mode') as ThemeMode | undefined) ?? 'dark';
 
 export const useThemeStore = create<ThemeStore>((set, get) => ({
   mode: initialMode,

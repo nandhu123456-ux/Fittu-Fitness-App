@@ -66,8 +66,8 @@ export default function DashboardScreen() {
     greetingLine2: { color: theme.colors.text, fontSize: 24, fontWeight: '700', marginTop: 2 },
     avatar: { alignItems: 'center', backgroundColor: theme.colors.accentAlt, borderRadius: 22, height: 44, justifyContent: 'center', width: 44 },
     avatarText: { color: theme.colors.bg, fontSize: 18, fontWeight: '700' },
-    streakPill: { flexDirection: 'row', alignItems: 'center', backgroundColor: theme.colors.surface, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4, alignSelf: 'flex-start', marginBottom: 6, gap: 4 },
-    streakText: { color: theme.colors.warn, fontSize: 11, fontWeight: '600' },
+    streakPillRight: { flexDirection: 'row', alignItems: 'center', backgroundColor: theme.colors.warn + '26', borderColor: theme.colors.warn + '4D', borderWidth: 1, borderRadius: 999, paddingHorizontal: 8, paddingVertical: 3, marginTop: 6, gap: 4 },
+    streakTextRight: { color: theme.colors.success, fontSize: 11, fontWeight: '700' },
     quotePill: { backgroundColor: theme.colors.surface, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6, alignSelf: 'flex-start', marginTop: 8 },
     quoteText: { color: theme.colors.accent, fontSize: 14, fontWeight: '500', fontStyle: 'italic' },
   }), [theme]);
@@ -76,35 +76,38 @@ export default function DashboardScreen() {
     <ScrollView style={themedStyles.screen} contentContainerStyle={styles.content} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => void refresh()} tintColor={theme.colors.accent} />}>
       <View style={themedStyles.header}>
         <View style={styles.leftColumn}>
-          {profile && (profile.streakDays ?? 0) > 0 ? (
-            <View style={themedStyles.streakPill}>
-              <Ionicons name="flame" size={14} color={theme.colors.warn} />
-              <Text style={themedStyles.streakText}>{profile.streakDays} day streak</Text>
-            </View>
-          ) : null}
           <Text style={themedStyles.greetingLine1}>{greeting}</Text>
           <Text style={themedStyles.greetingLine2}>{displayName}</Text>
           <View style={themedStyles.quotePill}>
-            <Text style={themedStyles.quoteText}>Small steps make big changes.</Text>
+            <Text style={[themedStyles.quoteText, { color: theme.colors.success }]}>Small steps make big changes.</Text>
           </View>
         </View>
-        <TouchableOpacity onPress={() => navigation.navigate('Settings')} style={themedStyles.avatar}>
-          <Text style={themedStyles.avatarText}>{avatarLetter}</Text>
-        </TouchableOpacity>
+        <View style={styles.rightColumn}>
+          <TouchableOpacity onPress={() => navigation.navigate('Settings')} style={themedStyles.avatar}>
+            <Text style={themedStyles.avatarText}>{avatarLetter}</Text>
+          </TouchableOpacity>
+          {profile && (profile.streakDays ?? 0) > 0 ? (
+            <View style={themedStyles.streakPillRight}>
+              <Ionicons name="flame" size={12} color={theme.colors.warn} />
+              <Text style={[themedStyles.streakTextRight, { color: theme.colors.warn }]}>{profile.streakDays}</Text>
+            </View>
+          ) : null}
+        </View>
       </View>
 
       <WeekStrip onDayPress={(date) => setDayDetailDate(date)} />
 
-      <CaloriesMacrosCard
-        eaten={totals.calories}
-        target={calories}
-        protein={totals.protein}
-        proteinTarget={targets?.protein ?? 0}
-        carbs={totals.carbs}
-        carbsTarget={targets?.carbs ?? 0}
-        fat={totals.fat}
-        fatTarget={targets?.fat ?? 0}
-      />
+<CaloriesMacrosCard
+  eaten={totals.calories}
+  target={targets?.calories ?? 0}
+  burned={health.data?.caloriesBurned ?? 0}
+  protein={totals.protein}
+  proteinTarget={targets?.protein ?? 0}
+  carbs={totals.carbs}
+  carbsTarget={targets?.carbs ?? 0}
+  fat={totals.fat}
+  fatTarget={targets?.fat ?? 0}
+/>
 
       <StatCardsRow health={health} waterMl={water} onWaterPress={() => setWaterModalVisible(true)} />
 
@@ -129,4 +132,5 @@ export default function DashboardScreen() {
 const styles = StyleSheet.create({
   content: { gap: 0, padding: 0, paddingBottom: 40 },
   leftColumn: { flex: 1 },
+  rightColumn: { alignItems: 'flex-end' },
 });
