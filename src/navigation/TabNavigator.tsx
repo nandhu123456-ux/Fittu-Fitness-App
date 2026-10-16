@@ -10,6 +10,7 @@ import PreferencesScreen from '../screens/PreferencesScreen';
 import ProgressScreen from '../screens/ProgressScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import RemindersScreen from '../screens/RemindersScreen';
+import GoalsScreen from '../screens/GoalsScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import AddCustomFoodScreen from '../screens/AddCustomFoodScreen';
 import BarcodeScreen from '../screens/BarcodeScreen';
@@ -34,8 +35,8 @@ export default function TabNavigator() {
   const themedStyles = useMemo(() => StyleSheet.create({
     header: { backgroundColor: theme.colors.bg },
     headerTitle: { color: theme.colors.text },
-    tabBar: { backgroundColor: theme.colors.surface, borderTopColor: theme.colors.border, height: 64, paddingBottom: 6, paddingTop: 6 },
-    tabBarLabelStyle: { fontSize: 10, fontWeight: '600', marginTop: 2, includeFontPadding: false },
+    tabBar: { backgroundColor: theme.colors.surface, borderTopColor: theme.colors.border, height: 64, paddingBottom: 6, paddingTop: 6, width: '100%' },
+    tabBarLabelStyle: { fontSize: 9, fontWeight: '600', marginTop: 2, includeFontPadding: false },
   }), [theme]);
   return (
     <Tab.Navigator
@@ -50,6 +51,7 @@ export default function TabNavigator() {
         tabBarInactiveTintColor: theme.colors.muted,
         tabBarLabelStyle: themedStyles.tabBarLabelStyle,
         headerShown: false,
+        sceneStyle: { backgroundColor: theme.colors.bg },
       }}
     >
       <Tab.Screen name="Dashboard" component={DashboardScreen} options={{ tabBarLabel: 'Home', tabBarIcon: iconFor('home-outline') }} />
@@ -61,6 +63,7 @@ export default function TabNavigator() {
       <Tab.Screen name="Settings" component={SettingsScreen} options={{ tabBarButton: () => null, headerShown: false }} />
       <Tab.Screen name="Preferences" component={PreferencesScreen} options={{ tabBarButton: () => null, headerShown: false }} />
       <Tab.Screen name="Reminders" component={RemindersScreen} options={{ tabBarButton: () => null, headerShown: false }} />
+      <Tab.Screen name="Goals" component={GoalsScreen} options={{ tabBarButton: () => null, headerShown: false }} />
       <Tab.Screen name="AddCustomFood" component={AddCustomFoodScreen} options={{ tabBarButton: () => null }} />
       <Tab.Screen name="Barcode" component={BarcodeScreen} options={{ tabBarButton: () => null }} />
       <Tab.Screen name="PhotoLog" component={PhotoLogScreen} options={{ tabBarButton: () => null }} />
