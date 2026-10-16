@@ -1,5 +1,6 @@
 ﻿import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Modal, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 
@@ -61,18 +62,29 @@ export default function DashboardScreen() {
     header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingTop: 20 },
     greetingLine1: { color: theme.colors.muted, fontSize: 13 },
     greetingLine2: { color: theme.colors.text, fontSize: 24, fontWeight: '700', marginTop: 2 },
-    greetingLine3: { color: theme.colors.muted, fontSize: 13, marginTop: 4 },
     avatar: { alignItems: 'center', backgroundColor: theme.colors.accentAlt, borderRadius: 22, height: 44, justifyContent: 'center', width: 44 },
     avatarText: { color: theme.colors.bg, fontSize: 18, fontWeight: '700' },
+    streakPill: { flexDirection: 'row', alignItems: 'center', backgroundColor: theme.colors.surface, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4, alignSelf: 'flex-start', marginBottom: 6, gap: 4 },
+    streakText: { color: theme.colors.warn, fontSize: 11, fontWeight: '600' },
+    quotePill: { backgroundColor: theme.colors.surface, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6, alignSelf: 'flex-start', marginTop: 8 },
+    quoteText: { color: theme.colors.accent, fontSize: 14, fontWeight: '500', fontStyle: 'italic' },
   }), [theme]);
 
   return (
     <ScrollView style={themedStyles.screen} contentContainerStyle={styles.content} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => void refresh()} tintColor={theme.colors.accent} />}>
       <View style={themedStyles.header}>
         <View style={styles.leftColumn}>
+          {profile && (profile.streakDays ?? 0) > 0 ? (
+            <View style={themedStyles.streakPill}>
+              <Ionicons name="flame" size={14} color={theme.colors.warn} />
+              <Text style={themedStyles.streakText}>{profile.streakDays} day streak</Text>
+            </View>
+          ) : null}
           <Text style={themedStyles.greetingLine1}>{greeting}</Text>
           <Text style={themedStyles.greetingLine2}>{displayName}</Text>
-          <Text style={themedStyles.greetingLine3}>Small steps make big changes.</Text>
+          <View style={themedStyles.quotePill}>
+            <Text style={themedStyles.quoteText}>Small steps make big changes.</Text>
+          </View>
         </View>
         <TouchableOpacity onPress={() => navigation.navigate('Settings')} style={themedStyles.avatar}>
           <Text style={themedStyles.avatarText}>{avatarLetter}</Text>
@@ -85,8 +97,11 @@ export default function DashboardScreen() {
         eaten={totals.calories}
         target={calories}
         protein={totals.protein}
+        proteinTarget={targets?.protein ?? 0}
         carbs={totals.carbs}
+        carbsTarget={targets?.carbs ?? 0}
         fat={totals.fat}
+        fatTarget={targets?.fat ?? 0}
       />
 
       <StatCardsRow health={health} waterMl={water} onWaterPress={() => setWaterModalVisible(true)} />
