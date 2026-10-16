@@ -11,6 +11,11 @@ import ProgressScreen from '../screens/ProgressScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import RemindersScreen from '../screens/RemindersScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import AddCustomFoodScreen from '../screens/AddCustomFoodScreen';
+import BarcodeScreen from '../screens/BarcodeScreen';
+import PhotoLogScreen from '../screens/PhotoLogScreen';
+import VoiceLogScreen from '../screens/VoiceLogScreen';
+import MenuScanScreen from '../screens/MenuScanScreen';
 import { useTheme } from '../theme';
 import type { RootTabParamList } from '../types/navigation';
 
@@ -56,6 +61,11 @@ export default function TabNavigator() {
       <Tab.Screen name="Settings" component={SettingsScreen} options={{ tabBarButton: () => null, headerShown: false }} />
       <Tab.Screen name="Preferences" component={PreferencesScreen} options={{ tabBarButton: () => null, headerShown: false }} />
       <Tab.Screen name="Reminders" component={RemindersScreen} options={{ tabBarButton: () => null, headerShown: false }} />
+      <Tab.Screen name="AddCustomFood" component={AddCustomFoodScreen} options={{ tabBarButton: () => null }} />
+      <Tab.Screen name="Barcode" component={BarcodeScreen} options={{ tabBarButton: () => null }} />
+      <Tab.Screen name="PhotoLog" component={PhotoLogScreen} options={{ tabBarButton: () => null }} />
+      <Tab.Screen name="VoiceLog" component={VoiceLogScreen} options={{ tabBarButton: () => null }} />
+      <Tab.Screen name="MenuScan" component={MenuScanScreen} options={{ tabBarButton: () => null }} />
     </Tab.Navigator>
   );
 }
