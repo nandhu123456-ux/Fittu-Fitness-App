@@ -47,11 +47,7 @@ export default function GoalsScreen() {
     return `By ${date.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}`;
   }, [goalType, targetWeight, weeklyRate, currentWeight]);
 
-  const dailyTargetsLabel = useMemo(() => {
-    const targets = profile?.targets;
-    if (!targets) return '';
-    return `${formatCalories(targets.calories)} kcal · ${formatGrams(targets.protein)}g protein · ${formatGrams(targets.carbs)}g carbs · ${formatGrams(targets.fat)}g fat`;
-  }, [profile?.targets]);
+  const targets = profile?.targets;
 
   const handleSave = async (): Promise<void> => {
     if (!user || !profile || !profileData) return;
@@ -112,6 +108,11 @@ export default function GoalsScreen() {
     rateTextActive: { color: theme.colors.bg },
     rowValue: { color: theme.colors.text, fontSize: 16, fontWeight: '600' },
     targetsNote: { color: theme.colors.muted, fontSize: 13, marginTop: 4 },
+    targetsRow: { flexDirection: 'row', gap: 8, marginTop: 4 },
+    targetTile: { alignItems: 'center', backgroundColor: theme.colors.surfaceHi, borderRadius: 14, flex: 1, paddingVertical: 10 },
+    targetDot: { borderRadius: 4, height: 8, marginTop: 6, width: 8 },
+    targetValue: { color: theme.colors.text, fontSize: 16, fontWeight: '700', marginTop: 4 },
+    targetName: { fontSize: 11, fontWeight: '600', marginTop: 2 },
     saveButton: { alignItems: 'center', backgroundColor: theme.colors.accent, borderRadius: 12, bottom: 30, left: 20, padding: 14, position: 'absolute', right: 20 },
     saveText: { color: theme.colors.bg, fontSize: 16, fontWeight: '700' },
   }), [theme]);
@@ -175,9 +176,27 @@ export default function GoalsScreen() {
 
         <Text style={themedStyles.section}>DAILY TARGETS</Text>
         <View style={themedStyles.card}>
-          <View style={styles.field}>
-            <Text style={themedStyles.label}>Daily targets</Text>
-            <Text style={themedStyles.rowValue}>{dailyTargetsLabel}</Text>
+          <View style={themedStyles.targetsRow}>
+            <View style={themedStyles.targetTile}>
+              <View style={[themedStyles.targetDot, { backgroundColor: theme.colors.accent }]} />
+              <Text style={themedStyles.targetValue}>{targets ? formatCalories(targets.calories) : '—'}</Text>
+              <Text style={[themedStyles.targetName, { color: theme.colors.accent }]}>Calories</Text>
+            </View>
+            <View style={themedStyles.targetTile}>
+              <View style={[themedStyles.targetDot, { backgroundColor: theme.colors.protein }]} />
+              <Text style={themedStyles.targetValue}>{targets ? `${formatGrams(targets.protein)}g` : '—'}</Text>
+              <Text style={[themedStyles.targetName, { color: theme.colors.protein }]}>Protein</Text>
+            </View>
+            <View style={themedStyles.targetTile}>
+              <View style={[themedStyles.targetDot, { backgroundColor: theme.colors.carbs }]} />
+              <Text style={themedStyles.targetValue}>{targets ? `${formatGrams(targets.carbs)}g` : '—'}</Text>
+              <Text style={[themedStyles.targetName, { color: theme.colors.carbs }]}>Carbs</Text>
+            </View>
+            <View style={themedStyles.targetTile}>
+              <View style={[themedStyles.targetDot, { backgroundColor: theme.colors.fat }]} />
+              <Text style={themedStyles.targetValue}>{targets ? `${formatGrams(targets.fat)}g` : '—'}</Text>
+              <Text style={[themedStyles.targetName, { color: theme.colors.fat }]}>Fat</Text>
+            </View>
           </View>
           <Text style={themedStyles.targetsNote}>Recalculated when you save</Text>
         </View>
