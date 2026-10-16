@@ -6,7 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import Svg, { Circle, Defs, LinearGradient, Path, Stop } from 'react-native-svg';
 
-import { useLast7DaysFoodLogs, useRecentWeights } from '../hooks/useRealtime';
+import { useLast7DaysFoodLogs, useRecentWeights, useLast7DaysActivity } from '../hooks/useRealtime';
 import { calculateBodyStats } from '../utils/bodyStats';
 import { createWeightChartPaths } from '../utils/weightChart';
 import { useAuthStore } from '../store/authStore';
@@ -15,12 +15,13 @@ import { addWeight, deleteWeight, type WeightEntry } from '../services/weightLog
 import BarChart7Day from '../components/BarChart7Day';
 import type { Targets } from '../types/user';
 
-type TabKey = 'weight' | 'calories' | 'macros';
+type TabKey = 'weight' | 'calories' | 'macros' | 'activity';
 
 const TABS: { key: TabKey; label: string }[] = [
   { key: 'weight', label: 'Weight' },
   { key: 'calories', label: 'Calories' },
   { key: 'macros', label: 'Macros' },
+  { key: 'activity', label: 'Activity' },
 ];
 
 /**
@@ -47,6 +48,7 @@ export default function ProgressScreen() {
   // Live listener: saves/deletes from any screen update this list immediately.
   const { entries } = useRecentWeights(uid, 30);
   const { days, loading } = useLast7DaysFoodLogs(uid);
+  const { days: activityDays, loading: activityLoading } = useLast7DaysActivity(uid);
 
   // Latest known weight falls back to the profile value when nothing is logged.
   const currentWeight = entries.length > 0 ? entries[0].weight : profile?.profile?.weightKg ?? 0;
@@ -266,23 +268,45 @@ const hasFoodLogs = days.some((d) => d.cal > 0 || d.protein > 0 || d.carbs > 0 |
       ) : (
         <View>
           <Text style={themedStyles.section}>LAST 7 DAYS</Text>
-          {hasFoodLogs ? (
-            [
-              { label: 'Protein', data: proteinData, color: theme.colors.protein, target: targets?.protein },
-              { label: 'Carbs', data: carbsData, color: theme.colors.carbs, target: targets?.carbs },
-              { label: 'Fat', data: fatData, color: theme.colors.fat, target: targets?.fat },
-            ].map((m) => (
-              <View key={m.label} style={themedStyles.macroCard}>
-                <Text style={themedStyles.macroTitle}>{m.label}</Text>
-                <BarChart7Day data={m.data} labels={dayLabels} color={m.color} target={m.target} />
-              </View>
-            ))
-          ) : loading ? (
+          {activityLoading ? (
             <View style={{ marginTop: 40 }}><ActivityIndicator /></View>
+          ) : activityDays.length > 0 ? (
+            <>
+              <View style={themedStyles.statRow}>
+                <View style={themedStyles.statCard}>
+                  <Text style={themedStyles.statLabel}>STEPS</Text>
+                  <Text style={themedStyles.statValue}>{activityDays[activityDays.length - 1]?.steps ?? 0}</Text>
+                  <Text style={themedStyles.statFootnote}>from Health Connect</Text>
+                </View>
+                <View style={themedStyles.statCard}>
+                  <Text style={themedStyles.statLabel}>KCAL BURNED</Text>
+                  <Text style={themedStyles.statValue}>{activityDays[activityDays.length - 1]?.totalKcal ?? 0}</Text>
+                  <Text style={themedStyles.statFootnote}>today (kcal)</Text>
+                </View>
+                <View style={themedStyles.statCard}>
+                  <Text style={themedStyles.statLabel}>DISTANCE</Text>
+                  <Text style={themedStyles.statValue}>{activityDays[activityDays.length - 1]?.distanceKm ?? 0}</Text>
+                  <Text style={themedStyles.statFootnote}>today (km)</Text>
+                </View>
+                <View style={themedStyles.statCard}>
+                  <Text style={themedStyles.statLabel}>SLEEP</Text>
+                  <Text style={themedStyles.statValue}>{activityDays[activityDays.length - 1]?.sleepMin ?? 0}</Text>
+                  <Text style={themedStyles.statFootnote}>overnight (min)</Text>
+                </View>
+              </View>
+              <View style={themedStyles.chartCard}>
+                <Text style={themedStyles.section}>STEPS THIS WEEK</Text>
+                <BarChart7Day
+                  data={activityDays.map((d) => d.steps)}
+                  labels={activityDays.map((d) => d.date.slice(5).replace('-', '/'))}
+                  color={theme.colors.accent}
+                />
+              </View>
+            </>
           ) : (
             <View style={themedStyles.emptyChart}>
-              <Text style={themedStyles.emptyChartTitle}>No macro data yet</Text>
-              <Text style={themedStyles.emptyChartText}>Log meals in the Log tab to see your weekly protein, carbs & fat charts.</Text>
+              <Text style={themedStyles.emptyChartTitle}>No activity data yet</Text>
+              <Text style={themedStyles.emptyChartText}>Allow Health Connect on the Profile tab — it syncs automatically.</Text>
             </View>
           )}
         </View>

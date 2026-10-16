@@ -5,6 +5,7 @@ import { db } from '../services/firebase';
 import { shiftDate, todayLocalISO } from '../utils/streak';
 import type { FoodLogEntry } from '../services/foodLogService';
 import type { MealType, TodayTotals } from '../services/foodLogs';
+import type { DailyActivity } from '../services/activityLogs';
 import type { WeightEntry } from '../services/weightLogs';
 import type { User } from '../types/user';
 import { useAuthStore } from '../store/authStore';
@@ -18,6 +19,49 @@ export interface PerMealSummary {
 export type PerMealFlags = Partial<Record<MealType, boolean>>;
 
 const emptyTotals: TodayTotals = { calories: 0, protein: 0, carbs: 0, fat: 0, perMeal: {} };
+
+/** Live view of the last 7 days of Health Connect rows (oldest → newest). */
+export function useLast7DaysActivity(uid: string | undefined) {
+  const [days, setDays] = useState<DailyActivity[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!uid) {
+      setDays([]);
+      setLoading(false);
+      return;
+    }
+    const since = shiftDate(todayLocalISO(), -6);
+    const q = query(
+      collection(db, 'activityLogs', uid, 'entries'),
+      where('date', '>=', since),
+    );
+    const unsub = onSnapshot(
+      q,
+      (snap) => {
+        const map: Record<string, DailyActivity> = {};
+        for (const docSnap of snap.docs) {
+          const data = docSnap.data() as DailyActivity;
+          if (data.date) map[data.date] = data;
+        }
+        const result: DailyActivity[] = [];
+        for (let i = 6; i >= 0; i--) {
+          const date = shiftDate(todayLocalISO(), -i);
+          if (map[date]) result.push(map[date]);
+        }
+        setDays(result);
+        setLoading(false);
+      },
+      (err) => {
+        console.warn('[useLast7DaysActivity]', err.message);
+        setLoading(false);
+      },
+    );
+    return () => unsub();
+  }, [uid]);
+
+  return { days, loading };
+}
 
 /**
  * Live view of today's food logs.
