@@ -20,7 +20,7 @@ const GOAL_OPTIONS: { value: GoalType; label: string; desc: string; icon: keyof 
   { value: 'maintain', label: 'Stay Healthy', desc: 'Improve overall wellness', icon: 'heart-outline' },
 ];
 
-const WEEKLY_RATES: number[] = [0.25, 0.5, 0.75];
+const WEEKLY_RATES: number[] = [0.25, 0.5, 0.75, 1];
 
 const MILLIS_PER_DAY = 86_400_000;
 
