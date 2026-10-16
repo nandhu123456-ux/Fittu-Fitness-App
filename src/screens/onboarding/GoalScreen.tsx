@@ -18,7 +18,7 @@ const OPTIONS: { value: GoalType; label: string; subtitle: string; icon: keyof t
   { value: 'gain', label: 'Gain weight', subtitle: 'Build strength and size', icon: 'trending-up-outline' },
 ];
 
-const RATES = ['0.25', '0.5', '0.75'];
+const RATES = ['0.25', '0.5', '0.75', '1'];
 
 export default function GoalScreen({ navigation }: Props) {
   const theme = useTheme();
@@ -85,7 +85,8 @@ export default function GoalScreen({ navigation }: Props) {
     detailsRowLast: { borderBottomWidth: 0 },
     detailsLabel: { color: theme.colors.muted, fontSize: 13, width: 110 },
     detailsInput: { color: theme.colors.text, fontSize: 16, flex: 1 },
-    segmented: { flex: 1, flexDirection: 'row', gap: 8, minWidth: 0 },
+    segmented: { flexDirection: 'row', gap: 8, marginTop: 10, width: '100%' },
+    rateBlock: { borderTopColor: theme.colors.border, borderTopWidth: 1, paddingHorizontal: 16, paddingVertical: 14 },
     segmentBtn: { alignItems: 'center', backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 12, borderWidth: 1, flex: 1, minWidth: 0, paddingVertical: 10 },
     segmentBtnSelected: { backgroundColor: theme.colors.accent, borderColor: theme.colors.accent },
     segmentText: { color: theme.colors.text, fontSize: 12, fontWeight: '600' },
@@ -153,7 +154,7 @@ export default function GoalScreen({ navigation }: Props) {
               <Text style={themedStyles.detailsLabel}>Target weight</Text>
               <TextInput style={themedStyles.detailsInput} placeholder="kg" placeholderTextColor={theme.colors.muted} keyboardType="numeric" value={target} onChangeText={setTarget} />
             </View>
-            <View style={themedStyles.detailsRow}>
+            <View style={themedStyles.rateBlock}>
               <Text style={themedStyles.detailsLabel}>Weekly rate</Text>
               <View style={themedStyles.segmented}>
                 {RATES.map((r) => {
