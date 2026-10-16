@@ -1,5 +1,5 @@
 /**
- * Centralized number formatting for the Be_fit UI.
+ * Centralized number formatting for the Fittu UI.
  *
  * Every screen/component should route numeric display through these helpers
  * so that values like `95.39999999999998` can never reach the user.

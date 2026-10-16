@@ -95,7 +95,7 @@ export function DashboardHero({
           <Ionicons name="menu-outline" size={24} color={theme.colors.text} />
         </Pressable>
         <View style={styles.copy}>
-          <Text style={themedStyles.title}>Be_fit</Text>
+          <Text style={themedStyles.title}>Fi</Text><Text style={[themedStyles.title, { color: theme.colors.accent }]}>ttu</Text>
           <Text style={themedStyles.subtitle}>Eat better. Live stronger.</Text>
         </View>
         {streakDays === undefined ? null : (

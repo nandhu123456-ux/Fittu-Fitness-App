@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Be_fit",
+    "name": "Fittu",
     "slug": "Be_fit",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -23,7 +23,7 @@
       "edgeToEdgeEnabled": true,
       "softwareKeyboardLayoutMode": "resize",
       "predictiveBackGestureEnabled": false,
-      "package": "com.befit.app",
+      "package": "com.fittu.app",
       "permissions": [
         "android.permission.health.READ_STEPS",
         "android.permission.health.READ_ACTIVE_CALORIES_BURNED",

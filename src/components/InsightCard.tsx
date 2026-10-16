@@ -30,7 +30,7 @@ export function InsightCard({ remaining, target, eaten, protein, targetProtein }
     text: { color: theme.colors.text, fontSize: 14, fontWeight: '500', lineHeight: 20 },
     tag: { alignSelf: 'flex-end', color: theme.colors.muted, fontSize: 10, marginTop: 8 },
   }), [theme]);
-  return <View style={themedStyles.card}><Ionicons name="sparkles" size={22} color={theme.colors.accent} /><View style={styles.copy}><Text style={themedStyles.text}>{message}</Text><Text style={themedStyles.tag}>Be_fit insight</Text></View></View>;
+  return <View style={themedStyles.card}><Ionicons name="sparkles" size={22} color={theme.colors.accent} /><View style={styles.copy}><Text style={themedStyles.text}>{message}</Text><Text style={themedStyles.tag}>Fittu insight</Text></View></View>;
 }
 
 const styles = StyleSheet.create({
