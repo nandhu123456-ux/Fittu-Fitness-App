@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { Ionicons } from '@expo/vector-icons';
 import { RecordingPresets, getRecordingPermissionsAsync, requestRecordingPermissionsAsync, setAudioModeAsync, useAudioRecorder, useAudioRecorderState } from 'expo-audio';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { RouteProp } from '@react-navigation/native';
@@ -10,7 +11,7 @@ import type { RouteProp } from '@react-navigation/native';
 import { PortionModal } from '../components/PortionModal';
 import { addFoodLog } from '../services/foodLogService';
 import type { FoodResult } from '../services/foodSearch';
-import { parseVoice, type VoiceParseResult } from '../services/voiceLog';
+import { analyzeFoodText, parseVoice, type VoiceParseResult } from '../services/voiceLog';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../theme';
 import type { RootTabParamList } from '../types/navigation';
@@ -123,21 +124,25 @@ export default function VoiceLogScreen() {
     try {
       await recorder.stop();
       const uri = recorder.uri;
+      console.log('[voice] stopped. uri:', uri);
       if (!uri) {
         setError('No recording found. Try again.');
         setTranscribing(false);
         return;
       }
       const base64 = await FileSystem.readAsStringAsync(uri, { encoding: 'base64' });
+      console.log('[voice] base64 length:', base64.length);
 
       if (base64.length < 5000) {
-        setError('Recording too short — please speak for at least 2 seconds');
+        setError('Recording too short — please speak for at least 3 seconds');
         setTranscribing(false);
         return;
       }
 
-      // Stage 1: transcribe audio only. Food analysis is NOT triggered here.
+      console.log('[voice] calling parseVoice');
       const result: VoiceParseResult = await parseVoice(base64, mimeFromUri(uri));
+      console.log('[voice] parseVoice returned. transcript:', JSON.stringify(result.transcript));
+      
       const text = result.transcript.trim();
       setTranscript(text);
       setEditedText(text);
@@ -159,9 +164,9 @@ export default function VoiceLogScreen() {
     setError(null);
     setParseError(false);
     try {
-      const result: VoiceParseResult = await parseVoice(text, 'audio/mpeg');
-      if (result.food) {
-        setPendingFood(result.food);
+      const result: FoodResult | null = await analyzeFoodText(text);
+      if (result) {
+        setPendingFood(result);
       } else {
         setParseError(true);
         setError("Couldn't extract food from that. Edit the transcript and try again.");

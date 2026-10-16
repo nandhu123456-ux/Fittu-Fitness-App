@@ -3,7 +3,8 @@ import { type BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
 import { useMemo, useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 
 import { addCustomFood } from '../services/customFoods';
 import type { MealType } from '../services/foodLogs';
@@ -85,7 +86,7 @@ export default function AddCustomFoodScreen() {
   }), [theme]);
 
   return (
-    <KeyboardAvoidingView style={themedStyles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView style={themedStyles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <View style={themedStyles.headerRow}>
         <Pressable hitSlop={12} onPress={() => navigation.goBack()}>
           <Ionicons color={theme.colors.text} name="chevron-back" size={26} />
