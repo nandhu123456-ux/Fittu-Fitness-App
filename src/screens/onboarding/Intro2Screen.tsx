@@ -12,8 +12,8 @@ import type { OnboardingStackParamList } from '../../types/navigation';
 type Props = NativeStackScreenProps<OnboardingStackParamList, 'Intro2'>;
 
 const MACROS: { key: string; label: string; icon: keyof typeof Ionicons.glyphMap; colorKey: 'protein' | 'carbs' | 'fat' }[] = [
-  { key: 'protein', label: 'Protein', icon: 'fish-outline', colorKey: 'protein' },
-  { key: 'carbs', label: 'Carbs', icon: 'nutrition-outline', colorKey: 'carbs' },
+  { key: 'protein', label: 'Protein', icon: 'barbell-outline', colorKey: 'protein' },
+  { key: 'carbs', label: 'Carbs', icon: 'leaf-outline', colorKey: 'carbs' },
   { key: 'fats', label: 'Healthy Fats', icon: 'water-outline', colorKey: 'fat' },
 ];
 
@@ -22,41 +22,50 @@ export default function Intro2Screen({ navigation }: Props) {
   const markSeen = useIntroStore((s) => s.markSeen);
 
   const themedStyles = useMemo(() => StyleSheet.create({
-    flex: { backgroundColor: theme.colors.bg, flex: 1, padding: 24 },
-    topRow: { alignItems: 'center', flexDirection: 'row', justifyContent: 'flex-end' },
-    skip: { color: theme.colors.accent, fontSize: 14, fontWeight: '600' },
+    flex: { backgroundColor: theme.colors.bg, flex: 1 },
+    glow: { position: 'absolute', top: -150, alignSelf: 'center', width: 400, height: 400, borderRadius: 200, backgroundColor: theme.colors.accent, opacity: 0.08 },
+    header: { paddingHorizontal: 20, marginTop: 12 },
+    topRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+    back: { width: 48, height: 48, justifyContent: 'center', alignItems: 'center' },
+    progress: { flexDirection: 'row', gap: 4 },
+    segment: { flex: 1, height: 3, borderRadius: 2, backgroundColor: theme.colors.border },
+    content: { paddingHorizontal: 20, marginTop: 40 },
     title: { color: theme.colors.text, fontSize: 28, fontWeight: '700', letterSpacing: -0.5 },
-    subtitle: { color: theme.colors.muted, fontSize: 14, lineHeight: 20, marginTop: 6 },
-    macroRow: { flexDirection: 'row', gap: 12 },
-    macroCard: { alignItems: 'center', backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 16, borderWidth: 1, flex: 1, gap: 8, padding: 12 },
-    macroHalo: { alignItems: 'center', borderRadius: 999, height: 44, justifyContent: 'center', width: 44 },
-    macroLabel: { color: theme.colors.text, fontSize: 13, fontWeight: '600', textAlign: 'center' },
-    dots: { alignItems: 'center', flexDirection: 'row', gap: 8, marginVertical: 20 },
-    dot: { backgroundColor: theme.colors.border, borderRadius: 4, height: 8, width: 8 },
-    dotActive: { backgroundColor: theme.colors.accent, width: 22 },
-    footer: { flex: 1, justifyContent: 'flex-end' },
-    cta: { alignItems: 'center', backgroundColor: theme.colors.accent, borderRadius: 16, flexDirection: 'row', gap: 8, height: 56, justifyContent: 'center', marginTop: 20 },
-    ctaText: { color: theme.colors.accentText, fontSize: 16, fontWeight: '700' },
+    subtitle: { color: theme.colors.muted, fontSize: 15, lineHeight: 22, marginTop: 8 },
+    macroRow: { flexDirection: 'row', gap: 12, marginTop: 32 },
+    macroCard: { alignItems: 'center', backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 20, borderWidth: 1, flex: 1, gap: 10, padding: 16 },
+    macroHalo: { alignItems: 'center', borderRadius: 22, height: 44, justifyContent: 'center', width: 44 },
+    macroLabel: { color: theme.colors.text, fontSize: 13, fontWeight: '600', textAlign: 'center', marginTop: 8 },
+    footer: { flex: 1, justifyContent: 'flex-end', paddingHorizontal: 20, marginBottom: 40 },
+    cta: { alignItems: 'center', backgroundColor: theme.colors.accent, borderRadius: 16, height: 56, justifyContent: 'center', flexDirection: 'row', gap: 8 },
+    ctaText: { color: theme.colors.bg, fontSize: 16, fontWeight: '700' },
+    ctaArrow: { color: theme.colors.bg, fontSize: 16, fontWeight: '700' },
   }), [theme]);
 
-  const goToGender = (): void => {
-    markSeen();
-    navigation.navigate('Gender');
-  };
+  const goBack = (): void => { navigation.goBack(); };
+  const goToGender = (): void => { markSeen(); navigation.navigate('Gender'); };
+
+  const filled = 2;
+  const total = 5;
 
   return (
     <SafeAreaView style={themedStyles.flex}>
-      <View style={themedStyles.topRow}>
-        <Pressable hitSlop={8} onPress={goToGender}>
-          <Text style={themedStyles.skip}>Skip</Text>
-        </Pressable>
-      </View>
-
-      <View style={{ gap: 24, marginTop: 32 }}>
-        <View>
-          <Text style={themedStyles.title}>Food that fits you</Text>
-          <Text style={themedStyles.subtitle}>Get personalised meal plans based on your goals and preferences.</Text>
+      <View style={themedStyles.glow} />
+      <View style={themedStyles.header}>
+        <View style={themedStyles.topRow}>
+          <Pressable onPress={goBack} style={themedStyles.back} hitSlop={12}>
+            <Ionicons color={theme.colors.text} name="chevron-back" size={24} />
+          </Pressable>
+          <View style={themedStyles.progress}>
+            {Array.from({ length: total }).map((_, i) => (
+              <View key={i} style={[themedStyles.segment, i < filled && { backgroundColor: theme.colors.accent }]} />
+            ))}
+          </View>
         </View>
+      </View>
+      <View style={themedStyles.content}>
+        <Text style={themedStyles.title}>Food that fits you</Text>
+        <Text style={themedStyles.subtitle}>Get personalised meal plans based on your goals and preferences.</Text>
         <View style={themedStyles.macroRow}>
           {MACROS.map((macro) => {
             const color = theme.colors[macro.colorKey];
@@ -71,15 +80,10 @@ export default function Intro2Screen({ navigation }: Props) {
           })}
         </View>
       </View>
-
       <View style={themedStyles.footer}>
-        <View style={themedStyles.dots}>
-          <View style={themedStyles.dot} />
-          <View style={[themedStyles.dot, themedStyles.dotActive]} />
-        </View>
         <Pressable onPress={goToGender} style={themedStyles.cta}>
           <Text style={themedStyles.ctaText}>Next</Text>
-          <Ionicons color={theme.colors.accentText} name="arrow-forward" size={20} />
+          <Text style={themedStyles.ctaArrow}>→</Text>
         </Pressable>
       </View>
     </SafeAreaView>

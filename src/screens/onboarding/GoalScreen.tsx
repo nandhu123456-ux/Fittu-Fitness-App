@@ -1,20 +1,24 @@
 import { type NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useMemo, useState } from 'react';
 import { Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 
 import { useOnboardingStore } from '../../store/onboardingStore';
 import { useTheme } from '../../theme';
-import type { OnboardingStackParamList } from '../../types/navigation';
 import type { GoalType } from '../../types/user';
+import type { OnboardingStackParamList } from '../../types/navigation';
 
 type Props = NativeStackScreenProps<OnboardingStackParamList, 'Goal'>;
 
-const OPTIONS: { value: GoalType; label: string }[] = [
-  { value: 'lose', label: 'Lose weight' },
-  { value: 'maintain', label: 'Maintain weight' },
-  { value: 'gain', label: 'Gain weight' },
+const OPTIONS: { value: GoalType; label: string; subtitle: string; icon: keyof typeof Ionicons.glyphMap }[] = [
+  { value: 'lose', label: 'Lose weight', subtitle: 'Slim down steadily', icon: 'trending-down-outline' },
+  { value: 'maintain', label: 'Maintain weight', subtitle: 'Stay where you are', icon: 'heart-outline' },
+  { value: 'gain', label: 'Gain weight', subtitle: 'Build strength and size', icon: 'trending-up-outline' },
 ];
+
+const RATES = ['0.25', '0.5', '0.75'];
 
 export default function GoalScreen({ navigation }: Props) {
   const theme = useTheme();
@@ -56,53 +60,122 @@ export default function GoalScreen({ navigation }: Props) {
   };
 
   const themedStyles = useMemo(() => StyleSheet.create({
-    container: { flex: 1, backgroundColor: theme.colors.bg, justifyContent: 'center', paddingHorizontal: 32, gap: 12 },
-    heading: { fontSize: 22, fontWeight: '700', color: theme.colors.text, marginBottom: 8 },
-    option: { backgroundColor: theme.colors.surface, borderRadius: 8, paddingVertical: 14, alignItems: 'flex-start', paddingHorizontal: 16, borderWidth: 1, borderColor: theme.colors.surface },
-    optionSelected: { borderColor: theme.colors.accent },
-    optionText: { color: theme.colors.text, fontSize: 15 },
-    input: { backgroundColor: theme.colors.surfaceHi, borderRadius: 8, paddingHorizontal: 14, paddingVertical: 12, color: theme.colors.text, fontSize: 16 },
-    error: { color: theme.colors.danger, fontSize: 14 },
-    button: { backgroundColor: theme.colors.accentAlt, borderRadius: 8, paddingVertical: 14, alignItems: 'center', marginTop: 8 },
-    buttonText: { color: theme.colors.accentText, fontSize: 16, fontWeight: '600' },
+    flex: { backgroundColor: theme.colors.bg, flex: 1 },
+    glow: { position: 'absolute', top: -150, alignSelf: 'center', width: 400, height: 400, borderRadius: 200, backgroundColor: theme.colors.accent, opacity: 0.08 },
+    header: { paddingHorizontal: 20, marginTop: 12 },
+    topRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+    back: { width: 48, height: 48, justifyContent: 'center', alignItems: 'center' },
+    progress: { flexDirection: 'row', gap: 4 },
+    segment: { flex: 1, height: 3, borderRadius: 2, backgroundColor: theme.colors.border },
+    content: { flex: 1, paddingHorizontal: 20, paddingTop: 40 },
+    title: { color: theme.colors.text, fontSize: 28, fontWeight: '700', letterSpacing: -0.5 },
+    subtitle: { color: theme.colors.muted, fontSize: 15, lineHeight: 22, marginTop: 8 },
+    options: { gap: 12, marginTop: 32 },
+    option: { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 20, borderWidth: 1, height: 100, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16 },
+    optionSelected: { borderColor: theme.colors.accent, borderWidth: 2 },
+    iconCircle: { alignItems: 'center', backgroundColor: theme.colors.surfaceHi, borderRadius: 22, height: 44, justifyContent: 'center', width: 44 },
+    optionIcon: { color: theme.colors.muted },
+    optionBody: { flex: 1, marginLeft: 12 },
+    optionLabel: { color: theme.colors.text, fontSize: 16, fontWeight: '600' },
+    optionSubtitle: { color: theme.colors.muted, fontSize: 13, marginTop: 2 },
+    radioContainer: { alignItems: 'center', justifyContent: 'center', width: 32 },
+    radioOuter: { borderColor: theme.colors.border, borderRadius: 10, borderWidth: 2, height: 20, width: 20 },
+    radioInner: { backgroundColor: theme.colors.accent, borderRadius: 4, height: 8, width: 8 },
+    detailsCard: { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 20, borderWidth: 1, marginTop: 24, shadowColor: '#000', shadowOpacity: 0.25, shadowOffset: { width: 0, height: 8 }, shadowRadius: 16, elevation: 4 },
+    detailsRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 16, borderBottomWidth: 1, borderBottomColor: theme.colors.border },
+    detailsRowLast: { borderBottomWidth: 0 },
+    detailsLabel: { color: theme.colors.muted, fontSize: 13, width: 110 },
+    detailsInput: { color: theme.colors.text, fontSize: 16, flex: 1 },
+    segmented: { flexDirection: 'row', gap: 8, marginLeft: 110 },
+    segmentBtn: { alignItems: 'center', backgroundColor: theme.colors.surfaceHi, borderRadius: 10, height: 34, justifyContent: 'center', paddingHorizontal: 10 },
+    segmentBtnSelected: { backgroundColor: theme.colors.accent },
+    segmentText: { color: theme.colors.muted, fontSize: 13, fontWeight: '600' },
+    segmentTextSelected: { color: theme.colors.bg },
+    error: { color: theme.colors.danger, fontSize: 14, marginTop: 16, textAlign: 'center' },
+    footer: { marginBottom: 40, paddingHorizontal: 20 },
+    cta: { alignItems: 'center', backgroundColor: theme.colors.accent, borderRadius: 16, height: 56, justifyContent: 'center', flexDirection: 'row', gap: 8 },
+    ctaText: { color: theme.colors.bg, fontSize: 16, fontWeight: '700' },
+    ctaArrow: { color: theme.colors.bg, fontSize: 16, fontWeight: '700' },
   }), [theme]);
+
+  const goBack = (): void => { navigation.goBack(); };
+  const filled = 4;
+  const total = 5;
+  const showDetails = form.goalType !== null && form.goalType !== 'maintain';
+  const rateSelected = RATES.includes(rate) ? rate : '';
+
   return (
-    <KeyboardAvoidingView style={themedStyles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <Text style={themedStyles.heading}>What's your goal?</Text>
-      {OPTIONS.map((option) => (
-        <Pressable
-          key={option.value}
-          style={[themedStyles.option, form.goalType === option.value && themedStyles.optionSelected]}
-          onPress={() => setForm({ goalType: option.value })}
-        >
-          <Text style={themedStyles.optionText}>{option.label}</Text>
+    <SafeAreaView style={themedStyles.flex}>
+      <View style={themedStyles.glow} />
+      <View style={themedStyles.header}>
+        <View style={themedStyles.topRow}>
+          <Pressable onPress={goBack} style={themedStyles.back} hitSlop={12}>
+            <Ionicons color={theme.colors.text} name="chevron-back" size={24} />
+          </Pressable>
+          <View style={themedStyles.progress}>
+            {Array.from({ length: total }).map((_, i) => (
+              <View key={i} style={[themedStyles.segment, i < filled && { backgroundColor: theme.colors.accent }]} />
+            ))}
+          </View>
+        </View>
+      </View>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={themedStyles.content}>
+        <Text style={themedStyles.title}>What's your goal?</Text>
+        <Text style={themedStyles.subtitle}>We'll personalise your plan based on this.</Text>
+        <View style={themedStyles.options}>
+          {OPTIONS.map((option) => {
+            const selected = form.goalType === option.value;
+            return (
+              <Pressable
+                key={option.value}
+                style={[themedStyles.option, selected && themedStyles.optionSelected]}
+                onPress={() => setForm({ goalType: option.value })}
+              >
+                <View style={themedStyles.iconCircle}>
+                  <Ionicons style={themedStyles.optionIcon} name={option.icon} size={22} />
+                </View>
+                <View style={themedStyles.optionBody}>
+                  <Text style={themedStyles.optionLabel}>{option.label}</Text>
+                  <Text style={themedStyles.optionSubtitle}>{option.subtitle}</Text>
+                </View>
+                <View style={themedStyles.radioContainer}>
+                  <View style={themedStyles.radioOuter}>
+                    {selected && <View style={themedStyles.radioInner} />}
+                  </View>
+                </View>
+              </Pressable>
+            );
+          })}
+        </View>
+        {showDetails && (
+          <View style={themedStyles.detailsCard}>
+            <View style={[themedStyles.detailsRow, themedStyles.detailsRowLast]}>
+              <Text style={themedStyles.detailsLabel}>Target weight</Text>
+              <TextInput style={themedStyles.detailsInput} placeholder="kg" placeholderTextColor={theme.colors.muted} keyboardType="numeric" value={target} onChangeText={setTarget} />
+            </View>
+            <View style={themedStyles.detailsRow}>
+              <Text style={themedStyles.detailsLabel}>Weekly rate</Text>
+              <View style={themedStyles.segmented}>
+                {RATES.map((r) => {
+                  const sel = rateSelected === r;
+                  return (
+                    <Pressable key={r} style={[themedStyles.segmentBtn, sel && themedStyles.segmentBtnSelected]} onPress={() => setRate(r)}>
+                      <Text style={[themedStyles.segmentText, sel && themedStyles.segmentTextSelected]}>{r} kg</Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </View>
+          </View>
+        )}
+        {error !== null && <Text style={themedStyles.error}>{error}</Text>}
+      </KeyboardAvoidingView>
+      <View style={themedStyles.footer}>
+        <Pressable onPress={handleContinue} style={themedStyles.cta}>
+          <Text style={themedStyles.ctaText}>Continue</Text>
+          <Text style={themedStyles.ctaArrow}>→</Text>
         </Pressable>
-      ))}
-      {form.goalType !== null && form.goalType !== 'maintain' && (
-        <>
-          <TextInput
-            style={themedStyles.input}
-            placeholder="Target weight (kg)"
-            placeholderTextColor={theme.colors.muted}
-            keyboardType="numeric"
-            value={target}
-            onChangeText={setTarget}
-          />
-          <TextInput
-            style={themedStyles.input}
-            placeholder="Weekly rate (kg, 0.25–1.0)"
-            placeholderTextColor={theme.colors.muted}
-            keyboardType="numeric"
-            value={rate}
-            onChangeText={setRate}
-          />
-        </>
-      )}
-      {error !== null && <Text style={themedStyles.error}>{error}</Text>}
-      <Pressable style={themedStyles.button} onPress={handleContinue}>
-        <Text style={themedStyles.buttonText}>Continue</Text>
-      </Pressable>
-    </KeyboardAvoidingView>
+      </View>
+    </SafeAreaView>
   );
 }
-

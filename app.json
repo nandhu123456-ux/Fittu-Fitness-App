@@ -24,6 +24,10 @@
       "softwareKeyboardLayoutMode": "resize",
       "predictiveBackGestureEnabled": false,
       "package": "com.fittu.app",
+      "navigationBar": {
+        "barStyle": "light-content",
+        "backgroundColor": "#0F0D0C"
+      },
       "permissions": [
         "android.permission.health.READ_STEPS",
         "android.permission.health.READ_ACTIVE_CALORIES_BURNED",

@@ -9,6 +9,9 @@ export type RootTabParamList = {
   AddCustomFood: { prefillQuery?: string; mealType?: MealType } | undefined;
   MenuScan: { mealType?: MealType } | undefined;
   Settings: undefined;
+  Preferences: undefined;
+  Reminders: undefined;
+  Goals: undefined;
   Progress: undefined;
   Coach: undefined;
   Profile: undefined;

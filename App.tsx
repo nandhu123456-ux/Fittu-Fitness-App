@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
+import { View } from 'react-native';
 
 import RootNavigator from './src/navigation/RootNavigator';
 import { useTheme } from './src/theme';
@@ -53,9 +54,11 @@ export default function App() {
   if (!fontsLoaded) return null;
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: '#0F0D0C' }}>
       <KeyboardProvider>
-        <AppShell />
+        <View style={{ flex: 1, backgroundColor: '#0F0D0C' }}>
+          <AppShell />
+        </View>
         {!splashDone && <AnimatedSplash onFinish={() => setSplashDone(true)} />}
       </KeyboardProvider>
     </GestureHandlerRootView>
