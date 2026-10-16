@@ -165,6 +165,7 @@ export default function CoachScreen({ onClose }: Props) {
           data={[...messages].reverse()}
           inverted
           keyExtractor={(item) => item.id}
+          style={{ flex: 1 }}
           contentContainerStyle={styles.list}
           keyboardDismissMode="interactive"
           keyboardShouldPersistTaps="handled"
