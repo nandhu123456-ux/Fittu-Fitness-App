@@ -33,8 +33,7 @@ export default function AnimatedSplash({ onFinish }: Props) {
   return (
     <Animated.View style={[StyleSheet.absoluteFillObject, styles.overlay, { opacity: overlayOpacity }]}>
       <Animated.Image
-        source={require('../../assets/icon.png.png')}
-        style={[styles.logo, { opacity: logoOpacity, transform: [{ scale: logoScale }] }]}
+source={require('../../assets/icon.png')}        style={[styles.logo, { opacity: logoOpacity, transform: [{ scale: logoScale }] }]}
         resizeMode="contain"
       />
       <Animated.Text style={[styles.word, { opacity: wordOpacity, transform: [{ translateY: wordY }] }]}>

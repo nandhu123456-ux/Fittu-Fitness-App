@@ -51,7 +51,10 @@ export default function DashboardScreen() {
     setRefreshing(false);
   }, [uid]);
 
-  useEffect(() => { void refresh(); }, [refresh]);
+  useEffect(() => {
+    if (!uid) return;
+    refreshStreak(uid).catch(() => {});
+  }, [uid]);
   useEffect(() => { const timer = setInterval(() => setNow(new Date()), 60_000); return () => clearInterval(timer); }, []);
 
   const hour = now.getHours();
