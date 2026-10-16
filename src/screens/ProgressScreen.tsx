@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Alert, FlatList, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
+import { Alert, ActivityIndicator, FlatList, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -46,7 +46,7 @@ export default function ProgressScreen() {
 
   // Live listener: saves/deletes from any screen update this list immediately.
   const { entries } = useRecentWeights(uid, 30);
-  const { days } = useLast7DaysFoodLogs(uid);
+  const { days, loading } = useLast7DaysFoodLogs(uid);
 
   // Latest known weight falls back to the profile value when nothing is logged.
   const currentWeight = entries.length > 0 ? entries[0].weight : profile?.profile?.weightKg ?? 0;
@@ -105,6 +105,7 @@ export default function ProgressScreen() {
   const carbsData = days.map((d) => d.carbs);
   const fatData = days.map((d) => d.fat);
   const dayLabels = days.map((d) => d.date.slice(5).replace('-', '/'));
+const hasFoodLogs = days.some((d) => d.cal > 0 || d.protein > 0 || d.carbs > 0 || d.fat > 0);
   const calAvg = days.length > 0 ? Math.round(days.reduce((s, d) => s + d.cal, 0) / days.length) : 0;
 
   const themedStyles = useMemo(() => StyleSheet.create({
@@ -129,6 +130,9 @@ export default function ProgressScreen() {
     statFootnote: { color: theme.colors.muted, fontSize: 10, fontStyle: 'italic', marginTop: 2 },
     chartCard: { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 20, borderWidth: 1, padding: 20, marginTop: 16 },
     section: { color: theme.colors.muted, fontSize: 12, fontWeight: '600', letterSpacing: 1.4, marginTop: 16 },
+    emptyChart: { alignItems: 'center', marginTop: 40, padding: 20, borderWidth: 1, borderStyle: 'dashed', borderColor: theme.colors.border, borderRadius: 16, gap: 6 },
+    emptyChartTitle: { color: theme.colors.text, fontSize: 14, fontWeight: '600' },
+    emptyChartText: { color: theme.colors.muted, fontSize: 12, textAlign: 'center' },
     chartDelta: { color: theme.colors.accent, fontSize: 13, fontWeight: '600', marginTop: 4 },
     macroCard: { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 16, borderWidth: 1, padding: 16, marginTop: 12 },
     macroTitle: { color: theme.colors.text, fontSize: 15, fontWeight: '600', marginBottom: 8 },
@@ -247,22 +251,40 @@ export default function ProgressScreen() {
       ) : activeTab === 'calories' ? (
         <View>
           <Text style={themedStyles.section}>LAST 7 DAYS</Text>
-          <Text style={themedStyles.chartDelta}>{calAvg} kcal avg · target {targets?.calories ?? '—'}</Text>
-          <BarChart7Day data={calData} labels={dayLabels} color={theme.colors.accent} target={targets?.calories} />
+          <Text style={themedStyles.chartDelta}>{days.length > 0 ? `${calAvg} kcal avg` : 'No data yet'} &nbsp;·&nbsp; target {targets?.calories ?? '—'}</Text>
+          {hasFoodLogs ? (
+            <BarChart7Day data={calData} labels={dayLabels} color={theme.colors.accent} target={targets?.calories} />
+          ) : loading ? (
+            <View style={{ marginTop: 40 }}><ActivityIndicator /></View>
+          ) : (
+            <View style={themedStyles.emptyChart}>
+              <Text style={themedStyles.emptyChartTitle}>No calorie data yet</Text>
+              <Text style={themedStyles.emptyChartText}>Log meals in the Log tab to see your weekly calorie chart.</Text>
+            </View>
+          )}
         </View>
       ) : (
         <View>
           <Text style={themedStyles.section}>LAST 7 DAYS</Text>
-          {[
-            { label: 'Protein', data: proteinData, color: theme.colors.protein, target: targets?.protein },
-            { label: 'Carbs', data: carbsData, color: theme.colors.carbs, target: targets?.carbs },
-            { label: 'Fat', data: fatData, color: theme.colors.fat, target: targets?.fat },
-          ].map((m) => (
-            <View key={m.label} style={themedStyles.macroCard}>
-              <Text style={themedStyles.macroTitle}>{m.label}</Text>
-              <BarChart7Day data={m.data} labels={dayLabels} color={m.color} target={m.target} />
+          {hasFoodLogs ? (
+            [
+              { label: 'Protein', data: proteinData, color: theme.colors.protein, target: targets?.protein },
+              { label: 'Carbs', data: carbsData, color: theme.colors.carbs, target: targets?.carbs },
+              { label: 'Fat', data: fatData, color: theme.colors.fat, target: targets?.fat },
+            ].map((m) => (
+              <View key={m.label} style={themedStyles.macroCard}>
+                <Text style={themedStyles.macroTitle}>{m.label}</Text>
+                <BarChart7Day data={m.data} labels={dayLabels} color={m.color} target={m.target} />
+              </View>
+            ))
+          ) : loading ? (
+            <View style={{ marginTop: 40 }}><ActivityIndicator /></View>
+          ) : (
+            <View style={themedStyles.emptyChart}>
+              <Text style={themedStyles.emptyChartTitle}>No macro data yet</Text>
+              <Text style={themedStyles.emptyChartText}>Log meals in the Log tab to see your weekly protein, carbs & fat charts.</Text>
             </View>
-          ))}
+          )}
         </View>
       )}
     </View>
