@@ -10,6 +10,7 @@ import { useAuthStore } from '../../store/authStore';
 import { useOnboardingStore } from '../../store/onboardingStore';
 import { useTheme } from '../../theme';
 import type { OnboardingStackParamList } from '../../types/navigation';
+import { calculateBodyStats } from '../../utils/bodyStats';
 import { calculateBMR, calculateTargets, calculateTDEE } from '../../utils/nutrition';
 
 export default function SummaryScreen() {
@@ -58,9 +59,20 @@ export default function SummaryScreen() {
     missingBody: { color: theme.colors.muted, fontSize: 13, lineHeight: 19, marginTop: 6, textAlign: 'center' },
     missingBtn: { alignItems: 'center', backgroundColor: theme.colors.accent, borderRadius: 14, marginTop: 20, paddingHorizontal: 24, paddingVertical: 12 },
     missingBtnText: { color: theme.colors.bg, fontSize: 14, fontWeight: '700' },
+    loadingWrap: { alignItems: 'center', backgroundColor: theme.colors.bg, flex: 1, justifyContent: 'center' },
+    loadingText: { color: theme.colors.muted, marginTop: 16 },
   }), [theme]);
 
   const { gender, age, heightCm, weightKg, activityLevel, goalType } = form;
+
+  if (submitting) {
+    return (
+      <View style={themedStyles.loadingWrap}>
+        <ActivityIndicator color={theme.colors.accent} size="large" />
+        <Text style={themedStyles.loadingText}>Setting up your plan…</Text>
+      </View>
+    );
+  }
 
   if (gender === null || activityLevel === null || goalType === null) {
     return (
@@ -82,6 +94,7 @@ export default function SummaryScreen() {
   const tdee = calculateTDEE(bmr, activityLevel);
   const targets = calculateTargets({ tdee, bmr, goalType, weightKg });
   const targetWeightKg = goalType === 'maintain' ? weightKg : form.targetWeightKg;
+  const stats = calculateBodyStats({ weightKg, heightCm, age, gender });
 
   const handleConfirm = async () => {
     if (user === null) {
@@ -101,15 +114,21 @@ export default function SummaryScreen() {
       });
       useOnboardingStore.getState().resetForm();
       setSuccess(true);
-      setSubmitting(false);
-      setTimeout(() => {
-        const fresh = getUserProfile(user.uid);
-        fresh.then((profile) => {
-          if (profile !== null) {
-            useAuthStore.getState().setProfile(profile);
-          }
+      const current = useAuthStore.getState().profile;
+      if (current !== null) {
+        useAuthStore.getState().setProfile({
+          ...current,
+          profile: { gender, age, heightCm, weightKg, activityLevel },
+          goal: { type: goalType, targetWeightKg, weeklyRateKg: form.weeklyRateKg },
+          bmr,
+          tdee,
+          targets,
+          onboardingComplete: true,
         });
-      }, 900);
+      } else {
+        const fresh = await getUserProfile(user.uid);
+        if (fresh !== null) useAuthStore.getState().setProfile(fresh);
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not save your plan.');
       setSubmitting(false);
@@ -162,11 +181,11 @@ export default function SummaryScreen() {
             <Text style={themedStyles.statLabel}>Target weight</Text>
           </View>
           <View style={themedStyles.statMini}>
-            <Text style={themedStyles.statValue}>—</Text>
+            <Text style={themedStyles.statValue}>{stats ? `${stats.bmi}` : '—'}</Text>
             <Text style={themedStyles.statLabel}>BMI</Text>
           </View>
           <View style={themedStyles.statMini}>
-            <Text style={themedStyles.statValue}>—</Text>
+            <Text style={themedStyles.statValue}>{stats ? `${stats.bodyFatPct}%` : '—'}</Text>
             <Text style={themedStyles.statLabel}>Body Fat</Text>
           </View>
         </View>

@@ -1,6 +1,6 @@
 import { type NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useMemo, useState } from 'react';
-import { Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
@@ -67,7 +67,6 @@ export default function GoalScreen({ navigation }: Props) {
     back: { width: 48, height: 48, justifyContent: 'center', alignItems: 'center' },
     progress: { flexDirection: 'row', gap: 4 },
     segment: { flex: 1, height: 3, borderRadius: 2, backgroundColor: theme.colors.border },
-    content: { flex: 1, paddingHorizontal: 20, paddingTop: 40 },
     title: { color: theme.colors.text, fontSize: 28, fontWeight: '700', letterSpacing: -0.5 },
     subtitle: { color: theme.colors.muted, fontSize: 15, lineHeight: 22, marginTop: 8 },
     options: { gap: 12, marginTop: 32 },
@@ -86,10 +85,10 @@ export default function GoalScreen({ navigation }: Props) {
     detailsRowLast: { borderBottomWidth: 0 },
     detailsLabel: { color: theme.colors.muted, fontSize: 13, width: 110 },
     detailsInput: { color: theme.colors.text, fontSize: 16, flex: 1 },
-    segmented: { flexDirection: 'row', gap: 8, marginLeft: 110 },
-    segmentBtn: { alignItems: 'center', backgroundColor: theme.colors.surfaceHi, borderRadius: 10, height: 34, justifyContent: 'center', paddingHorizontal: 10 },
-    segmentBtnSelected: { backgroundColor: theme.colors.accent },
-    segmentText: { color: theme.colors.muted, fontSize: 13, fontWeight: '600' },
+    segmented: { flex: 1, flexDirection: 'row', gap: 8, minWidth: 0 },
+    segmentBtn: { alignItems: 'center', backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 12, borderWidth: 1, flex: 1, minWidth: 0, paddingVertical: 10 },
+    segmentBtnSelected: { backgroundColor: theme.colors.accent, borderColor: theme.colors.accent },
+    segmentText: { color: theme.colors.text, fontSize: 12, fontWeight: '600' },
     segmentTextSelected: { color: theme.colors.bg },
     error: { color: theme.colors.danger, fontSize: 14, marginTop: 16, textAlign: 'center' },
     footer: { marginBottom: 40, paddingHorizontal: 20 },
@@ -119,7 +118,8 @@ export default function GoalScreen({ navigation }: Props) {
           </View>
         </View>
       </View>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={themedStyles.content}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={Platform.OS === 'ios' ? 88 : 0} style={themedStyles.flex}>
+        <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scrollContent}>
         <Text style={themedStyles.title}>What's your goal?</Text>
         <Text style={themedStyles.subtitle}>We'll personalise your plan based on this.</Text>
         <View style={themedStyles.options}>
@@ -160,7 +160,7 @@ export default function GoalScreen({ navigation }: Props) {
                   const sel = rateSelected === r;
                   return (
                     <Pressable key={r} style={[themedStyles.segmentBtn, sel && themedStyles.segmentBtnSelected]} onPress={() => setRate(r)}>
-                      <Text style={[themedStyles.segmentText, sel && themedStyles.segmentTextSelected]}>{r} kg</Text>
+                      <Text numberOfLines={1} adjustsFontSizeToFit style={[themedStyles.segmentText, sel && themedStyles.segmentTextSelected]}>{r} kg/wk</Text>
                     </Pressable>
                   );
                 })}
@@ -169,6 +169,7 @@ export default function GoalScreen({ navigation }: Props) {
           </View>
         )}
         {error !== null && <Text style={themedStyles.error}>{error}</Text>}
+        </ScrollView>
       </KeyboardAvoidingView>
       <View style={themedStyles.footer}>
         <Pressable onPress={handleContinue} style={themedStyles.cta}>
@@ -179,3 +180,7 @@ export default function GoalScreen({ navigation }: Props) {
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  scrollContent: { paddingBottom: 100, paddingHorizontal: 20, paddingTop: 40 },
+});

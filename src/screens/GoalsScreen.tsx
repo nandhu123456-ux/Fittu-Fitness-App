@@ -105,10 +105,10 @@ export default function GoalsScreen() {
     label: { color: theme.colors.text, fontSize: 15 },
     input: { backgroundColor: theme.colors.surfaceHi, borderRadius: 10, color: theme.colors.text, fontSize: 15, paddingHorizontal: 12, paddingVertical: 9, textAlign: 'right', width: 100 },
     error: { color: theme.colors.danger, fontSize: 13, marginTop: 6 },
-    segmented: { flexDirection: 'row', gap: 8, marginHorizontal: 20, marginTop: 4 },
-    ratePill: { alignItems: 'center', borderColor: theme.colors.border, borderRadius: 12, borderWidth: 1, flex: 1, paddingVertical: 10 },
+    segmented: { flexDirection: 'row', gap: 8, marginTop: 4, width: '100%' },
+    ratePill: { alignItems: 'center', backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 12, borderWidth: 1, flex: 1, minWidth: 0, paddingVertical: 10 },
     ratePillActive: { backgroundColor: theme.colors.accent, borderColor: theme.colors.accent },
-    rateText: { color: theme.colors.muted, fontWeight: '700' },
+    rateText: { color: theme.colors.muted, fontSize: 12, fontWeight: '600' },
     rateTextActive: { color: theme.colors.bg },
     rowValue: { color: theme.colors.text, fontSize: 16, fontWeight: '600' },
     targetsNote: { color: theme.colors.muted, fontSize: 13, marginTop: 4 },
@@ -155,7 +155,7 @@ export default function GoalsScreen() {
           <View style={themedStyles.segmented}>
             {WEEKLY_RATES.map((rate) => (
               <Pressable key={rate} onPress={() => setWeeklyRate(rate)} style={[themedStyles.ratePill, weeklyRate === rate && themedStyles.ratePillActive]}>
-                <Text style={[themedStyles.rateText, weeklyRate === rate && themedStyles.rateTextActive]}>{rate} kg/week</Text>
+                <Text numberOfLines={1} adjustsFontSizeToFit style={[themedStyles.rateText, weeklyRate === rate && themedStyles.rateTextActive]}>{rate} kg/wk</Text>
               </Pressable>
             ))}
           </View>

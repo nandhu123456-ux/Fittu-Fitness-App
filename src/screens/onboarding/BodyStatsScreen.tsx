@@ -1,6 +1,6 @@
 import { type NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useMemo, useState } from 'react';
-import { Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
@@ -61,7 +61,6 @@ export default function BodyStatsScreen({ navigation }: Props) {
     back: { width: 48, height: 48, justifyContent: 'center', alignItems: 'center' },
     progress: { flexDirection: 'row', gap: 4 },
     segment: { flex: 1, height: 3, borderRadius: 2, backgroundColor: theme.colors.border },
-    content: { flex: 1, paddingHorizontal: 20, paddingTop: 40 },
     title: { color: theme.colors.text, fontSize: 28, fontWeight: '700', letterSpacing: -0.5 },
     subtitle: { color: theme.colors.muted, fontSize: 15, lineHeight: 22, marginTop: 8 },
     card: { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 20, borderWidth: 1, marginTop: 32, shadowColor: '#000', shadowOpacity: 0.25, shadowOffset: { width: 0, height: 8 }, shadowRadius: 16, elevation: 4 },
@@ -96,7 +95,8 @@ export default function BodyStatsScreen({ navigation }: Props) {
           </View>
         </View>
       </View>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={themedStyles.content}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={Platform.OS === 'ios' ? 88 : 0} style={themedStyles.flex}>
+        <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scrollContent}>
         <Text style={themedStyles.title}>Tell us about yourself</Text>
         <Text style={themedStyles.subtitle}>We use this to compute your daily calorie needs.</Text>
         <View style={themedStyles.card}>
@@ -117,6 +117,7 @@ export default function BodyStatsScreen({ navigation }: Props) {
           </View>
         </View>
         {error !== null && <Text style={themedStyles.error}>{error}</Text>}
+        </ScrollView>
       </KeyboardAvoidingView>
       <View style={themedStyles.footer}>
         <Pressable onPress={handleContinue} style={themedStyles.cta}>
@@ -127,3 +128,7 @@ export default function BodyStatsScreen({ navigation }: Props) {
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  scrollContent: { paddingBottom: 100, paddingHorizontal: 20, paddingTop: 40 },
+});
