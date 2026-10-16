@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { collection, doc, limit, onSnapshot, orderBy, query, where } from 'firebase/firestore';
 
 import { db } from '../services/firebase';
-import { todayLocalISO } from '../utils/streak';
+import { shiftDate, todayLocalISO } from '../utils/streak';
 import type { FoodLogEntry } from '../services/foodLogService';
 import type { MealType, TodayTotals } from '../services/foodLogs';
 import type { WeightEntry } from '../services/weightLogs';
@@ -266,4 +266,49 @@ export function useUserDoc(uid: string | undefined) {
   }, [uid]);
 
   return { profile, loading, error };
+}
+
+/**
+ * Live view of the last 7 days of food logs, aggregated by date.
+ * Returns { days, loading } where `days` is always 7 entries (oldest → newest)
+ * with summed calories/protein/carbs/fat per day.
+ */
+export function useLast7DaysFoodLogs(uid: string | undefined) {
+  const [days, setDays] = useState<Array<{ date: string; cal: number; protein: number; carbs: number; fat: number }>>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!uid) { setDays([]); setLoading(false); return; }
+    const since = shiftDate(todayLocalISO(), -6);
+    const q = query(
+      collection(db, 'foodLogs', uid, 'entries'),
+      where('date', '>=', since)
+    );
+    const unsub = onSnapshot(q, (snap) => {
+      const map: Record<string, { cal: number; protein: number; carbs: number; fat: number }> = {};
+      for (const docSnap of snap.docs) {
+        const d = docSnap.data();
+        const date = String(d.date ?? '');
+        if (!date) continue;
+        if (!map[date]) map[date] = { cal: 0, protein: 0, carbs: 0, fat: 0 };
+        map[date].cal += Number(d.cal ?? 0);
+        map[date].protein += Number(d.protein ?? 0);
+        map[date].carbs += Number(d.carbs ?? 0);
+        map[date].fat += Number(d.fat ?? 0);
+      }
+      const result: Array<{ date: string; cal: number; protein: number; carbs: number; fat: number }> = [];
+      for (let i = 6; i >= 0; i--) {
+        const date = shiftDate(todayLocalISO(), -i);
+        result.push({ date, ...(map[date] ?? { cal: 0, protein: 0, carbs: 0, fat: 0 }) });
+      }
+      setDays(result);
+      setLoading(false);
+    }, (err) => {
+      console.warn('[useLast7DaysFoodLogs]', err.message);
+      setLoading(false);
+    });
+    return () => unsub();
+  }, [uid]);
+
+  return { days, loading };
 }

@@ -1,16 +1,19 @@
 import { useMemo, useState } from 'react';
-import { Alert, FlatList, Modal, Platform, Pressable, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
+import { Alert, FlatList, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import Svg, { Circle, Defs, LinearGradient, Path, Stop } from 'react-native-svg';
 
-import { useRecentWeights } from '../hooks/useRealtime';
+import { useLast7DaysFoodLogs, useRecentWeights } from '../hooks/useRealtime';
 import { calculateBodyStats } from '../utils/bodyStats';
 import { createWeightChartPaths } from '../utils/weightChart';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../theme';
 import { addWeight, deleteWeight, type WeightEntry } from '../services/weightLogs';
+import BarChart7Day from '../components/BarChart7Day';
+import type { Targets } from '../types/user';
 
 type TabKey = 'weight' | 'calories' | 'macros';
 
@@ -31,6 +34,7 @@ function withAlpha(color: string): string {
 
 export default function ProgressScreen() {
   const theme = useTheme();
+  const navigation = useNavigation();
   const { profile } = useAuthStore();
   const user = useAuthStore((state) => state.user);
   const uid = user?.uid;
@@ -42,6 +46,7 @@ export default function ProgressScreen() {
 
   // Live listener: saves/deletes from any screen update this list immediately.
   const { entries } = useRecentWeights(uid, 30);
+  const { days } = useLast7DaysFoodLogs(uid);
 
   // Latest known weight falls back to the profile value when nothing is logged.
   const currentWeight = entries.length > 0 ? entries[0].weight : profile?.profile?.weightKg ?? 0;
@@ -54,6 +59,32 @@ export default function ProgressScreen() {
     age: profile?.profile?.age ?? 0,
     gender: profile?.profile?.gender ?? 'male',
   });
+
+  const targets: Targets | undefined = profile?.targets;
+  const gender = profile?.profile?.gender ?? 'male';
+
+  // Body fat guidance: healthy range 10–20% male, 18–28% female.
+  const bfMin = gender === 'male' ? 10 : 18;
+  const bfMax = gender === 'male' ? 20 : 28;
+  const bfValue = stats?.bodyFatPct ?? 0;
+  const bfInRange = bfValue >= bfMin && bfValue <= bfMax;
+  const bfAboveMax = bfValue > bfMax;
+  const bfGuidanceText = bfInRange
+    ? `${bfValue.toFixed(1)}% within healthy`
+    : bfAboveMax
+      ? `−${(bfValue - bfMax).toFixed(1)}% to reach healthy`
+      : `${(bfMin - bfValue).toFixed(1)}% below healthy`;
+  const bfGuidanceColor = bfInRange ? theme.colors.success : bfAboveMax ? theme.colors.warn : theme.colors.accent;
+
+  // Muscle mass guidance: target = weight × (1 − targetBF/100), targetBF = 18 male / 25 female.
+  const targetBF = gender === 'male' ? 18 : 25;
+  const muscleTarget = currentWeight * (1 - targetBF / 100);
+  const muscleValue = stats?.leanMassKg ?? 0;
+  const muscleAboveTarget = muscleValue >= muscleTarget;
+  const muscleGuidanceText = muscleAboveTarget
+    ? 'Above target'
+    : `+${(muscleTarget - muscleValue).toFixed(1)}kg to target`;
+  const muscleGuidanceColor = muscleAboveTarget ? theme.colors.success : theme.colors.accent;
 
   const deltaTone = useMemo(() => {
     if (deltaKg === null) return 'muted' as const;
@@ -68,6 +99,14 @@ export default function ProgressScreen() {
   const chart = entries.length >= 2 ? createWeightChartPaths(entries, chartWidth) : null;
   const listDelta = useMemo(() => entries.length > 1 ? entries[0].weight - entries[1].weight : null, [entries]);
 
+  // 7-day data for charts
+  const calData = days.map((d) => d.cal);
+  const proteinData = days.map((d) => d.protein);
+  const carbsData = days.map((d) => d.carbs);
+  const fatData = days.map((d) => d.fat);
+  const dayLabels = days.map((d) => d.date.slice(5).replace('-', '/'));
+  const calAvg = days.length > 0 ? Math.round(days.reduce((s, d) => s + d.cal, 0) / days.length) : 0;
+
   const themedStyles = useMemo(() => StyleSheet.create({
     headerRow: { alignItems: 'center', flexDirection: 'row', gap: 10 },
     headerTitle: { color: theme.colors.text, fontSize: 20, fontWeight: '600' },
@@ -78,25 +117,24 @@ export default function ProgressScreen() {
     deltaPill: { alignItems: 'center', borderRadius: 999, flexDirection: 'row', gap: 4, paddingHorizontal: 10, paddingVertical: 5 },
     deltaPillText: { color: deltaColor, fontSize: 13, fontWeight: '700' },
     deltaSub: { color: theme.colors.muted, fontSize: 10, marginTop: 4 },
-    tabRow: { flexDirection: 'row', gap: 8 },
+    tabRow: { flexDirection: 'row', gap: 8, marginTop: 16 },
     tab: { alignItems: 'center', backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 20, borderWidth: 1, paddingHorizontal: 14, paddingVertical: 8 },
     tabActive: { backgroundColor: theme.colors.accent, borderColor: theme.colors.accent },
     tabText: { color: theme.colors.text, fontSize: 13, fontWeight: '600' },
     tabTextActive: { color: theme.colors.bg },
-    placeholderCard: { alignItems: 'center', backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 20, borderWidth: 1, gap: 6, paddingVertical: 40 },
-    placeholderTitle: { color: theme.colors.text, fontSize: 17, fontWeight: '700', marginTop: 10 },
-    placeholderSub: { color: theme.colors.muted, fontSize: 13, marginTop: 2 },
-    chartCard: { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 20, borderWidth: 1, padding: 20 },
-    section: { color: theme.colors.muted, fontSize: 12, fontWeight: '600', letterSpacing: 1.4 },
-    chartDelta: { color: theme.colors.accent, fontSize: 13, fontWeight: '600', marginTop: 4 },
-    empty: { alignItems: 'center', marginTop: 60 },
-    emptyTitle: { color: theme.colors.text, fontSize: 18, fontWeight: '600', marginTop: 14 },
-    emptyText: { color: theme.colors.muted, fontSize: 14, marginTop: 6 },
     statRow: { flexDirection: 'row', gap: 12, marginTop: 16 },
     statCard: { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 16, borderWidth: 1, flex: 1, padding: 16 },
     statLabel: { color: theme.colors.muted, fontSize: 11, fontWeight: '700', letterSpacing: 1.2, textTransform: 'uppercase' },
     statValue: { color: theme.colors.text, fontSize: 24, fontWeight: '700', marginTop: 6 },
     statFootnote: { color: theme.colors.muted, fontSize: 10, fontStyle: 'italic', marginTop: 2 },
+    chartCard: { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 20, borderWidth: 1, padding: 20, marginTop: 16 },
+    section: { color: theme.colors.muted, fontSize: 12, fontWeight: '600', letterSpacing: 1.4, marginTop: 16 },
+    chartDelta: { color: theme.colors.accent, fontSize: 13, fontWeight: '600', marginTop: 4 },
+    macroCard: { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 16, borderWidth: 1, padding: 16, marginTop: 12 },
+    macroTitle: { color: theme.colors.text, fontSize: 15, fontWeight: '600', marginBottom: 8 },
+    empty: { alignItems: 'center', marginTop: 60 },
+    emptyTitle: { color: theme.colors.text, fontSize: 18, fontWeight: '600', marginTop: 14 },
+    emptyText: { color: theme.colors.muted, fontSize: 14, marginTop: 6 },
     row: { alignItems: 'center', backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 16, borderWidth: 1, flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10, padding: 16 },
     rowWeight: { color: theme.colors.text, fontSize: 18, fontWeight: '700' },
     rowDate: { color: theme.colors.muted, fontSize: 13, marginTop: 4 },
@@ -141,11 +179,12 @@ export default function ProgressScreen() {
     </Swipeable>
   );
 
-  // Non-weight tabs show no rows, so the placeholder is the only tab content.
   const header = (
     <View style={{ gap: 16 }}>
       <View style={themedStyles.headerRow}>
-        <Ionicons color={theme.colors.text} name="chevron-back" size={22} />
+        <Pressable hitSlop={8} onPress={() => navigation.goBack()}>
+          <Ionicons color={theme.colors.text} name="chevron-back" size={22} />
+        </Pressable>
         <Text style={themedStyles.headerTitle}>My Progress</Text>
       </View>
 
@@ -165,6 +204,21 @@ export default function ProgressScreen() {
         )}
       </View>
 
+      {/* Body stats row — above tabs */}
+      <View style={themedStyles.statRow}>
+        <View style={themedStyles.statCard}>
+          <Text style={themedStyles.statLabel}>Body Fat</Text>
+          <Text style={themedStyles.statValue}>{stats ? `${stats.bodyFatPct}%` : '—'}</Text>
+          <Text style={[themedStyles.statFootnote, { color: bfGuidanceColor }]}>{bfGuidanceText}</Text>
+        </View>
+        <View style={themedStyles.statCard}>
+          <Text style={themedStyles.statLabel}>Muscle Mass</Text>
+          <Text style={themedStyles.statValue}>{stats ? `${stats.leanMassKg} kg` : '—'}</Text>
+          <Text style={[themedStyles.statFootnote, { color: muscleGuidanceColor }]}>{muscleGuidanceText}</Text>
+        </View>
+      </View>
+
+      {/* Tab chips */}
       <View style={themedStyles.tabRow}>
         {TABS.map((tab) => (
           <Pressable key={tab.key} onPress={() => setActiveTab(tab.key)} style={[themedStyles.tab, activeTab === tab.key && themedStyles.tabActive]}>
@@ -173,6 +227,7 @@ export default function ProgressScreen() {
         ))}
       </View>
 
+      {/* Tab content */}
       {activeTab === 'weight' ? (
         chart ? (
           <View style={themedStyles.chartCard}>
@@ -190,50 +245,45 @@ export default function ProgressScreen() {
           </View>
         ) : null
       ) : activeTab === 'calories' ? (
-        <View style={themedStyles.placeholderCard}>
-          <Ionicons color={theme.colors.muted} name="bar-chart-outline" size={40} />
-          <Text style={themedStyles.placeholderTitle}>Coming soon</Text>
-          <Text style={themedStyles.placeholderSub}>Calorie history will appear here</Text>
+        <View>
+          <Text style={themedStyles.section}>LAST 7 DAYS</Text>
+          <Text style={themedStyles.chartDelta}>{calAvg} kcal avg · target {targets?.calories ?? '—'}</Text>
+          <BarChart7Day data={calData} labels={dayLabels} color={theme.colors.accent} target={targets?.calories} />
         </View>
       ) : (
-        <View style={themedStyles.placeholderCard}>
-          <Ionicons color={theme.colors.muted} name="pie-chart-outline" size={40} />
-          <Text style={themedStyles.placeholderTitle}>Coming soon</Text>
-          <Text style={themedStyles.placeholderSub}>Macro trends will appear here</Text>
+        <View>
+          <Text style={themedStyles.section}>LAST 7 DAYS</Text>
+          {[
+            { label: 'Protein', data: proteinData, color: theme.colors.protein, target: targets?.protein },
+            { label: 'Carbs', data: carbsData, color: theme.colors.carbs, target: targets?.carbs },
+            { label: 'Fat', data: fatData, color: theme.colors.fat, target: targets?.fat },
+          ].map((m) => (
+            <View key={m.label} style={themedStyles.macroCard}>
+              <Text style={themedStyles.macroTitle}>{m.label}</Text>
+              <BarChart7Day data={m.data} labels={dayLabels} color={m.color} target={m.target} />
+            </View>
+          ))}
         </View>
       )}
     </View>
   );
 
-  const footer = (
-    <View style={themedStyles.statRow}>
-      <View style={themedStyles.statCard}>
-        <Text style={themedStyles.statLabel}>Body Fat</Text>
-        <Text style={themedStyles.statValue}>{stats ? `${stats.bodyFatPct}%` : '—'}</Text>
-        <Text style={themedStyles.statFootnote}>Estimated</Text>
-      </View>
-      <View style={themedStyles.statCard}>
-        <Text style={themedStyles.statLabel}>Muscle Mass</Text>
-        <Text style={themedStyles.statValue}>{stats ? `${stats.leanMassKg} kg` : '—'}</Text>
-        <Text style={themedStyles.statFootnote}>Estimated</Text>
-      </View>
-    </View>
-  );
-
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.bg }}>
-      {/* Single root scroller: header/hero/tabs/chart are header, rows are data. */}
       <FlatList
         contentContainerStyle={listStyles.content}
         data={activeTab === 'weight' ? entries : []}
         keyExtractor={(item) => item.id}
         ListEmptyComponent={activeTab === 'weight' ? <View style={themedStyles.empty}><Ionicons name="scale-outline" color={theme.colors.muted} size={44} /><Text style={themedStyles.emptyTitle}>Start your weight journey</Text><Text style={themedStyles.emptyText}>Add at least two entries to see your trend.</Text></View> : null}
-        ListFooterComponent={footer}
         ListHeaderComponent={header}
         renderItem={renderRow}
         showsVerticalScrollIndicator={false}
       />
-      <Pressable onPress={() => setVisible(true)} style={themedStyles.fab}><Ionicons name="add" size={30} color={theme.colors.bg} /></Pressable>
+      {activeTab === 'weight' && (
+        <Pressable onPress={() => setVisible(true)} style={themedStyles.fab}>
+          <Ionicons name="add" size={30} color={theme.colors.bg} />
+        </Pressable>
+      )}
       <Modal visible={visible} transparent animationType="slide" onRequestClose={() => setVisible(false)}>
         <Pressable onPress={() => setVisible(false)} style={themedStyles.overlay}>
           <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ justifyContent: 'flex-end' }}>
