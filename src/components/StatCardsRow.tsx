@@ -34,6 +34,8 @@ export function StatCardsRow({ health, waterMl, onWaterPress }: Props) {
   const burned = health.data ? Math.round(health.data.caloriesBurned) : null;
   const steps = health.data ? health.data.steps.toLocaleString() : null;
   const waterLiters = (waterMl / 1000).toFixed(1);
+  const sleepMin = health.data?.sleepMinutes ?? 0;
+  const sleepValue = sleepMin > 0 ? `${Math.floor(sleepMin / 60)}h ${Math.round(sleepMin % 60)}m` : '—';
 
   const themedStyles = useMemo(
     () =>
@@ -52,7 +54,7 @@ export function StatCardsRow({ health, waterMl, onWaterPress }: Props) {
         <Text style={[styles.value, { color: theme.colors.text }]}>{waterLiters}L</Text>
         <Text style={[styles.label, { color: theme.colors.muted }]}>/ 2.5L</Text>
       </TouchableOpacity>
-      <StatCard icon="moon-outline" iconColor={theme.colors.muted} value="—" label="sleep" />
+      <StatCard icon="moon-outline" iconColor={theme.colors.muted} value={sleepValue} label="sleep" />
     </View>
   );
 }

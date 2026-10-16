@@ -28,7 +28,8 @@
         "android.permission.health.READ_STEPS",
         "android.permission.health.READ_ACTIVE_CALORIES_BURNED",
         "android.permission.health.READ_TOTAL_CALORIES_BURNED",
-        "android.permission.health.READ_DISTANCE"
+        "android.permission.health.READ_DISTANCE",
+        "android.permission.health.READ_SLEEP"
       ],
       "intentFilters": [
         {
@@ -46,6 +47,7 @@
     },
     "plugins": [
       "expo-audio",
+      "expo-speech-recognition",
       [
         "react-native-health-connect",
         {
@@ -53,7 +55,8 @@
             "android.permission.health.READ_STEPS",
             "android.permission.health.READ_ACTIVE_CALORIES_BURNED",
             "android.permission.health.READ_TOTAL_CALORIES_BURNED",
-            "android.permission.health.READ_DISTANCE"
+            "android.permission.health.READ_DISTANCE",
+            "android.permission.health.READ_SLEEP"
           ]
         }
       ],

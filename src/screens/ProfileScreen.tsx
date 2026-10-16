@@ -4,8 +4,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 
-import { CoachChatModal } from '../components/CoachChatModal';
 import { signOut } from '../services/auth';
+import {
+  isHealthConnectAvailable,
+  initHealthConnect,
+  requestHealthPermissions,
+} from '../services/healthConnect';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../theme';
 import type { RootTabParamList } from '../types/navigation';
@@ -30,20 +34,43 @@ export default function ProfileScreen() {
   const avatarLetter = displayName.trim().slice(0, 1).toUpperCase() || 'B';
 
   const rows = useMemo<ProfileRow[]>(() => [
-    { key: 'goals', icon: 'flag-outline', title: 'Goals', subtitle: 'Set your targets', onPress: () => navigation.navigate('Settings') },
-    { key: 'mealPlan', icon: 'restaurant-outline', title: 'Meal Plan', subtitle: 'View your plan', onPress: () => navigation.navigate('MenuScan') },
-    { key: 'reminders', icon: 'notifications-outline', title: 'Reminders', subtitle: 'Stay on track', onPress: () => Alert.alert('Coming soon', 'Reminders are on their way.') },
-    { key: 'preferences', icon: 'options-outline', title: 'Preferences', subtitle: 'Units, theme, etc.', onPress: () => navigation.navigate('Settings') },
+    { key: 'goals', icon: 'flag-outline', title: 'Goals', subtitle: 'Set your targets', onPress: () => navigation.navigate('Goals') },
+    { key: 'mealPlan', icon: 'restaurant-outline', title: 'Meal Plan', subtitle: 'View your plan', onPress: () => navigation.navigate('Coach') },
+    { key: 'reminders', icon: 'notifications-outline', title: 'Reminders', subtitle: 'Stay on track', onPress: () => navigation.navigate('Reminders') },
+    { key: 'preferences', icon: 'options-outline', title: 'Preferences', subtitle: 'Units, theme, etc.', onPress: () => navigation.navigate('Preferences') },
     {
       key: 'health',
       icon: 'heart-outline',
       title: 'Health Connect',
       subtitle: 'Sync your health data',
-      onPress: () => {
-        void Linking.openSettings().catch(() => Alert.alert('Health Connect', 'Open Health Connect from system settings.'));
-      },
+        onPress: async () => {
+          const available = await isHealthConnectAvailable();
+          if (!available) {
+            Alert.alert(
+              'Health Connect not available',
+              'Install Health Connect from the Play Store to sync your health data.',
+              [{ text: 'OK' }]
+            );
+            return;
+          }
+          const inited = await initHealthConnect();
+          if (!inited) {
+            Alert.alert('Error', 'Could not initialise Health Connect.');
+            return;
+          }
+          const granted = await requestHealthPermissions();
+          if (granted) {
+            Alert.alert('Connected', 'Health Connect is syncing your steps, calories burned, and sleep.');
+          } else {
+            Alert.alert(
+              'Permission needed',
+              'Open the Health Connect app and enable the permissions manually.',
+              [{ text: 'OK' }]
+            );
+          }
+        },
     },
-    { key: 'help', icon: 'help-circle-outline', title: 'Help & Support', subtitle: 'Get assistance', onPress: () => Alert.alert('Coming soon', 'Support is on its way.') },
+    { key: 'help', icon: 'help-circle-outline', title: 'Help & Support', subtitle: 'Get assistance', onPress: () => Linking.openURL('mailto:be_fit.support@gmail.com?subject=Be_fit%20Support') },
   ], [navigation]);
 
   const confirmSignOut = (): void => {

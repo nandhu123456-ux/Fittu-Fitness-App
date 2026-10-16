@@ -10,6 +10,7 @@ export interface HealthSummary {
   steps: number;
   caloriesBurned: number;
   distanceKm: number;
+  sleepMinutes: number;
   updatedAt: number;
 }
 
@@ -18,6 +19,7 @@ const PERMISSIONS = [
   { accessType: 'read' as const, recordType: 'ActiveCaloriesBurned' as const },
   { accessType: 'read' as const, recordType: 'TotalCaloriesBurned' as const },
   { accessType: 'read' as const, recordType: 'Distance' as const },
+  { accessType: 'read' as const, recordType: 'SleepSession' as const },
 ];
 
 export async function isHealthConnectAvailable(): Promise<boolean> {
@@ -65,6 +67,25 @@ export async function readTodayHealth(): Promise<HealthSummary | null> {
       readRecords('Distance', { timeRangeFilter }),
     ]);
 
+    // Sleep: read last night's session (6pm yesterday to 10am today)
+    const sleepStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 18, 0, 0);
+    const sleepEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 10, 0, 0);
+
+    const sleepResult = await readRecords('SleepSession', {
+      timeRangeFilter: {
+        operator: 'between',
+        startTime: sleepStart.toISOString(),
+        endTime: sleepEnd.toISOString(),
+      },
+    });
+
+    let sleepMinutes = 0;
+    for (const record of sleepResult.records as any[]) {
+      const start = new Date(record.startTime);
+      const end = new Date(record.endTime);
+      sleepMinutes += (end.getTime() - start.getTime()) / 60000;
+    }
+
     const steps = stepsResult.records.reduce((sum: number, r: any) => sum + (r.count ?? 0), 0);
     const activeCal = activeCalResult.records.reduce((sum: number, r: any) => sum + (r.energy?.inKilocalories ?? 0), 0);
     const totalCal = totalCalResult.records.reduce((sum: number, r: any) => sum + (r.energy?.inKilocalories ?? 0), 0);
@@ -74,6 +95,7 @@ export async function readTodayHealth(): Promise<HealthSummary | null> {
       steps: Math.round(steps),
       caloriesBurned: Math.round(activeCal || totalCal),
       distanceKm: Math.round((distanceMeters / 1000) * 10) / 10,
+      sleepMinutes: Math.round(sleepMinutes),
       updatedAt: Date.now(),
     };
   } catch (e) {
