@@ -11,6 +11,7 @@ import { StepsCard } from '../components/StepsCard';
 import { WaterSleepRow } from '../components/WaterSleepRow';
 import { WaterModal } from '../components/WaterModal';
 import { DayDetailModal } from '../components/DayDetailModal';
+import { LogCircleMenu } from '../components/LogCircleMenu';
 import { addWater } from '../services/waterLogs';
 import { useHealthData } from '../hooks/useHealthData';
 import { useTodayFoodLogs, useTodayWater, useUserDoc } from '../hooks/useRealtime';
@@ -34,6 +35,7 @@ export default function DashboardScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [waterModalVisible, setWaterModalVisible] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [logMenuVisible, setLogMenuVisible] = useState(false);
   
   const targets = profile?.targets;
   const calories = targets?.calories ?? 0;
@@ -68,6 +70,20 @@ export default function DashboardScreen() {
     
     insightCard: { marginTop: 12, backgroundColor: theme.colors.surface, borderRadius: 20, padding: 16, flexDirection: 'row', alignItems: 'center', gap: 12, borderWidth: 1, borderColor: theme.colors.accent + '40' },
     insightText: { flex: 1, fontSize: 13, color: theme.colors.text, lineHeight: 18 },
+    logFab: {
+      alignItems: 'center',
+      backgroundColor: theme.colors.accent,
+      borderColor: theme.colors.bg,
+      borderRadius: 28,
+      borderWidth: 3,
+      height: 56,
+      justifyContent: 'center',
+      position: 'absolute',
+      right: 20,
+      bottom: 20,
+      width: 56,
+      zIndex: 100,
+    },
   }), [theme]);
 
   return (
@@ -82,7 +98,7 @@ export default function DashboardScreen() {
           <View style={themed.greetingRow}>
             <Text style={themed.greeting}>{greeting},</Text>
             <View style={themed.headerRight}>
-              <Pressable style={themed.iconBtn}>
+              <Pressable onPress={() => navigation.navigate('Notifications')} style={themed.iconBtn}>
                 <Ionicons name="notifications-outline" size={20} color={theme.colors.text} />
                 <View style={{ position: 'absolute', top: 10, right: 10, width: 8, height: 8, borderRadius: 4, backgroundColor: theme.colors.danger }} />
               </Pressable>
@@ -151,6 +167,10 @@ export default function DashboardScreen() {
         onClose={() => setSelectedDate(null)} 
       />
       </ScrollView>
+      <Pressable onPress={() => setLogMenuVisible(true)} style={themed.logFab}>
+        <Ionicons name="add" size={28} color={theme.colors.bg} />
+      </Pressable>
+      <LogCircleMenu visible={logMenuVisible} onClose={() => setLogMenuVisible(false)} />
     </SafeAreaView>
   );
 }

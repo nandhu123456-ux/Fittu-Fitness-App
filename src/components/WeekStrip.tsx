@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '../theme';
 import { todayLocalISO } from '../utils/streak';
@@ -22,11 +22,11 @@ export function WeekStrip({ onDayPress, selectedDate }: WeekStripProps) {
   const theme = useTheme();
   const today = todayLocalISO();
   const pills = useMemo<PillData[]>(() => {
-    const end = new Date();
-    end.setHours(0, 0, 0, 0);
-    return Array.from({ length: 7 }, (_, i) => {
-      const d = new Date(end);
-      d.setDate(end.getDate() - (6 - i));
+    const base = new Date();
+    base.setHours(0, 0, 0, 0);
+    return Array.from({ length: 31 }, (_, i) => {
+      const d = new Date(base);
+      d.setDate(base.getDate() - 15 + i);
       const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
       return {
         dayLabel: DAY_LABELS[d.getDay()] ?? '',
@@ -38,7 +38,7 @@ export function WeekStrip({ onDayPress, selectedDate }: WeekStripProps) {
   }, [today]);
 
   return (
-    <View style={[styles.row, { gap: 6 }]}>
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.row}>
       {pills.map((p) => (
         <WeekPill
           key={p.date}
@@ -47,18 +47,17 @@ export function WeekStrip({ onDayPress, selectedDate }: WeekStripProps) {
           isToday={p.isToday}
           isSelected={p.date === selectedDate}
           onPress={() => onDayPress?.(p.date)}
-          successColor={theme.colors.success}
           theme={theme}
         />
       ))}
-    </View>
+    </ScrollView>
   );
 }
 
-function WeekPill({ dayLabel, dateNumber, isToday, isSelected, onPress, successColor, theme }: any) {
-  const bg = isSelected ? successColor : isToday ? theme.colors.accent : theme.colors.surface;
-  const dayColor = isSelected || isToday ? theme.colors.bg : theme.colors.muted;
-  const dateColor = isSelected || isToday ? theme.colors.bg : theme.colors.text;
+function WeekPill({ dayLabel, dateNumber, isToday, isSelected, onPress, theme }: any) {
+  const bg = isSelected ? theme.colors.accent : isToday ? theme.colors.accent + '55' : theme.colors.surface;
+  const dayColor = isSelected ? theme.colors.bg : theme.colors.muted;
+  const dateColor = isSelected ? theme.colors.bg : theme.colors.text;
   return (
     <Pressable onPress={onPress} style={[styles.pill, { backgroundColor: bg }]}>
       <Text style={[styles.dayLabel, { color: dayColor }]}>{dayLabel}</Text>
@@ -68,8 +67,8 @@ function WeekPill({ dayLabel, dateNumber, isToday, isSelected, onPress, successC
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 16 },
-  pill: { flex: 1, minHeight: 68, borderRadius: 16, padding: 10, alignItems: 'center', justifyContent: 'center' },
+  row: { flexDirection: 'row', gap: 6, marginTop: 16, paddingHorizontal: 2 },
+  pill: { width: 48, minHeight: 68, borderRadius: 16, padding: 10, alignItems: 'center', justifyContent: 'center' },
   dayLabel: { fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.6 },
   dateNumber: { fontSize: 18, fontWeight: '700', marginTop: 4 },
 });
