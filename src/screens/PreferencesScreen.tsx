@@ -88,11 +88,12 @@ export default function PreferencesScreen() {
           alignItems: 'center',
           borderRadius: 12,
           flex: 1,
+          minWidth: 0,
           paddingHorizontal: 14,
-          paddingVertical: 9,
+          paddingVertical: 8,
         },
         activeUnit: { backgroundColor: theme.colors.accent },
-        unitText: { color: theme.colors.muted, fontSize: 15, fontWeight: '700' },
+        unitText: { color: theme.colors.muted, fontSize: 16, fontWeight: '700' },
         activeUnitText: { color: theme.colors.bg },
         divider: { backgroundColor: theme.colors.border, height: 1, marginVertical: 10 },
       }),
@@ -134,7 +135,7 @@ export default function PreferencesScreen() {
                 }}
                 style={[themedStyles.unit, weightUnit === value && themedStyles.activeUnit]}
               >
-                <Text style={[themedStyles.unitText, weightUnit === value && themedStyles.activeUnitText]}>
+                <Text style={[themedStyles.unitText, weightUnit === value && themedStyles.activeUnitText]} numberOfLines={1}>
                   {value.toUpperCase()}
                 </Text>
               </Pressable>
@@ -154,7 +155,7 @@ export default function PreferencesScreen() {
                 }}
                 style={[themedStyles.unit, waterUnit === value && themedStyles.activeUnit]}
               >
-                <Text style={[themedStyles.unitText, waterUnit === value && themedStyles.activeUnitText]}>
+                <Text style={[themedStyles.unitText, waterUnit === value && themedStyles.activeUnitText]} numberOfLines={1}>
                   {value.toUpperCase()}
                 </Text>
               </Pressable>
