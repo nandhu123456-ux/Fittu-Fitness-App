@@ -22,6 +22,7 @@ const OPTIONS: LogOption[] = [
   { icon: 'mic-outline', label: 'Voice', route: 'VoiceLog' },
   { icon: 'barcode-outline', label: 'Barcode', route: 'Barcode' },
   { icon: 'scan-outline', label: 'Menu scan', route: 'MenuScan' },
+  { icon: 'search-outline', label: 'Search', route: 'Log' },
   { icon: 'add-circle-outline', label: 'Custom', route: 'AddCustomFood' },
 ];
 
