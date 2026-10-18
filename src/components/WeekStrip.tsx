@@ -4,20 +4,11 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useTheme } from '../theme';
 import { todayLocalISO } from '../utils/streak';
 
-const DAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
-
-/** Returns the Monday of the week containing `date` (local). */
-function startOfWeek(date: Date): Date {
-  const day = date.getDay(); // 0 = Sunday
-  const diff = (day + 6) % 7; // days since Monday
-  const monday = new Date(date);
-  monday.setDate(date.getDate() - diff);
-  monday.setHours(0, 0, 0, 0);
-  return monday;
-}
+const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 interface WeekStripProps {
   onDayPress?: (date: string) => void;
+  selectedDate?: string | null;
 }
 
 interface PillData {
@@ -27,17 +18,18 @@ interface PillData {
   isToday: boolean;
 }
 
-export function WeekStrip({ onDayPress }: WeekStripProps) {
+export function WeekStrip({ onDayPress, selectedDate }: WeekStripProps) {
   const theme = useTheme();
   const today = todayLocalISO();
   const pills = useMemo<PillData[]>(() => {
-    const monday = startOfWeek(new Date());
-    return Array.from({ length: 5 }, (_, i) => {
-      const d = new Date(monday);
-      d.setDate(monday.getDate() + i);
+    const end = new Date();
+    end.setHours(0, 0, 0, 0);
+    return Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(end);
+      d.setDate(end.getDate() - (6 - i));
       const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
       return {
-        dayLabel: DAY_LABELS[i] ?? '',
+        dayLabel: DAY_LABELS[d.getDay()] ?? '',
         dateNumber: String(d.getDate()),
         date,
         isToday: date === today,
@@ -46,25 +38,27 @@ export function WeekStrip({ onDayPress }: WeekStripProps) {
   }, [today]);
 
   return (
-    <View style={[styles.row, { gap: 8 }]}>
+    <View style={[styles.row, { gap: 6 }]}>
       {pills.map((p) => (
         <WeekPill
           key={p.date}
           dayLabel={p.dayLabel}
           dateNumber={p.dateNumber}
           isToday={p.isToday}
+          isSelected={p.date === selectedDate}
           onPress={() => onDayPress?.(p.date)}
+          successColor={theme.colors.success}
+          theme={theme}
         />
       ))}
     </View>
   );
 }
 
-function WeekPill({ dayLabel, dateNumber, isToday, onPress }: { dayLabel: string; dateNumber: string; isToday: boolean; onPress: () => void }) {
-  const theme = useTheme();
-  const bg = isToday ? theme.colors.accent : theme.colors.surface;
-  const dayColor = isToday ? theme.colors.bg : theme.colors.muted;
-  const dateColor = isToday ? theme.colors.bg : theme.colors.text;
+function WeekPill({ dayLabel, dateNumber, isToday, isSelected, onPress, successColor, theme }: any) {
+  const bg = isSelected ? successColor : isToday ? theme.colors.accent : theme.colors.surface;
+  const dayColor = isSelected || isToday ? theme.colors.bg : theme.colors.muted;
+  const dateColor = isSelected || isToday ? theme.colors.bg : theme.colors.text;
   return (
     <Pressable onPress={onPress} style={[styles.pill, { backgroundColor: bg }]}>
       <Text style={[styles.dayLabel, { color: dayColor }]}>{dayLabel}</Text>

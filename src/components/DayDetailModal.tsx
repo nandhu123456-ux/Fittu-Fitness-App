@@ -1,11 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-
-import { getEntriesForDate } from '../services/foodLogService';
-import type { FoodLogEntry } from '../services/foodLogService';
-import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../theme';
+import { useAuthStore } from '../store/authStore';
+import { getLogsForDate, deleteDayLog, type DayLog } from '../services/dayDetails';
 
 interface Props {
   visible: boolean;
@@ -13,104 +11,108 @@ interface Props {
   onClose: () => void;
 }
 
-function formatDate(date: string): string {
-  return new Date(date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-}
-
-function capitalize(s: string): string {
-  return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
-}
-
 export function DayDetailModal({ visible, date, onClose }: Props) {
   const theme = useTheme();
-  const { user } = useAuthStore();
-  const uid = user?.uid;
-  const [entries, setEntries] = useState<FoodLogEntry[]>([]);
-  const [loading, setLoading] = useState(false);
+  const user = useAuthStore((s) => s.user);
+const [logs, setLogs] = useState<DayLog[]>([]);
+const [loading, setLoading] = useState(false);
+const [page, setPage] = useState(0);
+
+  const load = async () => {
+    if (!user || !date) return;
+    setLoading(true);
+    const data = await getLogsForDate(user.uid, date);
+    setLogs(data);
+setPage(0);
+    setLoading(false);
+  };
 
   useEffect(() => {
-    if (!visible || !date || !uid) {
-      setEntries([]);
-      return;
-    }
-    let active = true;
-    setLoading(true);
-    void getEntriesForDate(uid, date).then((result) => {
-      if (active) {
-        setEntries(result);
-        setLoading(false);
+    if (visible && date) void load();
+  }, [visible, date]);
+
+  const handleDelete = (log: DayLog) => {
+    if (!user) return;
+    Alert.alert('Delete Log?', `Are you sure you want to remove this ${log.type}?`, [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Delete', style: 'destructive', onPress: async () => {
+          await deleteDayLog(user.uid, log);
+          void load(); // refresh modal
+        } 
       }
-    });
-    return () => {
-      active = false;
-    };
-  }, [visible, date, uid]);
+    ]);
+  };
 
-  const totalCal = entries.reduce((sum, e) => sum + (e.cal ?? 0), 0);
+  const themed = useMemo(() => StyleSheet.create({
+    overlay: { flex: 1, backgroundColor: theme.colors.overlay, justifyContent: 'flex-end' },
+    sheet: { backgroundColor: theme.colors.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, maxHeight: '80%' },
+    headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
+    title: { fontSize: 18, fontWeight: '700', color: theme.colors.text },
+    closeBtn: { padding: 4 },
+    empty: { alignItems: 'center', paddingVertical: 40 },
+    emptyText: { color: theme.colors.muted, fontSize: 14, marginTop: 12 },
+    row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: theme.colors.surfaceHi, padding: 14, borderRadius: 12, marginBottom: 8 },
+    rowTitle: { fontSize: 15, fontWeight: '600', color: theme.colors.text },
+    rowSub: { fontSize: 12, color: theme.colors.muted, marginTop: 2 },
+    deleteBtn: { padding: 8 },
+  }), [theme]);
 
-  const themedStyles = useMemo(
-    () =>
-      StyleSheet.create({
-        overlay: { backgroundColor: theme.colors.overlay, flex: 1, justifyContent: 'flex-end' },
-        sheet: { backgroundColor: theme.colors.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, maxHeight: '70%' },
-        title: { color: theme.colors.text, fontSize: 16, fontWeight: '600' },
-        subtitle: { color: theme.colors.muted, fontSize: 13, marginTop: 4 },
-        emptyTitle: { color: theme.colors.text, fontSize: 16, fontWeight: '600', marginTop: 12 },
-        emptyCopy: { color: theme.colors.muted, fontSize: 13, marginTop: 6, textAlign: 'center' },
-        close: { backgroundColor: theme.colors.accent, borderRadius: 12, height: 48, alignItems: 'center', justifyContent: 'center', marginTop: 16 },
-        closeText: { color: theme.colors.bg, fontSize: 15, fontWeight: '700' },
-        entryCard: { backgroundColor: theme.colors.surfaceHi, borderRadius: 12, padding: 12, marginBottom: 8 },
-        mealType: { color: theme.colors.muted, fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.6 },
-        foodName: { color: theme.colors.text, fontSize: 15, fontWeight: '600', marginTop: 2 },
-        calRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 },
-        calText: { color: theme.colors.muted, fontSize: 13 },
-      }),
-    [theme],
-  );
+  const formattedDate = date ? new Date(date).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }) : '';
 
-  if (!date) return null;
+const PAGE_SIZE = 5;
+const totalPages = Math.max(1, Math.ceil(logs.length / PAGE_SIZE));
+const pageLogs = logs.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
-  return (
+return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <Pressable onPress={onClose} style={themedStyles.overlay}>
-        <Pressable onPress={(e) => e.stopPropagation()} style={themedStyles.sheet}>
+      <Pressable style={themed.overlay} onPress={onClose}>
+        <View style={themed.sheet}>
+          <View style={themed.headerRow}>
+            <Text style={themed.title}>{formattedDate}</Text>
+            <Pressable onPress={onClose} style={themed.closeBtn}>
+              <Ionicons name="close" size={24} color={theme.colors.muted} />
+            </Pressable>
+          </View>
+
           {loading ? (
-            <View style={styles.center}>
-              <ActivityIndicator color={theme.colors.accent} />
-            </View>
-          ) : entries.length === 0 ? (
-            <View style={styles.center}>
+            <ActivityIndicator color={theme.colors.accent} style={{ marginTop: 20 }} />
+          ) : logs.length === 0 ? (
+            <View style={themed.empty}>
               <Ionicons name="calendar-outline" size={48} color={theme.colors.muted} />
-              <Text style={themedStyles.emptyTitle}>No meals logged</Text>
-              <Text style={themedStyles.emptyCopy}>You didn't log anything on {formatDate(date)}</Text>
+              <Text style={themed.emptyText}>You didn't log anything on this day.</Text>
             </View>
           ) : (
             <>
-              <Text style={themedStyles.title}>{formatDate(date)}</Text>
-              <Text style={themedStyles.subtitle}>{entries.length} meals · {totalCal} kcal</Text>
-              <ScrollView style={styles.list} showsVerticalScrollIndicator={false}>
-                {entries.map((entry) => (
-                  <View key={entry.id} style={themedStyles.entryCard}>
-                    <Text style={themedStyles.mealType}>{capitalize(entry.mealType)}</Text>
-                    <Text style={themedStyles.foodName} numberOfLines={2}>{entry.name}</Text>
-                    <View style={themedStyles.calRow}>
-                      <Text style={themedStyles.calText}>{entry.cal} kcal</Text>
-                    </View>
+              {pageLogs.map((log) => (
+                <View key={log.id} style={themed.row}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={themed.rowTitle}>
+                      {log.type === 'food' ? log.name : log.type === 'water' ? 'Water Intake' : 'Sleep Record'}
+                    </Text>
+                    <Text style={themed.rowSub}>
+                      {log.type === 'food' && `${log.cal} kcal · P:${log.protein}g C:${log.carbs}g F:${log.fat}g`}
+                      {log.type === 'water' && `${log.ml} ml`}
+                      {log.type === 'sleep' && `${Math.floor((log.sleepMin || 0)/60)}h ${(log.sleepMin||0)%60}m`}
+                    </Text>
                   </View>
-                ))}
-              </ScrollView>
-              <Pressable onPress={onClose} style={themedStyles.close}>
-                <Text style={themedStyles.closeText}>Close</Text>
-              </Pressable>
+                  <Pressable onPress={() => handleDelete(log)} style={themed.deleteBtn}>
+                    <Ionicons name="trash-outline" size={20} color={theme.colors.danger} />
+                  </Pressable>
+                </View>
+              ))}
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 12 }}>
+                <Pressable onPress={() => setPage((p) => Math.max(0, p - 1))} disabled={page === 0}>
+                  <Text style={{ color: page === 0 ? theme.colors.muted : theme.colors.accent }}>Prev</Text>
+                </Pressable>
+                <Text style={{ color: theme.colors.muted }}>{page + 1}/{totalPages}</Text>
+                <Pressable onPress={() => setPage((p) => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1}>
+                  <Text style={{ color: page >= totalPages - 1 ? theme.colors.muted : theme.colors.accent }}>Next</Text>
+                </Pressable>
+              </View>
             </>
           )}
-        </Pressable>
+        </View>
       </Pressable>
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  center: { alignItems: 'center', justifyContent: 'center', paddingVertical: 40 },
-  list: { marginTop: 12, marginBottom: 8 },
-});

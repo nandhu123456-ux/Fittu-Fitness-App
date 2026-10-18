@@ -1,19 +1,18 @@
-﻿import { useCallback, useEffect, useMemo, useState } from 'react';
-import { RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+﻿import { useMemo, useState } from 'react';
+import { RefreshControl, ScrollView, StyleSheet, Text, View, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 
-import { InsightCard } from '../components/InsightCard';
 import { WeekStrip } from '../components/WeekStrip';
 import { CaloriesMacrosCard } from '../components/CaloriesMacrosCard';
-import { StatCardsRow } from '../components/StatCardsRow';
-import { DayDetailModal } from '../components/DayDetailModal';
+import { StepsCard } from '../components/StepsCard';
+import { WaterSleepRow } from '../components/WaterSleepRow';
 import { WaterModal } from '../components/WaterModal';
+import { DayDetailModal } from '../components/DayDetailModal';
 import { addWater } from '../services/waterLogs';
-import { refreshStreak } from '../services/streakService';
 import { useHealthData } from '../hooks/useHealthData';
-import { useRecentWeights, useTodayFoodLogs, useTodayMood, useTodayWater, useUserDoc } from '../hooks/useRealtime';
+import { useTodayFoodLogs, useTodayWater, useUserDoc } from '../hooks/useRealtime';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../theme';
 import type { RootTabParamList } from '../types/navigation';
@@ -28,114 +27,127 @@ export default function DashboardScreen() {
 
   const { totals } = useTodayFoodLogs(uid);
   const { ml: water } = useTodayWater(uid);
-  const { entries: weights } = useRecentWeights(uid, 14);
-  const { mood } = useTodayMood(uid);
   useUserDoc(uid);
-
-  const [refreshing, setRefreshing] = useState(false);
-  const [now, setNow] = useState(new Date());
-  const [waterModalVisible, setWaterModalVisible] = useState(false);
-  const [dayDetailDate, setDayDetailDate] = useState<string | null>(null);
-  const targets = profile?.targets;
-  const calories = targets?.calories ?? 0;
   const health = useHealthData(true);
 
-  const refresh = useCallback(async () => {
-    if (!uid) return;
-    setRefreshing(true);
-    const streak = await refreshStreak(uid).catch(() => null);
-    if (streak !== null && streak !== useAuthStore.getState().profile?.streakDays) {
-      const current = useAuthStore.getState().profile;
-      if (current) useAuthStore.getState().setProfile({ ...current, streakDays: streak });
-    }
-    setRefreshing(false);
-  }, [uid]);
-
-  useEffect(() => {
-    if (!uid) return;
-    refreshStreak(uid).catch(() => {});
-  }, [uid]);
-  useEffect(() => { const timer = setInterval(() => setNow(new Date()), 60_000); return () => clearInterval(timer); }, []);
-
-  const hour = now.getHours();
-  const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+  const [refreshing, setRefreshing] = useState(false);
+  const [waterModalVisible, setWaterModalVisible] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  
+  const targets = profile?.targets;
+  const calories = targets?.calories ?? 0;
   const displayName = profile?.displayName ?? 'there';
   const avatarLetter = displayName.slice(0, 1).toUpperCase();
+  const streakDays = profile?.streakDays ?? 0;
 
-  const themedStyles = useMemo(() => StyleSheet.create({
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+
+  // Determine if ANY meals are logged today
+  const hasLoggedMeals = totals.calories > 0;
+
+  const themed = useMemo(() => StyleSheet.create({
     screen: { backgroundColor: theme.colors.bg },
-    header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingTop: 20 },
-    greetingLine1: { color: theme.colors.muted, fontSize: 13 },
-    greetingLine2: { color: theme.colors.text, fontSize: 24, fontWeight: '700', marginTop: 2 },
-    avatar: { alignItems: 'center', backgroundColor: theme.colors.accentAlt, borderRadius: 22, height: 44, justifyContent: 'center', width: 44 },
+    content: { paddingBottom: 100 },
+    header: { paddingHorizontal: 16, paddingTop: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    headerLeft: { flex: 1 },
+    greetingRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+    greeting: { fontSize: 13, color: theme.colors.muted },
+    name: { fontSize: 26, fontWeight: '700', color: theme.colors.text, marginTop: 2 },
+    sub: { fontSize: 13, color: theme.colors.muted, marginTop: 4 },
+    headerRight: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+    iconBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: theme.colors.surface, alignItems: 'center', justifyContent: 'center' },
+    avatar: { width: 44, height: 44, borderRadius: 22, backgroundColor: theme.colors.accentAlt, alignItems: 'center', justifyContent: 'center' },
     avatarText: { color: theme.colors.bg, fontSize: 18, fontWeight: '700' },
-    streakPillRight: { flexDirection: 'row', alignItems: 'center', backgroundColor: theme.colors.warn + '26', borderColor: theme.colors.warn + '4D', borderWidth: 1, borderRadius: 999, paddingHorizontal: 8, paddingVertical: 3, marginTop: 6, gap: 4 },
-    streakTextRight: { color: theme.colors.success, fontSize: 11, fontWeight: '700' },
-    quotePill: { backgroundColor: theme.colors.surface, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6, alignSelf: 'flex-start', marginTop: 8 },
-    quoteText: { color: theme.colors.accent, fontSize: 14, fontWeight: '500', fontStyle: 'italic' },
+    streakPill: { flexDirection: 'row', alignItems: 'center', backgroundColor: theme.colors.surface, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 20, alignSelf: 'flex-end', marginTop: 10, gap: 6 },
+    streakText: { fontSize: 12, fontWeight: '600', color: theme.colors.text },
+    
+    greenCard: { marginHorizontal: 16, marginTop: 12, backgroundColor: '#0F2114', borderRadius: 20, padding: 16, flexDirection: 'row', alignItems: 'center', gap: 12, borderWidth: 1, borderColor: '#2E5C36' },
+    greenText: { flex: 1, fontSize: 15, fontStyle: 'italic', color: theme.colors.text, lineHeight: 22 },
+    
+    insightCard: { marginHorizontal: 16, marginTop: 12, backgroundColor: theme.colors.surface, borderRadius: 20, padding: 16, flexDirection: 'row', alignItems: 'center', gap: 12, borderWidth: 1, borderColor: theme.colors.accent + '40' },
+    insightText: { flex: 1, fontSize: 13, color: theme.colors.text, lineHeight: 18 },
   }), [theme]);
 
   return (
-    <ScrollView style={themedStyles.screen} contentContainerStyle={styles.content} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => void refresh()} tintColor={theme.colors.accent} />}>
-      <View style={themedStyles.header}>
-        <View style={styles.leftColumn}>
-          <Text style={themedStyles.greetingLine1}>{greeting}</Text>
-          <Text style={themedStyles.greetingLine2}>{displayName}</Text>
-          <View style={themedStyles.quotePill}>
-            <Text style={[themedStyles.quoteText, { color: theme.colors.success }]}>Small steps make big changes.</Text>
-          </View>
-        </View>
-        <View style={styles.rightColumn}>
-          <TouchableOpacity onPress={() => navigation.navigate('Settings')} style={themedStyles.avatar}>
-            <Text style={themedStyles.avatarText}>{avatarLetter}</Text>
-          </TouchableOpacity>
-          {profile && (profile.streakDays ?? 0) > 0 ? (
-            <View style={themedStyles.streakPillRight}>
-              <Ionicons name="flame" size={12} color={theme.colors.warn} />
-              <Text style={[themedStyles.streakTextRight, { color: theme.colors.warn }]}>{profile.streakDays}</Text>
+    <ScrollView 
+      style={themed.screen} 
+      contentContainerStyle={themed.content}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => setRefreshing(false)} tintColor={theme.colors.accent} />}
+    >
+      <View style={themed.header}>
+        <View style={themed.headerLeft}>
+          <View style={themed.greetingRow}>
+            <Text style={themed.greeting}>{greeting},</Text>
+            <View style={themed.headerRight}>
+              <Pressable style={themed.iconBtn}>
+                <Ionicons name="notifications-outline" size={20} color={theme.colors.text} />
+                <View style={{ position: 'absolute', top: 10, right: 10, width: 8, height: 8, borderRadius: 4, backgroundColor: theme.colors.danger }} />
+              </Pressable>
+              <Pressable onPress={() => navigation.navigate('Profile')} style={themed.avatar}>
+                <Text style={themed.avatarText}>{avatarLetter}</Text>
+              </Pressable>
             </View>
-          ) : null}
+          </View>
+          <Text style={themed.name}>{displayName} 👋</Text>
+          <Text style={themed.sub}>Small steps make big changes.</Text>
+          
+          <View style={themed.streakPill}>
+            <Ionicons name="flame" size={14} color={theme.colors.warn} />
+            <Text style={themed.streakText}>{streakDays} day streak</Text>
+            <Ionicons name="chevron-forward" size={12} color={theme.colors.muted} />
+          </View>
         </View>
       </View>
 
-      <WeekStrip onDayPress={(date) => setDayDetailDate(date)} />
+      {/* Clicking a date opens the modal */}
+      <WeekStrip onDayPress={(date) => setSelectedDate(date)} selectedDate={selectedDate} />
 
-<CaloriesMacrosCard
-  eaten={totals.calories}
-  target={targets?.calories ?? 0}
-  burned={health.data?.caloriesBurned ?? 0}
-  protein={totals.protein}
-  proteinTarget={targets?.protein ?? 0}
-  carbs={totals.carbs}
-  carbsTarget={targets?.carbs ?? 0}
-  fat={totals.fat}
-  fatTarget={targets?.fat ?? 0}
-/>
+      <CaloriesMacrosCard
+        eaten={totals.calories}
+        target={calories}
+        burned={health.data?.caloriesBurned ?? 0}
+        protein={totals.protein}
+        proteinTarget={targets?.protein ?? 0}
+        carbs={totals.carbs}
+        carbsTarget={targets?.carbs ?? 0}
+        fat={totals.fat}
+        fatTarget={targets?.fat ?? 0}
+      />
 
-      <StatCardsRow health={health} waterMl={water} onWaterPress={() => setWaterModalVisible(true)} />
+      <StepsCard 
+        steps={health.data?.steps ?? 0} 
+        onPress={() => {}} 
+      />
 
-      {totals.calories > 0 && (
-        <InsightCard
-          remaining={Math.max(0, calories - totals.calories)}
-          target={calories}
-          eaten={totals.calories}
-          protein={totals.protein}
-          targetProtein={targets?.protein ?? 0}
-        />
+      <WaterSleepRow
+        waterMl={water}
+        sleepMin={health.data?.sleepMinutes ?? 0}
+        onAddWater={() => setWaterModalVisible(true)}
+        onLogSleep={() => {}}
+      />
+
+      {/* CONDITIONAL LOGIC: Green Card vs Insight Card */}
+      {!hasLoggedMeals ? (
+        <View style={themed.greenCard}>
+          <Ionicons name="leaf" size={28} color={theme.colors.success} />
+          <Text style={themed.greenText}>Discipline today builds the stronger you tomorrow.</Text>
+        </View>
+      ) : (
+        <View style={themed.insightCard}>
+          <Ionicons name="sparkles" size={24} color={theme.colors.accent} />
+          <Text style={themed.insightText}>Great job logging your meals! Keep your protein high to stay on track.</Text>
+        </View>
       )}
 
-      <WaterModal visible={waterModalVisible} onClose={() => setWaterModalVisible(false)} onAdd={async (ml) => { if (!user) return; await addWater(user.uid, ml); }} />
-      <DayDetailModal
-        visible={dayDetailDate !== null}
-        date={dayDetailDate}
-        onClose={() => setDayDetailDate(null)}
+      <WaterModal visible={waterModalVisible} onClose={() => setWaterModalVisible(false)} onAdd={async (ml) => { if (user) await addWater(user.uid, ml); }} />
+      
+      {/* The modal showing the logs for the clicked date */}
+      <DayDetailModal 
+        visible={selectedDate !== null} 
+        date={selectedDate} 
+        onClose={() => setSelectedDate(null)} 
       />
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  content: { gap: 0, padding: 0, paddingBottom: 40 },
-  leftColumn: { flex: 1 },
-  rightColumn: { alignItems: 'flex-end' },
-});
