@@ -68,7 +68,7 @@ function WeekPill({ dayLabel, dateNumber, isToday, isSelected, onPress, successC
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', justifyContent: 'space-between', marginHorizontal: 20, marginTop: 16 },
+  row: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 16 },
   pill: { flex: 1, minHeight: 68, borderRadius: 16, padding: 10, alignItems: 'center', justifyContent: 'center' },
   dayLabel: { fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.6 },
   dateNumber: { fontSize: 18, fontWeight: '700', marginTop: 4 },

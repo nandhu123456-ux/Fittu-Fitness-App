@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
@@ -103,6 +104,7 @@ export default function ProfileScreen() {
   }), [theme]);
 
   return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.bg }}>
     <ScrollView style={{ flex: 1, backgroundColor: theme.colors.bg }} contentContainerStyle={styles.content}>
       <View style={themedStyles.hero}>
         <View style={themedStyles.avatar}>
@@ -144,10 +146,11 @@ export default function ProfileScreen() {
         <Text style={themedStyles.signOutText}>Sign Out</Text>
       </Pressable>
     </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  content: { gap: 16, padding: 20, paddingBottom: 36 },
+  content: { gap: 16, paddingHorizontal: 16, paddingTop: 16, paddingBottom: 100 },
   identity: { flex: 1 },
 });

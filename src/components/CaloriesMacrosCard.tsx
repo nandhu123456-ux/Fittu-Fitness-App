@@ -53,7 +53,7 @@ export function CaloriesMacrosCard({ eaten, target, burned, protein, proteinTarg
   const remaining = Math.max(0, target - eaten);
 
   const themed = useMemo(() => StyleSheet.create({
-    card: { backgroundColor: theme.colors.surface, marginHorizontal: 16, marginTop: 12, borderRadius: 24, padding: 16 },
+    card: { backgroundColor: theme.colors.surface, marginTop: 12, borderRadius: 24, padding: 16 },
     topRow: { flexDirection: 'row', alignItems: 'center', gap: 14 },
     ringCol: { alignItems: 'center' },
     rightCol: { flex: 1, gap: 10 },

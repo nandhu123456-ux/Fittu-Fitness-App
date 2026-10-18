@@ -20,7 +20,7 @@ export function WaterSleepRow({ waterMl, sleepMin, onAddWater, onLogSleep }: Pro
   const glasses = Math.min(5, Math.round(waterMl / 500));
 
   const themed = useMemo(() => StyleSheet.create({
-    row: { flexDirection: 'row', gap: 12, marginHorizontal: 16, marginTop: 12 },
+    row: { flexDirection: 'row', gap: 12, marginTop: 12 },
     card: { flex: 0.6, borderRadius: 24, paddingVertical: 6, paddingHorizontal: 10, overflow: 'hidden', borderWidth: 1 },
     
     // WATER CARD STYLING (Dark Teal with Water Ripple Watermark)

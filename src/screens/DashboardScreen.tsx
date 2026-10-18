@@ -1,5 +1,6 @@
 ﻿import { useMemo, useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, Text, View, Pressable } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
@@ -48,7 +49,7 @@ export default function DashboardScreen() {
 
   const themed = useMemo(() => StyleSheet.create({
     screen: { backgroundColor: theme.colors.bg },
-    content: { paddingBottom: 100 },
+    content: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 100 },
     header: { paddingHorizontal: 16, paddingTop: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
     headerLeft: { flex: 1 },
     greetingRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
@@ -62,16 +63,17 @@ export default function DashboardScreen() {
     streakPill: { flexDirection: 'row', alignItems: 'center', backgroundColor: theme.colors.surface, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 20, alignSelf: 'flex-end', marginTop: 10, gap: 6 },
     streakText: { fontSize: 12, fontWeight: '600', color: theme.colors.text },
     
-    greenCard: { marginHorizontal: 16, marginTop: 12, backgroundColor: '#0F2114', borderRadius: 20, padding: 16, flexDirection: 'row', alignItems: 'center', gap: 12, borderWidth: 1, borderColor: '#2E5C36' },
+    greenCard: { marginTop: 12, backgroundColor: '#0F2114', borderRadius: 20, padding: 16, flexDirection: 'row', alignItems: 'center', gap: 12, borderWidth: 1, borderColor: '#2E5C36' },
     greenText: { flex: 1, fontSize: 15, fontStyle: 'italic', color: theme.colors.text, lineHeight: 22 },
     
-    insightCard: { marginHorizontal: 16, marginTop: 12, backgroundColor: theme.colors.surface, borderRadius: 20, padding: 16, flexDirection: 'row', alignItems: 'center', gap: 12, borderWidth: 1, borderColor: theme.colors.accent + '40' },
+    insightCard: { marginTop: 12, backgroundColor: theme.colors.surface, borderRadius: 20, padding: 16, flexDirection: 'row', alignItems: 'center', gap: 12, borderWidth: 1, borderColor: theme.colors.accent + '40' },
     insightText: { flex: 1, fontSize: 13, color: theme.colors.text, lineHeight: 18 },
   }), [theme]);
 
   return (
+    <SafeAreaView style={themed.screen}>
     <ScrollView 
-      style={themed.screen} 
+      style={{ flex: 1 }}
       contentContainerStyle={themed.content}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => setRefreshing(false)} tintColor={theme.colors.accent} />}
     >
@@ -148,6 +150,7 @@ export default function DashboardScreen() {
         date={selectedDate} 
         onClose={() => setSelectedDate(null)} 
       />
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }

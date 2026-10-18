@@ -17,7 +17,7 @@ export function StepsCard({ steps, goal = 10000, onPress }: Props) {
   const bars = [40, 30, 50, 80, 60, 45, 70];
 
   const themed = useMemo(() => StyleSheet.create({
-    card: { backgroundColor: theme.colors.surface, marginHorizontal: 16, marginTop: 12, borderRadius: 20, paddingVertical: 12, paddingHorizontal: 16 },
+    card: { backgroundColor: theme.colors.surface, marginTop: 12, borderRadius: 20, paddingVertical: 12, paddingHorizontal: 16 },
     topRow: { flexDirection: 'row', alignItems: 'center' },
     iconWrap: { width: 44, height: 44, borderRadius: 22, backgroundColor: theme.colors.success + '25', alignItems: 'center', justifyContent: 'center', marginRight: 12 },
     textCol: { flex: 1 },
