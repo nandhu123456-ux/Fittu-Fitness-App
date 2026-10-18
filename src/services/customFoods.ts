@@ -51,3 +51,15 @@ export async function getCustomFoods(uid: string): Promise<FoodResult[]> {
     return [];
   }
 }
+
+/**
+ * Filters the user's saved custom foods by name (case-insensitive substring
+ * match). Used as the final fallback in the search chain so a previously-saved
+ * custom food always surfaces even when the public databases miss.
+ */
+export async function searchCustomFoods(uid: string, queryText: string): Promise<FoodResult[]> {
+  const customs = await getCustomFoods(uid);
+  const needle = queryText.trim().toLowerCase();
+  if (!needle) return customs;
+  return customs.filter((food) => food.name.toLowerCase().includes(needle));
+}

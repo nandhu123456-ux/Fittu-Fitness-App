@@ -78,6 +78,9 @@ export default function LogScreen() {
   const [aiQuery, setAiQuery] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
 
+  // While the user is typing, the search results take priority over recents.
+  const isSearching = search.trim().length > 0;
+
   // Every meal-logging action and the Custom-food navigation pass through here.
   const ensureMealConfirmed = (): boolean => {
     if (mealConfirmed) return true;
@@ -282,7 +285,7 @@ export default function LogScreen() {
             <Ionicons color={theme.colors.accent} name='add-circle-outline' size={18} />
           </Pressable>
         </ScrollView>
-        {yesterday ? (
+        {yesterday && !isSearching ? (
           <View style={themedStyles.sameCard}>
             <Ionicons color={theme.colors.accent} name='repeat' size={26} />
             <View style={themedStyles.sameBody}>
@@ -296,43 +299,47 @@ export default function LogScreen() {
         ) : null}
 
         {/* RECENT MEALS */}
-        <View style={themedStyles.sectionRow}>
-          <Text style={themedStyles.sectionLabel}>Recent Meals</Text>
-          <Text style={themedStyles.seeAll}>See all</Text>
-        </View>
-
-        {recents.length > 0 ? (
-          <View>
-            {recents.map((food) => (
-              <Pressable
-                key={food.id}
-                onPress={() => {
-                  if (!ensureMealConfirmed()) return;
-                  setSelected(food);
-                }}
-                style={themedStyles.mealCard}
-              >
-                <View style={themedStyles.mealThumb}>
-                  <Ionicons color={theme.colors.muted} name="restaurant-outline" size={22} />
-                </View>
-                <View style={themedStyles.mealInfo}>
-                  <Text numberOfLines={1} style={themedStyles.mealName}>{food.name}</Text>
-                  <Text style={themedStyles.mealMeta}>{food.serving} · {Math.round(food.cal)} kcal</Text>
-                </View>
-                <Pressable hitSlop={8} onPress={() => void quickLog(food)} style={themedStyles.addBtn}>
-                  <Ionicons color={theme.colors.bg} name="add" size={20} />
-                </Pressable>
-              </Pressable>
-            ))}
-          </View>
-        ) : (
-          <View>
-            <Text style={themedStyles.noticeText}>{notice}</Text>
+        {!isSearching && (
+          <View style={themedStyles.sectionRow}>
+            <Text style={themedStyles.sectionLabel}>Recent Meals</Text>
+            <Text style={themedStyles.seeAll}>See all</Text>
           </View>
         )}
 
+        {!isSearching && (
+          recents.length > 0 ? (
+            <View>
+              {recents.map((food) => (
+                <Pressable
+                  key={food.id}
+                  onPress={() => {
+                    if (!ensureMealConfirmed()) return;
+                    setSelected(food);
+                  }}
+                  style={themedStyles.mealCard}
+                >
+                  <View style={themedStyles.mealThumb}>
+                    <Ionicons color={theme.colors.muted} name="restaurant-outline" size={22} />
+                  </View>
+                  <View style={themedStyles.mealInfo}>
+                    <Text numberOfLines={1} style={themedStyles.mealName}>{food.name}</Text>
+                    <Text style={themedStyles.mealMeta}>{food.serving} · {Math.round(food.cal)} kcal</Text>
+                  </View>
+                  <Pressable hitSlop={8} onPress={() => void quickLog(food)} style={themedStyles.addBtn}>
+                    <Ionicons color={theme.colors.bg} name="add" size={20} />
+                  </Pressable>
+                </Pressable>
+              ))}
+            </View>
+          ) : (
+            <View>
+              <Text style={themedStyles.noticeText}>{notice}</Text>
+            </View>
+          )
+        )}
+
         {/* Search results (when searching) */}
-        {search.trim().length > 0 ? (
+        {isSearching ? (
           <View>
             {loading ? (
               <View style={themedStyles.center}>
@@ -341,8 +348,21 @@ export default function LogScreen() {
             ) : error ? (
               <Text style={themedStyles.errorText}>{error}</Text>
             ) : results.length === 0 ? (
-              <View style={themedStyles.center}>
-                <Text style={themedStyles.empty}>No foods found.</Text>
+              <View style={[themedStyles.center, { gap: 14 }]}>
+                <Text style={themedStyles.empty}>No foods found for '{search}'</Text>
+                <Pressable
+                  onPress={() => navigation.navigate('AddCustomFood', { prefillQuery: search, mealType })}
+                  style={[themedStyles.sameBtn, { borderRadius: 12 }]}
+                >
+                  <Text style={themedStyles.sameBtnText}>Add "{search}" as custom food</Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => { setAiQuery(search); setAiOpen(true); }}
+                  style={[themedStyles.link, { justifyContent: 'center' }]}
+                >
+                  <Ionicons color={theme.colors.accent} name="sparkles-outline" size={16} />
+                  <Text style={themedStyles.linkAccent}>Estimate with AI</Text>
+                </Pressable>
               </View>
             ) : (
               results.map((item) => (
@@ -357,7 +377,7 @@ export default function LogScreen() {
             )}
           </View>
         ) : null}
-        {!search.trim() && error ? <Text style={themedStyles.errorText}>{error}</Text> : null}
+        {!isSearching && search.trim() && error ? <Text style={themedStyles.errorText}>{error}</Text> : null}
 
       </ScrollView>
 
