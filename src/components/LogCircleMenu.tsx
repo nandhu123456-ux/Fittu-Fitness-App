@@ -84,12 +84,9 @@ export function LogCircleMenu({ visible, onClose }: LogCircleMenuProps) {
           alignItems: 'center',
           backgroundColor: 'rgba(255,255,255,0.08)',
           borderColor: 'rgba(255,255,255,0.18)',
-          borderRadius: 26,
-          borderWidth: 1.5,
-          height: 52,
-          justifyContent: 'center',
-          position: 'absolute',
-          width: 52,
+          borderRadius: 32,
+          height: 64,
+          width: 64,
         },
         optionIcon: { color: theme.colors.text, fontSize: 22 },
         optionLabel: {
@@ -120,7 +117,7 @@ export function LogCircleMenu({ visible, onClose }: LogCircleMenuProps) {
                     key={option.route}
                     style={[
                       themedStyles.option,
-                      { top: RING_RADIUS - 26 + y, left: RING_RADIUS - 26 + x, transform: [{ scale: scale }] },
+                      { top: RING_RADIUS - 32 + y, left: RING_RADIUS - 32 + x, transform: [{ scale: scale }] },
                     ]}
                   >
                     <Pressable
