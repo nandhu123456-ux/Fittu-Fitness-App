@@ -100,7 +100,7 @@ export function DashboardHero({
           </View>
         )}
         <View style={themedStyles.avatar}>
-          <Image source={require('../assets/icon.png')} style={themedStyles.avatarImage} />
+          <Image source={require('../../assets/icon.png')} style={themedStyles.avatarImage} />
         </View>
       </View>
       <Text style={themedStyles.date}>

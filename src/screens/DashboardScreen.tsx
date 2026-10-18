@@ -95,8 +95,7 @@ export default function DashboardScreen() {
               <View style={themed.notificationDot} />
             </Pressable>
             <Pressable onPress={() => navigation.navigate('Profile')} style={themed.avatar}>
-              <Image source={require('../assets/icon.png')} style={themed.avatarImage} />
-            </Pressable>
+<Image source={require('../../assets/icon.png')} style={themed.avatarImage} />            </Pressable>
           </View>
         </View>
         
