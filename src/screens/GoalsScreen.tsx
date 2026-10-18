@@ -7,6 +7,7 @@ import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { calculateBMR, calculateTDEE, calculateTargets } from '../utils/nutrition';
 import { formatCalories, formatGrams, formatWeight } from '../utils/format';
 import { updateUserProfile } from '../services/user';
+import { addWeight } from '../services/weightLogs';
 import { useUserDoc } from '../hooks/useRealtime';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../theme';
@@ -83,14 +84,16 @@ export default function GoalsScreen() {
       const bmr = calculateBMR(weightNum, heightNum, profileData.age, profileData.gender);
       const tdee = calculateTDEE(bmr, profileData.activityLevel);
       const targets = calculateTargets({ tdee, bmr, goalType, weightKg: weightNum });
-      await updateUserProfile(user.uid, {
-        profile: { ...profileData, weightKg: weightNum, heightCm: heightNum },
-        goal: { type: goalType, targetWeightKg: targetWeightNum, weeklyRateKg: weeklyRate },
-        targets,
-        bmr,
-        tdee,
-      });
-      setProfile({
+       await updateUserProfile(user.uid, {
+         profile: { ...profileData, weightKg: weightNum, heightCm: heightNum },
+         goal: { type: goalType, targetWeightKg: targetWeightNum, weeklyRateKg: weeklyRate },
+         targets,
+         bmr,
+         tdee,
+       });
+       // Log the new weight so it appears in weight history / stats
+       try { await addWeight(user.uid, weightNum); } catch {}
+       setProfile({
         ...profile,
         profile: { ...profileData, weightKg: weightNum, heightCm: heightNum },
         goal: { type: goalType, targetWeightKg: targetWeightNum, weeklyRateKg: weeklyRate },

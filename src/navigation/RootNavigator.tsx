@@ -5,10 +5,13 @@ import { ActivityIndicator, View } from 'react-native';
 import WelcomeScreen from '../screens/auth/WelcomeScreen';
 import SignInScreen from '../screens/auth/SignInScreen';
 import SignUpScreen from '../screens/auth/SignUpScreen';
+import TermsOfServiceScreen from '../screens/TermsOfServiceScreen';
+import PrivacyPolicyScreen from '../screens/PrivacyPolicyScreen';
 import OnboardingNavigator from '../screens/onboarding/OnboardingNavigator';
 import TabNavigator from './TabNavigator';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../theme';
+import { useUserDoc } from '../hooks/useRealtime';
 import type { AuthStackParamList } from '../types/navigation';
 
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
@@ -16,6 +19,7 @@ const AuthStack = createNativeStackNavigator<AuthStackParamList>();
 export default function RootNavigator() {
   const { user, profile, loading } = useAuthStore();
   const theme = useTheme();
+  useUserDoc(user?.uid);
 
   const navTheme = {
     ...DarkTheme,
@@ -44,6 +48,8 @@ export default function RootNavigator() {
           <AuthStack.Screen name="Welcome" component={WelcomeScreen} />
           <AuthStack.Screen name="SignIn" component={SignInScreen} />
           <AuthStack.Screen name="SignUp" component={SignUpScreen} />
+          <AuthStack.Screen name="TermsOfService" component={TermsOfServiceScreen} />
+          <AuthStack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
         </AuthStack.Navigator>
       ) : profile?.onboardingComplete !== true ? (
         <OnboardingNavigator />

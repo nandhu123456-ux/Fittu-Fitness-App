@@ -243,17 +243,18 @@ export function useRecentWeights(uid: string | undefined, count = 30) {
     const unsub = onSnapshot(
       q,
       (snap) => {
-        setEntries(
-          snap.docs.map((d) => {
-            const data = d.data();
-            return {
-              id: d.id,
-              date: String(data.date),
-              weight: Number(data.weight),
-              note: typeof data.note === 'string' ? data.note : undefined,
-            };
-          }),
-        );
+         setEntries(
+           snap.docs.map((d) => {
+             const data = d.data();
+             return {
+               id: d.id,
+               date: String(data.date),
+               weight: Number(data.weight),
+               note: typeof data.note === 'string' ? data.note : undefined,
+               createdAt: Number(data.createdAt ?? 0),
+             };
+           }).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)),
+         );
         setLoading(false);
         setError(null);
       },

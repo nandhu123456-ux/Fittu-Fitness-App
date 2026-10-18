@@ -16,6 +16,8 @@ export type RootTabParamList = {
   Coach: undefined;
   Profile: undefined;
   LogMenu: undefined;
+  TermsOfService: undefined;
+  PrivacyPolicy: undefined;
 };
 
 /** Auth + onboarding routes; the root renders one of three navigators from these. */
@@ -33,7 +35,10 @@ export type RootStackParamList = {
   Intro2: undefined;
 };
 
-export type AuthStackParamList = Pick<RootStackParamList, 'Welcome' | 'SignIn' | 'SignUp'>;
+export type AuthStackParamList = Pick<RootStackParamList, 'Welcome' | 'SignIn' | 'SignUp'> & {
+  TermsOfService: undefined;
+  PrivacyPolicy: undefined;
+};
 
 export type OnboardingStackParamList = Pick<
   RootStackParamList,

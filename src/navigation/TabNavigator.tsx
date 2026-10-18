@@ -17,6 +17,8 @@ import BarcodeScreen from '../screens/BarcodeScreen';
 import PhotoLogScreen from '../screens/PhotoLogScreen';
 import VoiceLogScreen from '../screens/VoiceLogScreen';
 import MenuScanScreen from '../screens/MenuScanScreen';
+import TermsOfServiceScreen from '../screens/TermsOfServiceScreen';
+import PrivacyPolicyScreen from '../screens/PrivacyPolicyScreen';
 import { useTheme } from '../theme';
 import type { RootTabParamList } from '../types/navigation';
 
@@ -69,6 +71,8 @@ export default function TabNavigator() {
       <Tab.Screen name="PhotoLog" component={PhotoLogScreen} options={{ tabBarButton: () => null, tabBarItemStyle: { display: 'none', width: 0, flex: 0 } }} />
       <Tab.Screen name="VoiceLog" component={VoiceLogScreen} options={{ tabBarButton: () => null, tabBarItemStyle: { display: 'none', width: 0, flex: 0 } }} />
       <Tab.Screen name="MenuScan" component={MenuScanScreen} options={{ tabBarButton: () => null, tabBarItemStyle: { display: 'none', width: 0, flex: 0 } }} />
+      <Tab.Screen name="TermsOfService" component={TermsOfServiceScreen} options={{ tabBarButton: () => null, headerShown: false, tabBarItemStyle: { display: 'none', width: 0, flex: 0 } }} />
+      <Tab.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} options={{ tabBarButton: () => null, headerShown: false, tabBarItemStyle: { display: 'none', width: 0, flex: 0 } }} />
     </Tab.Navigator>
   );
 }

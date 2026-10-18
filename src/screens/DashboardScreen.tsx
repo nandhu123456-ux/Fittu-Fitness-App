@@ -71,7 +71,7 @@ export default function DashboardScreen() {
   }), [theme]);
 
   return (
-    <SafeAreaView style={themed.screen}>
+    <SafeAreaView style={[themed.screen, { flex: 1 }]}>
     <ScrollView 
       style={{ flex: 1 }}
       contentContainerStyle={themed.content}

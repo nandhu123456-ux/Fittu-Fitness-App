@@ -68,7 +68,7 @@ export default function ProgressScreen() {
     });
   }, [safeWeights]);
 
-  const latestWeight = sortedAllWeights[0]?.weight ?? profile?.profile?.weightKg ?? 0;
+  const latestWeight = safeWeights[0]?.weight ?? profile?.profile?.weightKg ?? 0;
   
   // Sort remaining data oldest -> newest for the Graph line
   const displayWeights = useMemo(() => {

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Constants from 'expo-constants';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -171,12 +171,12 @@ unit: {
           <Text style={themedStyles.rowText}>{String(Constants.expoConfig?.version ?? '1.0.0')}</Text>
         </View>
         <View style={themedStyles.divider} />
-        <Pressable onPress={() => Linking.openURL('https://example.com/privacy')} style={styles.row}>
+        <Pressable onPress={() => navigation.navigate('PrivacyPolicy')} style={styles.row}>
           <Text style={themedStyles.rowText}>Privacy Policy</Text>
           <Ionicons color={theme.colors.muted} name="chevron-forward" size={18} />
         </Pressable>
         <View style={themedStyles.divider} />
-        <Pressable onPress={() => Linking.openURL('https://example.com/terms')} style={styles.row}>
+        <Pressable onPress={() => navigation.navigate('TermsOfService')} style={styles.row}>
           <Text style={themedStyles.rowText}>Terms of Service</Text>
           <Ionicons color={theme.colors.muted} name="chevron-forward" size={18} />
         </Pressable>
