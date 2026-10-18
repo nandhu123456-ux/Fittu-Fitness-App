@@ -20,8 +20,8 @@ export type PerMealFlags = Partial<Record<MealType, boolean>>;
 
 const emptyTotals: TodayTotals = { calories: 0, protein: 0, carbs: 0, fat: 0, perMeal: {} };
 
-/** Live view of the last 7 days of Health Connect rows (oldest → newest). */
-export function useLast7DaysActivity(uid: string | undefined) {
+/** Live view of the last 60 days of Health Connect rows (oldest → newest). */
+export function useActivityHistory(uid: string | undefined) {
   const [days, setDays] = useState<DailyActivity[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -31,7 +31,7 @@ export function useLast7DaysActivity(uid: string | undefined) {
       setLoading(false);
       return;
     }
-    const since = shiftDate(todayLocalISO(), -6);
+    const since = shiftDate(todayLocalISO(), -59);
     const q = query(
       collection(db, 'activityLogs', uid, 'entries'),
       where('date', '>=', since),
@@ -45,7 +45,7 @@ export function useLast7DaysActivity(uid: string | undefined) {
           if (data.date) map[data.date] = data;
         }
         const result: DailyActivity[] = [];
-        for (let i = 6; i >= 0; i--) {
+        for (let i = 59; i >= 0; i--) {
           const date = shiftDate(todayLocalISO(), -i);
           if (map[date]) result.push(map[date]);
         }
@@ -53,7 +53,7 @@ export function useLast7DaysActivity(uid: string | undefined) {
         setLoading(false);
       },
       (err) => {
-        console.warn('[useLast7DaysActivity]', err.message);
+        console.warn('[useActivityHistory]', err.message);
         setLoading(false);
       },
     );
@@ -313,17 +313,17 @@ export function useUserDoc(uid: string | undefined) {
 }
 
 /**
- * Live view of the last 7 days of food logs, aggregated by date.
- * Returns { days, loading } where `days` is always 7 entries (oldest → newest)
+ * Live view of the last 60 days of food logs, aggregated by date.
+ * Returns { days, loading } where `days` is up to 60 entries (oldest → newest)
  * with summed calories/protein/carbs/fat per day.
  */
-export function useLast7DaysFoodLogs(uid: string | undefined) {
+export function useFoodHistory(uid: string | undefined) {
   const [days, setDays] = useState<Array<{ date: string; cal: number; protein: number; carbs: number; fat: number }>>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!uid) { setDays([]); setLoading(false); return; }
-    const since = shiftDate(todayLocalISO(), -6);
+    const since = shiftDate(todayLocalISO(), -59);
     const q = query(
       collection(db, 'foodLogs', uid, 'entries'),
       where('date', '>=', since)
@@ -341,14 +341,14 @@ export function useLast7DaysFoodLogs(uid: string | undefined) {
         map[date].fat += Number(d.fat ?? 0);
       }
       const result: Array<{ date: string; cal: number; protein: number; carbs: number; fat: number }> = [];
-      for (let i = 6; i >= 0; i--) {
+      for (let i = 59; i >= 0; i--) {
         const date = shiftDate(todayLocalISO(), -i);
         result.push({ date, ...(map[date] ?? { cal: 0, protein: 0, carbs: 0, fat: 0 }) });
       }
       setDays(result);
       setLoading(false);
     }, (err) => {
-      console.warn('[useLast7DaysFoodLogs]', err.message);
+      console.warn('[useFoodHistory]', err.message);
       setLoading(false);
     });
     return () => unsub();

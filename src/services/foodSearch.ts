@@ -152,7 +152,18 @@ async function offMatches(queryText: string): Promise<FoodResult[]> {
 }
 
 export async function searchFood(queryText: string, uid?: string): Promise<FoodResult[]> {
-  if (!normalise(queryText)) return [];
+  const q = queryText.trim().toLowerCase();
+  if (!q) return [];
+
+  // 1. CUSTOM FOODS (Highest Priority)
+  if (uid) {
+    try {
+      const customs = await searchCustomFoods(uid, queryText);
+      if (customs.length > 0) return customs;
+    } catch (e) { console.warn('[search] Custom foods failed', e); }
+  }
+
+  // 2. Local JSON (Dishes + IFCT)
   try {
     const localItems: RankableFood[] = indianDishes.map((d) => ({
       id: d.id,
@@ -189,21 +200,31 @@ export async function searchFood(queryText: string, uid?: string): Promise<FoodR
         fat: r.fat,
       }));
     }
+  } catch (e) { console.warn('[search] local failed', e); }
+
+  // 3. Firestore Cache
+  try {
     const cached = await cachedMatches(queryText);
     if (cached.length) return cached;
+  } catch (e) { console.warn('[search] cache failed', e); }
+
+  // 4. OpenFoodFacts
+  try {
     const off = await offMatches(queryText);
     if (off.length) return off;
-    const vercel = await lookupViaVercel(queryText);
-    if (vercel) return [vercel];
-    if (uid) {
-      const customs = await searchCustomFoods(uid, queryText);
-      if (customs.length) return customs;
-    }
-    // Last resort: AI estimate from the name alone (Indian dishes not in USDA/OFF).
-    const aiEstimate = await estimateNutritionFromName(queryText);
-    if (aiEstimate) return [aiEstimate];
-    return [];
-  } catch {
-    return [];
-  }
+  } catch (e) { console.warn('[search] OFF failed', e); }
+
+  // 5. USDA Vercel
+  try {
+    const usda = await lookupViaVercel(queryText);
+    if (usda) return [usda];
+  } catch (e) { console.warn('[search] Vercel failed', e); }
+
+  // 6. AI Estimate
+  try {
+    const ai = await estimateNutritionFromName(queryText);
+    if (ai) return [ai];
+  } catch (e) { console.warn('[search] AI failed', e); }
+
+  return [];
 }

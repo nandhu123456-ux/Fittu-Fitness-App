@@ -60,7 +60,7 @@ export default function AddCustomFoodScreen() {
         carbs: carbsNum,
         fat: fatNum,
       });
-      navigation.navigate('Log', mealType ? { mealType } : undefined);
+      navigation.goBack();
     } catch {
       setError('Could not save this food. Please try again.');
       Alert.alert('Save failed', 'Could not save your custom food. Please try again.');

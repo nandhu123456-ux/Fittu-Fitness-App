@@ -1,0 +1,6 @@
+[33mb8385e2[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m style(preferences): compact and even unit option boxes
+[33mf6c733a[m style(preferences): compact unit chips with even space and readable labels
+[33m119f736[m style(preferences): tighten unit chips and reduce card padding
+[33m2f0c293[m fix(dashboard): Nandu layout + steps card above water/sleep
+[33mf43394a[m feat(progress): store daily steps/sleep/calories in Firestore
+[33m92128f6[m feat(progress): wire empty/loading states for calorie & macro charts

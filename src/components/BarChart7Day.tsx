@@ -10,15 +10,15 @@ interface Props {
   height?: number;
 }
 
-export default function BarChart7Day({ data, labels, color, target, height = 120 }: Props) {
+export default function BarChart7Day({ data, labels, color, target, height = 150 }: Props) {
   const theme = useTheme();
   const maxValue = Math.max(...data, target ?? 0, 1);
-  const barHeight = height * 0.85;
+  const barHeight = height - 30;
 
   return (
     <View style={[styles.container, { height }]}>
       {data.map((value, i) => {
-        const h = (value / maxValue) * barHeight;
+        const h = Math.max(4, (value / maxValue) * barHeight);
         return (
           <View key={i} style={styles.barColumn}>
             <View style={[styles.bar, { backgroundColor: color, height: h }]} />
@@ -38,8 +38,8 @@ export default function BarChart7Day({ data, labels, color, target, height = 120
 
 const styles = StyleSheet.create({
   container: { flexDirection: 'row', alignItems: 'flex-end', gap: 6 },
-  barColumn: { alignItems: 'center' },
-  bar: { flex: 1, borderRadius: 4 },
+  barColumn: { flex: 1, alignItems: 'center', justifyContent: 'flex-end' },
+  bar: { width: '100%', borderRadius: 4 },
   valueLabel: { fontSize: 10, marginTop: 4 },
   dayLabel: { fontSize: 10, marginTop: 2 },
   targetLine: { position: 'absolute', left: 0, right: 0, height: 1, borderTopWidth: 1, borderStyle: 'dashed' },

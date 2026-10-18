@@ -25,7 +25,7 @@ export function StatCardsRow({ health, waterMl, onWaterPress }: Props) {
   const sleepPct = Math.min(100, (sleepMin / 480) * 100);
 
   const themed = useMemo(() => StyleSheet.create({
-    wrap: { marginHorizontal: 16, marginTop: 12, gap: 10 },
+    wrap: { marginHorizontal: 12, marginTop: 12, gap: 10 },
     stepsCard: {
       backgroundColor: theme.colors.surface,
       borderRadius: 18,

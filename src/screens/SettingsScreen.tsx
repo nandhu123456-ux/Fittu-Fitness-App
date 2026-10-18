@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Alert, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
+import { useNavigation } from '@react-navigation/native';
 
 import { signOut } from '../services/auth';
 import { deleteAccount, updateUserProfile } from '../services/user';
@@ -15,6 +16,7 @@ export default function SettingsScreen() {
   const theme = useTheme();
   const mode = useThemeStore((s) => s.mode);
   const { user, profile, setProfile } = useAuthStore();
+  const navigation = useNavigation();
   const [targets, setTargets] = useState<TargetValues>(emptyTargets);
   const [units, setUnits] = useState<'kg' | 'lb'>(profile?.units ?? 'kg');
   const [saving, setSaving] = useState(false);
@@ -23,7 +25,7 @@ export default function SettingsScreen() {
     if (!user || !profile) return;
     const next = Object.fromEntries(Object.entries(targets).map(([key, value]) => [key, Number(value)])) as Record<TargetKey, number>;
     if (Object.values(next).some((value) => !Number.isFinite(value) || value < 0)) { Alert.alert('Enter valid target values'); return; }
-    try { setSaving(true); await updateUserProfile(user.uid, { targets: next }); setProfile({ ...profile, targets: next }); } catch { Alert.alert('Could not save targets'); } finally { setSaving(false); }
+    try { setSaving(true); await updateUserProfile(user.uid, { targets: next }); setProfile({ ...profile, targets: next }); navigation.goBack(); } catch { Alert.alert('Could not save targets'); } finally { setSaving(false); }
   };
   const changeUnits = async (nextUnits: 'kg' | 'lb') => {
     if (!user || !profile) return;

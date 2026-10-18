@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { auth } from '../services/firebase';
+import { addActivityEntry } from '../services/activityLogs';
 import {
   isHealthConnectAvailable,
   initHealthConnect,
@@ -35,6 +37,16 @@ export function useHealthData(enabled: boolean) {
       if (granted) {
         const summary = await readTodayHealth();
         if (mounted) setData(summary);
+        const uid = auth.currentUser?.uid;
+        if (uid && summary) {
+          void addActivityEntry(uid, {
+            steps: summary.steps,
+            activeKcal: summary.caloriesBurned,
+            totalKcal: summary.caloriesBurned,
+            distanceKm: summary.distanceKm,
+            sleepMin: summary.sleepMinutes,
+          }).catch(() => {});
+        }
       }
       if (mounted) setLoading(false);
     }
@@ -50,6 +62,16 @@ export function useHealthData(enabled: boolean) {
     const interval = setInterval(async () => {
       const summary = await readTodayHealth();
       if (summary) setData(summary);
+      const uid = auth.currentUser?.uid;
+      if (uid && summary) {
+        void addActivityEntry(uid, {
+          steps: summary.steps,
+          activeKcal: summary.caloriesBurned,
+          totalKcal: summary.caloriesBurned,
+          distanceKm: summary.distanceKm,
+          sleepMin: summary.sleepMinutes,
+        }).catch(() => {});
+      }
     }, 5 * 60 * 1000);
     return () => clearInterval(interval);
   }, [granted]);

@@ -18,12 +18,14 @@ export function InsightCard({ remaining, target, eaten, protein, targetProtein }
   const theme = useTheme();
   const message = useMemo(() => {
     if (target <= 0) return 'Set your daily targets to get personalised insights.';
-    if (eaten <= 0) return `Log your first meal — ${formatCalories(target)} kcal target today.`;
+    if (eaten <= 0) return null;
     if (remaining <= 0) return `You've hit your ${formatCalories(target)} kcal target. Great work.`;
     if (protein >= targetProtein && targetProtein > 0) return `Protein target met. ${formatCalories(remaining)} kcal remaining — keep it balanced.`;
     if (protein < targetProtein * 0.5 && targetProtein > 0) return `${formatGrams(targetProtein - protein)}g protein to go. A protein-rich dinner will help.`;
     return `${formatCalories(remaining)} kcal remaining. You're on track.`;
   }, [remaining, target, eaten, protein, targetProtein]);
+
+  if (message === null) return null;
 
   const themedStyles = useMemo(() => StyleSheet.create({
     card: { alignItems: 'center', backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 20, borderWidth: 1, flexDirection: 'row', padding: 20 },

@@ -17,8 +17,8 @@ interface Props {
   fatTarget: number;
 }
 
-const SIZE = 140;
-const STROKE = 14;
+const SIZE = 132;
+const STROKE = 13;
 const RADIUS = (SIZE - STROKE) / 2;
 const CIRCUMFERENCE = Math.PI * 2 * RADIUS;
 
@@ -46,7 +46,7 @@ function MacroRow({
           {safeValue}g
           <Text style={[styles.macroValueMuted, { color: theme.colors.muted }]}>{' / '}{target}g</Text>
         </Text>
-        <Ionicons name="chevron-forward" size={16} color={theme.colors.muted} />
+              <Ionicons name="chevron-forward" size={14} color={theme.colors.muted} />
       </View>
       <View style={[styles.barTrack, { backgroundColor: theme.colors.border }]}>
         <View style={[styles.barFill, { width: `${pct}%`, backgroundColor: color }]} />
@@ -64,18 +64,18 @@ export function CaloriesMacrosCard({
   const remaining = Math.max(0, target - eaten);
 
   const themed = useMemo(() => StyleSheet.create({
-    card: { backgroundColor: theme.colors.surface, marginHorizontal: 16, marginTop: 12, borderRadius: 20, padding: 16 },
-    topRow: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+    card: { backgroundColor: theme.colors.surface, marginHorizontal: 12, marginTop: 12, borderRadius: 20, padding: 16 },
+    topRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
     ringCol: { alignItems: 'center' },
-    rightCol: { flex: 1, gap: 10 },
-    statCard: { borderRadius: 14, padding: 12, flexDirection: 'row', alignItems: 'center', gap: 10 },
-    statIconWrap: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
+    rightCol: { flex: 1, gap: 8 },
+    statCard: { borderRadius: 14, padding: 10, flexDirection: 'row', alignItems: 'center', gap: 8 },
+    statIconWrap: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
     statTextCol: { flex: 1 },
-    statLabel: { fontSize: 12, fontWeight: '500' },
-    statValue: { fontSize: 18, fontWeight: '700', marginTop: 2 },
-    centerEaten: { color: theme.colors.text, fontSize: 22, fontWeight: '700' },
-    centerTarget: { color: theme.colors.muted, fontSize: 11, marginTop: 2 },
-    macrosWrap: { marginTop: 18, gap: 14 },
+    statLabel: { fontSize: 11, fontWeight: '500' },
+    statValue: { fontSize: 16, fontWeight: '700', marginTop: 2 },
+    centerEaten: { color: theme.colors.text, fontSize: 20, fontWeight: '700' },
+    centerTarget: { color: theme.colors.muted, fontSize: 10, marginTop: 2 },
+    macrosWrap: { marginTop: 16, gap: 12 },
   }), [theme]);
 
   return (
@@ -95,7 +95,7 @@ export function CaloriesMacrosCard({
                 strokeDasharray={CIRCUMFERENCE} strokeDashoffset={dashOffset} rotation="-90" origin={`${SIZE/2}, ${SIZE/2}`} />
             </Svg>
             <View style={styles.centerOverlay}>
-              <Ionicons name="flame" size={18} color={theme.colors.accent} />
+              <Ionicons name="flame" size={17} color={theme.colors.accent} />
               <Text style={[themed.centerEaten, { marginTop: 2 }]}>{Math.round(eaten)}</Text>
               <Text style={themed.centerTarget}>of {target} kcal</Text>
             </View>
@@ -105,7 +105,7 @@ export function CaloriesMacrosCard({
         <View style={themed.rightCol}>
           <View style={[themed.statCard, { backgroundColor: theme.colors.success + '1A', borderColor: theme.colors.success + '33', borderWidth: 1 }]}>
             <View style={[themed.statIconWrap, { backgroundColor: theme.colors.success + '26' }]}>
-              <Ionicons name="flame" size={20} color={theme.colors.success} />
+              <Ionicons name="flame" size={18} color={theme.colors.success} />
             </View>
             <View style={themed.statTextCol}>
               <Text style={[themed.statLabel, { color: theme.colors.muted }]}>Calories Burned</Text>
@@ -116,7 +116,7 @@ export function CaloriesMacrosCard({
 
           <View style={[themed.statCard, { backgroundColor: theme.colors.surfaceHi, borderColor: theme.colors.border, borderWidth: 1 }]}>
             <View style={[themed.statIconWrap, { backgroundColor: theme.colors.accent + '26' }]}>
-              <Ionicons name="locate-outline" size={20} color={theme.colors.accent} />
+              <Ionicons name="locate-outline" size={18} color={theme.colors.accent} />
             </View>
             <View style={themed.statTextCol}>
               <Text style={[themed.statLabel, { color: theme.colors.muted }]}>Calories Remaining</Text>
@@ -139,10 +139,10 @@ const styles = StyleSheet.create({
   ringBox: { position: 'relative', width: SIZE, height: SIZE },
   centerOverlay: { ...StyleSheet.absoluteFillObject, alignItems: 'center', justifyContent: 'center' },
   macroTop: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  iconCircle: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
-  macroLabel: { fontSize: 14, fontWeight: '500' },
-  macroValue: { fontSize: 13, fontWeight: '700' },
-  macroValueMuted: { fontSize: 13, fontWeight: '500' },
-  barTrack: { height: 6, borderRadius: 3, overflow: 'hidden' },
-  barFill: { height: 6, borderRadius: 3 },
+  iconCircle: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
+  macroLabel: { fontSize: 13, fontWeight: '500' },
+  macroValue: { fontSize: 12, fontWeight: '700' },
+  macroValueMuted: { fontSize: 12, fontWeight: '500' },
+  barTrack: { height: 5, borderRadius: 2.5, overflow: 'hidden' },
+  barFill: { height: 5, borderRadius: 2.5 },
 });

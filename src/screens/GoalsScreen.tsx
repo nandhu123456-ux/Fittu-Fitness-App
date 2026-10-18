@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -7,6 +7,7 @@ import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { calculateBMR, calculateTDEE, calculateTargets } from '../utils/nutrition';
 import { formatCalories, formatGrams, formatWeight } from '../utils/format';
 import { updateUserProfile } from '../services/user';
+import { useUserDoc } from '../hooks/useRealtime';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../theme';
 import type { GoalType } from '../types/user';
@@ -28,11 +29,30 @@ export default function GoalsScreen() {
   const theme = useTheme();
   const navigation = useNavigation<Navigation>();
   const { user, profile, setProfile } = useAuthStore();
+  const uid = user?.uid;
   const profileData = profile?.profile;
   const currentWeight = profileData?.weightKg;
+
+  // Live-sync the profile from Firestore so height/weight/target always reflect
+  // the latest saved values (e.g. after editing Goals in another session).
+  useUserDoc(uid);
+
   const [goalType, setGoalType] = useState<GoalType>(profile?.goal?.type ?? 'maintain');
-  const [targetWeight, setTargetWeight] = useState<string>(formatWeight(profile?.goal?.targetWeightKg ?? currentWeight ?? 70));
+  const [targetWeight, setTargetWeight] = useState<string>(profile?.goal?.targetWeightKg ? formatWeight(profile.goal.targetWeightKg) : '');
+  const [heightCm, setHeightCm] = useState<string>(profileData?.heightCm ? String(profileData.heightCm) : '');
+  const [weightKg, setWeightKg] = useState<string>(profileData?.weightKg ? formatWeight(profileData.weightKg) : '');
   const [weeklyRate, setWeeklyRate] = useState<number>(profile?.goal?.weeklyRateKg ?? 0.5);
+
+  // Hydrate form fields from the real-time profile once Firestore data arrives.
+  useEffect(() => {
+    if (!profileData) return;
+    setHeightCm(String(profileData.heightCm || 0));
+    setWeightKg(formatWeight(profileData.weightKg));
+    const tw = profile?.goal?.targetWeightKg ?? profileData.weightKg;
+    setTargetWeight(tw ? formatWeight(tw) : '');
+    setGoalType(profile?.goal?.type ?? 'maintain');
+    setWeeklyRate(profile?.goal?.weeklyRateKg ?? 0.5);
+  }, [profileData, profile?.goal]);
   const [targetWeightError, setTargetWeightError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const targetWeightNum = Number(targetWeight);
@@ -58,11 +78,13 @@ export default function GoalsScreen() {
     }
     try {
       setSaving(true);
-      const weightKg = profileData.weightKg;
-      const bmr = calculateBMR(weightKg, profileData.heightCm, profileData.age, profileData.gender);
+      const weightNum = Number(weightKg);
+      const heightNum = Number(heightCm);
+      const bmr = calculateBMR(weightNum, heightNum, profileData.age, profileData.gender);
       const tdee = calculateTDEE(bmr, profileData.activityLevel);
-      const targets = calculateTargets({ tdee, bmr, goalType, weightKg });
+      const targets = calculateTargets({ tdee, bmr, goalType, weightKg: weightNum });
       await updateUserProfile(user.uid, {
+        profile: { ...profileData, weightKg: weightNum, heightCm: heightNum },
         goal: { type: goalType, targetWeightKg: targetWeightNum, weeklyRateKg: weeklyRate },
         targets,
         bmr,
@@ -70,12 +92,12 @@ export default function GoalsScreen() {
       });
       setProfile({
         ...profile,
+        profile: { ...profileData, weightKg: weightNum, heightCm: heightNum },
         goal: { type: goalType, targetWeightKg: targetWeightNum, weeklyRateKg: weeklyRate },
         targets,
         bmr,
         tdee,
       });
-      Alert.alert('Goals saved', 'Your goals have been updated.');
       navigation.goBack();
     } catch {
       Alert.alert('Could not save goals');
@@ -127,6 +149,18 @@ export default function GoalsScreen() {
           <Text style={themedStyles.headerTitle}>Your Goals</Text>
         </View>
         <Text style={themedStyles.subtitle}>We personalise your plan based on these.</Text>
+
+        <Text style={themedStyles.section}>BODY METRICS</Text>
+        <View style={themedStyles.card}>
+          <View style={styles.field}>
+            <Text style={themedStyles.label}>Height (cm)</Text>
+            <TextInput keyboardType="decimal-pad" onChangeText={setHeightCm} style={themedStyles.input} value={heightCm} />
+          </View>
+          <View style={styles.field}>
+            <Text style={themedStyles.label}>Current weight (kg)</Text>
+            <TextInput keyboardType="decimal-pad" onChangeText={setWeightKg} style={themedStyles.input} value={weightKg} />
+          </View>
+        </View>
 
         <Text style={themedStyles.section}>YOUR GOAL</Text>
         <View style={themedStyles.card}>

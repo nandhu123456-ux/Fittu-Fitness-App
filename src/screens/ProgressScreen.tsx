@@ -1,351 +1,422 @@
 import { useMemo, useState } from 'react';
-import { Alert, ActivityIndicator, FlatList, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
-import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
+import { 
+  Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View, ActivityIndicator 
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { useNavigation } from '@react-navigation/native';
-import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
-import Svg, { Circle, Defs, LinearGradient, Path, Stop } from 'react-native-svg';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 
-import { useLast7DaysFoodLogs, useRecentWeights, useLast7DaysActivity } from '../hooks/useRealtime';
-import { calculateBodyStats } from '../utils/bodyStats';
-import { createWeightChartPaths } from '../utils/weightChart';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../theme';
-import { addWeight, deleteWeight, type WeightEntry } from '../services/weightLogs';
-import BarChart7Day from '../components/BarChart7Day';
-import type { Targets } from '../types/user';
+import { useRecentWeights, useFoodHistory, useActivityHistory, useUserDoc } from '../hooks/useRealtime';
+import { calculateBodyStats } from '../utils/bodyStats';
+import { shiftDate, todayLocalISO } from '../utils/streak';
+import { RangeBarChart } from '../components/RangeBarChart';
+import { addWeight, deleteWeight } from '../services/weightLogs';
 
-type TabKey = 'weight' | 'calories' | 'macros' | 'activity';
+const RANGES = [
+  { label: '7D', val: 7 },
+  { label: '2W', val: 14 },
+  { label: '1M', val: 30 },
+  { label: '2M', val: 60 },
+] as const;
 
-const TABS: { key: TabKey; label: string }[] = [
-  { key: 'weight', label: 'Weight' },
-  { key: 'calories', label: 'Calories' },
-  { key: 'macros', label: 'Macros' },
-  { key: 'activity', label: 'Activity' },
-];
-
-/**
- * Adds alpha to a hex color so the delta pill can tint its background.
- * Non-hex values (rgba()) are returned unchanged — the pill then has no tint,
- * which is still legible because the text carries its own color.
- */
-function withAlpha(color: string): string {
-  return /^#[0-9a-fA-F]{6}$/.test(color) ? `${color}33` : color;
-}
+type Tab = 'weight' | 'calories' | 'macros' | 'activity';
 
 export default function ProgressScreen() {
   const theme = useTheme();
   const navigation = useNavigation();
-  const { profile } = useAuthStore();
-  const user = useAuthStore((state) => state.user);
+  const { user, profile } = useAuthStore();
   const uid = user?.uid;
-  const { width } = useWindowDimensions();
-  const [activeTab, setActiveTab] = useState<TabKey>('weight');
-  const [visible, setVisible] = useState(false);
-  const [weight, setWeight] = useState('');
-  const [note, setNote] = useState('');
 
-  // Live listener: saves/deletes from any screen update this list immediately.
-  const { entries } = useRecentWeights(uid, 30);
-  const { days, loading } = useLast7DaysFoodLogs(uid);
-  const { days: activityDays, loading: activityLoading } = useLast7DaysActivity(uid);
+  const [activeTab, setActiveTab] = useState<Tab>('weight');
+  const [rangeDays, setRangeDays] = useState<7 | 14 | 30 | 60>(7);
+  
+  const [modalVisible, setModalVisible] = useState(false);
+  const [newWeight, setNewWeight] = useState('');
+  const [newNote, setNewNote] = useState('');
+  const [saving, setSaving] = useState(false);
 
-  // Latest known weight falls back to the profile value when nothing is logged.
-  const currentWeight = entries.length > 0 ? entries[0].weight : profile?.profile?.weightKg ?? 0;
-  // Change across the loaded (30-entry) window, oldest vs newest.
-  const deltaKg = entries.length >= 2 ? entries[0].weight - entries[entries.length - 1].weight : null;
+  const { entries: rawWeights } = useRecentWeights(uid, 60);
+  const { days: rawFoodDays } = useFoodHistory(uid);
+  const { days: rawActivityDays } = useActivityHistory(uid);
 
+  // Keep the profile subscription alive in this screen so Goals-screen edits
+  // (height, target weight, gender, age) instantly flow through the auth store
+  // and recalculate BMI, body fat, and muscle mass here.
+  useUserDoc(uid);
+
+  const safeWeights = rawWeights || [];
+  const safeFood = rawFoodDays || [];
+  const safeActivity = rawActivityDays || [];
+
+  const cutoffDate = shiftDate(todayLocalISO(), -rangeDays);
+  
+  // Filter for the chart based on the selected days
+  const filteredWeights = safeWeights.filter((w) => w.date >= cutoffDate);
+  
+  // --- 1. FIND THE LATEST WEIGHT BY TIMESTAMP ---
+  const sortedAllWeights = useMemo(() => {
+    return [...safeWeights].sort((a, b) => {
+      // First try sorting by createdAt timestamp (newest first)
+      const aTime = a.createdAt || 0;
+      const bTime = b.createdAt || 0;
+      if (aTime !== bTime) return bTime - aTime;
+      // Fallback to ID if timestamps are missing (for old logs)
+      return b.id.localeCompare(a.id);
+    });
+  }, [safeWeights]);
+
+  const latestWeight = sortedAllWeights[0]?.weight ?? profile?.profile?.weightKg ?? 0;
+  
+  // Sort remaining data oldest -> newest for the Graph line
+  const displayWeights = useMemo(() => {
+    const sorted = [...filteredWeights].sort((a, b) => {
+      const aTime = a.createdAt || 0;
+      const bTime = b.createdAt || 0;
+      if (aTime !== bTime) return aTime - bTime; // oldest first
+      return a.id.localeCompare(b.id);
+    });
+    if (sorted.length === 1 && profile?.profile?.weightKg) {
+      return [{ id: 'start', date: 'Start', weight: profile.profile.weightKg }, ...sorted];
+    }
+    return sorted;
+  }, [filteredWeights, profile]);
+
+  const filteredFood = safeFood.slice(-rangeDays);
+  const filteredActivity = safeActivity.slice(-rangeDays);
+  const labels = filteredFood.map((d) => d.date.slice(5));
+
+  const oldestWeight = displayWeights[0]?.weight ?? latestWeight;
+  const weightDelta = latestWeight - oldestWeight;
+
+  const goalType = profile?.goal?.type || 'lose';
+  const targetWeight = profile?.goal?.targetWeightKg || 0;
+  const kgToGoal = Math.abs(latestWeight - targetWeight);
+  
+  let inRedZone = false;
+  let redZoneMessage = '';
+  let greenMessage = '';
+
+  if (displayWeights.length >= 2) {
+    if (goalType === 'lose') {
+      inRedZone = weightDelta > 0;
+      redZoneMessage = `You gained ${weightDelta.toFixed(1)}kg this period. You need to lose ${kgToGoal.toFixed(1)}kg to reach your goal of ${targetWeight}kg.`;
+      greenMessage = `You lost ${Math.abs(weightDelta).toFixed(1)}kg this period. ${kgToGoal.toFixed(1)}kg left to reach ${targetWeight}kg!`;
+    } else if (goalType === 'gain') {
+      inRedZone = weightDelta < 0;
+      redZoneMessage = `You lost ${Math.abs(weightDelta).toFixed(1)}kg this period. You need to gain ${kgToGoal.toFixed(1)}kg to reach your goal of ${targetWeight}kg.`;
+      greenMessage = `You gained ${weightDelta.toFixed(1)}kg this period. ${kgToGoal.toFixed(1)}kg left to reach ${targetWeight}kg!`;
+    } else {
+      inRedZone = Math.abs(weightDelta) > 1.5;
+      redZoneMessage = `Your weight is fluctuating. Try to stay near ${targetWeight}kg.`;
+      greenMessage = `You're maintaining steadily. Great job!`;
+    }
+  }
+
+  // --- 2. DYNAMIC BODY STATS (Uses latestWeight) ---
   const stats = calculateBodyStats({
-    weightKg: currentWeight,
+    weightKg: latestWeight, 
     heightCm: profile?.profile?.heightCm ?? 0,
     age: profile?.profile?.age ?? 0,
     gender: profile?.profile?.gender ?? 'male',
   });
 
-  const targets: Targets | undefined = profile?.targets;
-  const gender = profile?.profile?.gender ?? 'male';
+  const isMale = profile?.profile?.gender === 'male';
+  let bfStatus = { text: '', color: '' };
+  let mmStatus = { text: '', color: '' };
 
-  // Body fat guidance: healthy range 10–20% male, 18–28% female.
-  const bfMin = gender === 'male' ? 10 : 18;
-  const bfMax = gender === 'male' ? 20 : 28;
-  const bfValue = stats?.bodyFatPct ?? 0;
-  const bfInRange = bfValue >= bfMin && bfValue <= bfMax;
-  const bfAboveMax = bfValue > bfMax;
-  const bfGuidanceText = bfInRange
-    ? `${bfValue.toFixed(1)}% within healthy`
-    : bfAboveMax
-      ? `−${(bfValue - bfMax).toFixed(1)}% to reach healthy`
-      : `${(bfMin - bfValue).toFixed(1)}% below healthy`;
-  const bfGuidanceColor = bfInRange ? theme.colors.success : bfAboveMax ? theme.colors.warn : theme.colors.accent;
-
-  // Muscle mass guidance: target = weight × (1 − targetBF/100), targetBF = 18 male / 25 female.
-  const targetBF = gender === 'male' ? 18 : 25;
-  const muscleTarget = currentWeight * (1 - targetBF / 100);
-  const muscleValue = stats?.leanMassKg ?? 0;
-  const muscleAboveTarget = muscleValue >= muscleTarget;
-  const muscleGuidanceText = muscleAboveTarget
-    ? 'Above target'
-    : `+${(muscleTarget - muscleValue).toFixed(1)}kg to target`;
-  const muscleGuidanceColor = muscleAboveTarget ? theme.colors.success : theme.colors.accent;
-
-  const deltaTone = useMemo(() => {
-    if (deltaKg === null) return 'muted' as const;
-    const abs = Math.abs(deltaKg);
-    if (abs < 0.3) return 'muted' as const;
-    return deltaKg < 0 ? 'accent' as const : 'danger' as const;
-  }, [deltaKg]);
-  const deltaColor = deltaTone === 'accent' ? theme.colors.accent : deltaTone === 'danger' ? theme.colors.danger : theme.colors.muted;
-  const deltaLabel = deltaKg === null ? '' : `${deltaKg > 0 ? '+' : '−'}${Math.abs(deltaKg).toFixed(1)} kg`;
-
-  const chartWidth = Math.max(1, width - 40);
-  const chart = entries.length >= 2 ? createWeightChartPaths(entries, chartWidth) : null;
-  const listDelta = useMemo(() => entries.length > 1 ? entries[0].weight - entries[1].weight : null, [entries]);
-
-  // 7-day data for charts
-  const calData = days.map((d) => d.cal);
-  const proteinData = days.map((d) => d.protein);
-  const carbsData = days.map((d) => d.carbs);
-  const fatData = days.map((d) => d.fat);
-  const dayLabels = days.map((d) => d.date.slice(5).replace('-', '/'));
-const hasFoodLogs = days.some((d) => d.cal > 0 || d.protein > 0 || d.carbs > 0 || d.fat > 0);
-  const calAvg = days.length > 0 ? Math.round(days.reduce((s, d) => s + d.cal, 0) / days.length) : 0;
-
-  const themedStyles = useMemo(() => StyleSheet.create({
-    headerRow: { alignItems: 'center', flexDirection: 'row', gap: 10 },
-    headerTitle: { color: theme.colors.text, fontSize: 20, fontWeight: '600' },
-    hero: { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 20, borderWidth: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', padding: 20 },
-    heroLabel: { color: theme.colors.muted, fontSize: 11, fontWeight: '700', letterSpacing: 1.2, textTransform: 'uppercase' },
-    heroValue: { color: theme.colors.text, fontSize: 32, fontWeight: '700', letterSpacing: -1, marginTop: 4 },
-    heroRight: { alignItems: 'flex-end' },
-    deltaPill: { alignItems: 'center', borderRadius: 999, flexDirection: 'row', gap: 4, paddingHorizontal: 10, paddingVertical: 5 },
-    deltaPillText: { color: deltaColor, fontSize: 13, fontWeight: '700' },
-    deltaSub: { color: theme.colors.muted, fontSize: 10, marginTop: 4 },
-    tabRow: { flexDirection: 'row', gap: 8, marginTop: 16 },
-    tab: { alignItems: 'center', backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 20, borderWidth: 1, paddingHorizontal: 14, paddingVertical: 8 },
-    tabActive: { backgroundColor: theme.colors.accent, borderColor: theme.colors.accent },
-    tabText: { color: theme.colors.text, fontSize: 13, fontWeight: '600' },
-    tabTextActive: { color: theme.colors.bg },
-    statRow: { flexDirection: 'row', gap: 12, marginTop: 16 },
-    statCard: { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 16, borderWidth: 1, flex: 1, padding: 16 },
-    statLabel: { color: theme.colors.muted, fontSize: 11, fontWeight: '700', letterSpacing: 1.2, textTransform: 'uppercase' },
-    statValue: { color: theme.colors.text, fontSize: 24, fontWeight: '700', marginTop: 6 },
-    statFootnote: { color: theme.colors.muted, fontSize: 10, fontStyle: 'italic', marginTop: 2 },
-    chartCard: { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 20, borderWidth: 1, padding: 20, marginTop: 16 },
-    section: { color: theme.colors.muted, fontSize: 12, fontWeight: '600', letterSpacing: 1.4, marginTop: 16 },
-    emptyChart: { alignItems: 'center', marginTop: 40, padding: 20, borderWidth: 1, borderStyle: 'dashed', borderColor: theme.colors.border, borderRadius: 16, gap: 6 },
-    emptyChartTitle: { color: theme.colors.text, fontSize: 14, fontWeight: '600' },
-    emptyChartText: { color: theme.colors.muted, fontSize: 12, textAlign: 'center' },
-    chartDelta: { color: theme.colors.accent, fontSize: 13, fontWeight: '600', marginTop: 4 },
-    macroCard: { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 16, borderWidth: 1, padding: 16, marginTop: 12 },
-    macroTitle: { color: theme.colors.text, fontSize: 15, fontWeight: '600', marginBottom: 8 },
-    empty: { alignItems: 'center', marginTop: 60 },
-    emptyTitle: { color: theme.colors.text, fontSize: 18, fontWeight: '600', marginTop: 14 },
-    emptyText: { color: theme.colors.muted, fontSize: 14, marginTop: 6 },
-    row: { alignItems: 'center', backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 16, borderWidth: 1, flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10, padding: 16 },
-    rowWeight: { color: theme.colors.text, fontSize: 18, fontWeight: '700' },
-    rowDate: { color: theme.colors.muted, fontSize: 13, marginTop: 4 },
-    delete: { alignItems: 'center', backgroundColor: theme.colors.danger, borderRadius: 16, justifyContent: 'center', marginBottom: 10, marginLeft: 8, width: 72 },
-    fab: { alignItems: 'center', backgroundColor: theme.colors.accent, borderRadius: 30, bottom: 28, elevation: 6, height: 60, justifyContent: 'center', position: 'absolute', right: 24, width: 60 },
-    overlay: { backgroundColor: theme.colors.overlay, flex: 1, justifyContent: 'flex-end' },
-    modal: { backgroundColor: theme.colors.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24, gap: 12, padding: 24 },
-    modalTitle: { color: theme.colors.text, fontSize: 20, fontWeight: '700', marginBottom: 4 },
-    input: { borderColor: theme.colors.border, borderRadius: 12, borderWidth: 1, color: theme.colors.text, fontSize: 16, padding: 14 },
-    save: { alignItems: 'center', backgroundColor: theme.colors.accent, borderRadius: 12, marginTop: 8, padding: 15 },
-    saveText: { color: theme.colors.bg, fontSize: 16, fontWeight: '700' },
-  }), [theme, deltaColor]);
-
-  const save = async (): Promise<void> => {
-    const value = Number(weight);
-    if (!user || !Number.isFinite(value) || value <= 0) {
-      Alert.alert('Enter a valid weight');
-      return;
+  if (stats) {
+    const healthyBfMax = isMale ? 20 : 28;
+    const bfDelta = stats.bodyFatPct - healthyBfMax;
+    if (bfDelta > 0) {
+      bfStatus = { text: `↓ ${bfDelta.toFixed(1)}% to healthy`, color: theme.colors.warn };
+    } else {
+      bfStatus = { text: `✅ Healthy range`, color: theme.colors.success };
     }
+
+    const targetBf = isMale ? 15 : 22; 
+    const targetLeanMass = targetWeight * (1 - targetBf / 100);
+    const mmDelta = targetLeanMass - stats.leanMassKg;
+    if (mmDelta > 0) {
+      mmStatus = { text: `↑ ${mmDelta.toFixed(1)} kg to target`, color: theme.colors.accent };
+    } else {
+      mmStatus = { text: `✅ Target reached`, color: theme.colors.success };
+    }
+  }
+
+  const hasFoodLogs = filteredFood.some((d) => d.cal > 0 || d.protein > 0 || d.carbs > 0 || d.fat > 0);
+
+  const chartWidth = 320;
+  const chartHeight = 140;
+  const weightLine = useMemo(() => {
+    if (displayWeights.length < 2) return '';
+    const values = displayWeights.map((w) => w.weight);
+    const min = Math.min(...values);
+    const span = Math.max(...values) - min || 1;
+
+    const points = values.map((val, i) => {
+      const x = (i / Math.max(values.length - 1, 1)) * chartWidth;
+      const y = 120 - ((val - min) / span) * 100;
+      return { x, y };
+    });
+
+    let d = `M ${points[0].x} ${points[0].y}`;
+    for (let i = 0; i < points.length - 1; i++) {
+      const p0 = points[i === 0 ? 0 : i - 1];
+      const p1 = points[i];
+      const p2 = points[i + 1];
+      const p3 = points[i + 2] || p2;
+      const cp1x = p1.x + (p2.x - p0.x) / 6;
+      const cp1y = p1.y + (p2.y - p0.y) / 6;
+      const cp2x = p2.x - (p3.x - p1.x) / 6;
+      const cp2y = p2.y - (p3.y - p1.y) / 6;
+      d += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`;
+    }
+    return d;
+  }, [displayWeights]);
+
+  const saveWeight = async () => {
+    const val = Number(newWeight);
+    if (!uid || !Number.isFinite(val) || val <= 0) return;
+    setSaving(true);
     try {
-      await addWeight(user.uid, value, note.trim() || undefined);
-      setWeight('');
-      setNote('');
-      setVisible(false);
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : 'Unknown error';
-      Alert.alert('Save failed', msg);
-    }
+      await addWeight(uid, val, newNote.trim() || undefined);
+      setNewWeight(''); setNewNote(''); setModalVisible(false);
+    } catch { Alert.alert('Error', 'Could not save weight.'); } finally { setSaving(false); }
   };
 
-  const remove = (entry: WeightEntry): void => Alert.alert('Delete weight entry?', `${entry.weight.toFixed(1)} kg from ${entry.date}`, [{ text: 'Cancel', style: 'cancel' }, { text: 'Delete', style: 'destructive', onPress: () => { if (user) void deleteWeight(user.uid, entry.id).catch(() => undefined); } }]);
+  const removeWeight = (id: string, weight: number, date: string) => {
+    if (!uid) return;
+    Alert.alert('Delete Entry?', `${weight.toFixed(1)} kg from ${date}`, [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Delete', style: 'destructive', onPress: () => void deleteWeight(uid, id) }
+    ]);
+  };
 
-  const renderRow = ({ item }: { item: WeightEntry }) => (
-    <Swipeable renderRightActions={() => <Pressable onPress={() => remove(item)} style={themedStyles.delete}><Ionicons name="trash-outline" color={theme.colors.text} size={22} /></Pressable>}>
-      <View style={themedStyles.row}>
-        <View>
-          <Text style={themedStyles.rowWeight}>{item.weight.toFixed(1)} kg</Text>
-          <Text style={themedStyles.rowDate}>{item.date}{item.note ? ` · ${item.note}` : ''}</Text>
-        </View>
-        <Ionicons name="chevron-back" color={theme.colors.muted} size={17} />
-      </View>
-    </Swipeable>
-  );
+  const themed = useMemo(() => StyleSheet.create({
+    screen: { flex: 1, backgroundColor: theme.colors.bg },
+    content: { padding: 20, paddingBottom: 100 },
+    header: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
+    backBtn: { marginRight: 12 },
+    title: { fontSize: 22, fontWeight: '700', color: theme.colors.text },
+    heroCard: { backgroundColor: theme.colors.surface, borderRadius: 20, padding: 20, marginBottom: 16 },
+    heroLabel: { fontSize: 11, fontWeight: '600', color: theme.colors.muted, textTransform: 'uppercase' },
+    heroRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 },
+    heroValue: { fontSize: 32, fontWeight: '700', color: theme.colors.text },
+    deltaPill: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12, backgroundColor: theme.colors.surfaceHi },
+    deltaText: { fontSize: 14, fontWeight: '600' },
+    
+    statsRow: { flexDirection: 'row', gap: 12, marginBottom: 20 },
+    statCard: { flex: 1, backgroundColor: theme.colors.surface, borderRadius: 16, padding: 16 },
+    statLabelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+    statLabel: { fontSize: 11, fontWeight: '600', color: theme.colors.muted, textTransform: 'uppercase' },
+    estimatedTag: { fontSize: 9, color: theme.colors.muted, fontStyle: 'italic', backgroundColor: theme.colors.surfaceHi, paddingHorizontal: 4, paddingVertical: 2, borderRadius: 4 },
+    statValue: { fontSize: 24, fontWeight: '700', color: theme.colors.text, marginTop: 6 },
+    statSuggestion: { fontSize: 11, fontWeight: '600', marginTop: 4 },
+    
+    redZoneCard: { backgroundColor: theme.colors.danger + '15', borderColor: theme.colors.danger, borderWidth: 1, borderRadius: 16, padding: 16, marginBottom: 20, flexDirection: 'row', alignItems: 'center', gap: 12 },
+    redZoneText: { flex: 1, color: theme.colors.danger, fontSize: 13, fontWeight: '600', lineHeight: 18 },
 
-  const header = (
-    <View style={{ gap: 16 }}>
-      <View style={themedStyles.headerRow}>
-        <Pressable hitSlop={8} onPress={() => navigation.goBack()}>
-          <Ionicons color={theme.colors.text} name="chevron-back" size={22} />
-        </Pressable>
-        <Text style={themedStyles.headerTitle}>My Progress</Text>
-      </View>
-
-      <View style={themedStyles.hero}>
-        <View>
-          <Text style={themedStyles.heroLabel}>Current Weight</Text>
-          <Text style={themedStyles.heroValue}>{currentWeight > 0 ? `${currentWeight.toFixed(1)} kg` : '—'}</Text>
-        </View>
-        {deltaKg === null ? null : (
-          <View style={themedStyles.heroRight}>
-            <View style={[themedStyles.deltaPill, { backgroundColor: withAlpha(deltaColor) }]}>
-              <Ionicons color={deltaColor} name={deltaKg < 0 ? 'arrow-down' : 'arrow-up'} size={14} />
-              <Text style={themedStyles.deltaPillText}>{deltaLabel}</Text>
-            </View>
-            <Text style={themedStyles.deltaSub}>vs last month</Text>
-          </View>
-        )}
-      </View>
-
-      {/* Body stats row — above tabs */}
-      <View style={themedStyles.statRow}>
-        <View style={themedStyles.statCard}>
-          <Text style={themedStyles.statLabel}>Body Fat</Text>
-          <Text style={themedStyles.statValue}>{stats ? `${stats.bodyFatPct}%` : '—'}</Text>
-          <Text style={[themedStyles.statFootnote, { color: bfGuidanceColor }]}>{bfGuidanceText}</Text>
-        </View>
-        <View style={themedStyles.statCard}>
-          <Text style={themedStyles.statLabel}>Muscle Mass</Text>
-          <Text style={themedStyles.statValue}>{stats ? `${stats.leanMassKg} kg` : '—'}</Text>
-          <Text style={[themedStyles.statFootnote, { color: muscleGuidanceColor }]}>{muscleGuidanceText}</Text>
-        </View>
-      </View>
-
-      {/* Tab chips */}
-      <View style={themedStyles.tabRow}>
-        {TABS.map((tab) => (
-          <Pressable key={tab.key} onPress={() => setActiveTab(tab.key)} style={[themedStyles.tab, activeTab === tab.key && themedStyles.tabActive]}>
-            <Text style={[themedStyles.tabText, activeTab === tab.key && themedStyles.tabTextActive]}>{tab.label}</Text>
-          </Pressable>
-        ))}
-      </View>
-
-      {/* Tab content */}
-      {activeTab === 'weight' ? (
-        chart ? (
-          <View style={themedStyles.chartCard}>
-            <Text style={themedStyles.section}>LAST 30 ENTRIES</Text>
-            <Svg width={chartWidth} height={140} viewBox={`0 0 ${chartWidth} 140`}>
-              <Defs>
-                <LinearGradient id="progressLine" x1="0" y1="0" x2="1" y2="1"><Stop offset="0" stopColor={theme.colors.accentAlt} /><Stop offset="1" stopColor={theme.colors.accent} /></LinearGradient>
-                <LinearGradient id="progressFill" x1="0" y1="0" x2="0" y2="1"><Stop offset="0" stopColor={theme.colors.accent} stopOpacity={0.25} /><Stop offset="1" stopColor={theme.colors.accent} stopOpacity={0} /></LinearGradient>
-              </Defs>
-              <Path d={chart.areaPath} fill="url(#progressFill)" />
-              <Path d={chart.linePath} fill="none" stroke="url(#progressLine)" strokeWidth={3} />
-              {chart.points.map((point, index) => <Circle key={index} cx={point.x} cy={point.y} fill={theme.colors.surface} r={4} stroke={theme.colors.accent} strokeWidth={2} />)}
-            </Svg>
-            {listDelta !== null ? <Text style={themedStyles.chartDelta}>{listDelta > 0 ? '+' : ''}{listDelta.toFixed(1)} kg since last entry</Text> : null}
-          </View>
-        ) : null
-      ) : activeTab === 'calories' ? (
-        <View>
-          <Text style={themedStyles.section}>LAST 7 DAYS</Text>
-          <Text style={themedStyles.chartDelta}>{days.length > 0 ? `${calAvg} kcal avg` : 'No data yet'} &nbsp;·&nbsp; target {targets?.calories ?? '—'}</Text>
-          {hasFoodLogs ? (
-            <BarChart7Day data={calData} labels={dayLabels} color={theme.colors.accent} target={targets?.calories} />
-          ) : loading ? (
-            <View style={{ marginTop: 40 }}><ActivityIndicator /></View>
-          ) : (
-            <View style={themedStyles.emptyChart}>
-              <Text style={themedStyles.emptyChartTitle}>No calorie data yet</Text>
-              <Text style={themedStyles.emptyChartText}>Log meals in the Log tab to see your weekly calorie chart.</Text>
-            </View>
-          )}
-        </View>
-      ) : (
-        <View>
-          <Text style={themedStyles.section}>LAST 7 DAYS</Text>
-          {activityLoading ? (
-            <View style={{ marginTop: 40 }}><ActivityIndicator /></View>
-          ) : activityDays.length > 0 ? (
-            <>
-              <View style={themedStyles.statRow}>
-                <View style={themedStyles.statCard}>
-                  <Text style={themedStyles.statLabel}>STEPS</Text>
-                  <Text style={themedStyles.statValue}>{activityDays[activityDays.length - 1]?.steps ?? 0}</Text>
-                  <Text style={themedStyles.statFootnote}>from Health Connect</Text>
-                </View>
-                <View style={themedStyles.statCard}>
-                  <Text style={themedStyles.statLabel}>KCAL BURNED</Text>
-                  <Text style={themedStyles.statValue}>{activityDays[activityDays.length - 1]?.totalKcal ?? 0}</Text>
-                  <Text style={themedStyles.statFootnote}>today (kcal)</Text>
-                </View>
-                <View style={themedStyles.statCard}>
-                  <Text style={themedStyles.statLabel}>DISTANCE</Text>
-                  <Text style={themedStyles.statValue}>{activityDays[activityDays.length - 1]?.distanceKm ?? 0}</Text>
-                  <Text style={themedStyles.statFootnote}>today (km)</Text>
-                </View>
-                <View style={themedStyles.statCard}>
-                  <Text style={themedStyles.statLabel}>SLEEP</Text>
-                  <Text style={themedStyles.statValue}>{activityDays[activityDays.length - 1]?.sleepMin ?? 0}</Text>
-                  <Text style={themedStyles.statFootnote}>overnight (min)</Text>
-                </View>
-              </View>
-              <View style={themedStyles.chartCard}>
-                <Text style={themedStyles.section}>STEPS THIS WEEK</Text>
-                <BarChart7Day
-                  data={activityDays.map((d) => d.steps)}
-                  labels={activityDays.map((d) => d.date.slice(5).replace('-', '/'))}
-                  color={theme.colors.accent}
-                />
-              </View>
-            </>
-          ) : (
-            <View style={themedStyles.emptyChart}>
-              <Text style={themedStyles.emptyChartTitle}>No activity data yet</Text>
-              <Text style={themedStyles.emptyChartText}>Allow Health Connect on the Profile tab — it syncs automatically.</Text>
-            </View>
-          )}
-        </View>
-      )}
-    </View>
-  );
+    rangeRow: { flexDirection: 'row', gap: 8, marginBottom: 16 },
+    rangeBtn: { flex: 1, paddingVertical: 8, borderRadius: 10, alignItems: 'center', backgroundColor: theme.colors.surface },
+    rangeBtnActive: { backgroundColor: theme.colors.accent },
+    rangeText: { fontSize: 13, fontWeight: '600', color: theme.colors.text },
+    rangeTextActive: { color: theme.colors.bg },
+    
+    tabsRow: { flexDirection: 'row', gap: 8, marginBottom: 20 },
+    tab: { flex: 1, paddingVertical: 10, alignItems: 'center', backgroundColor: theme.colors.surface, borderRadius: 12 },
+    tabActive: { backgroundColor: theme.colors.accent },
+    tabText: { fontSize: 13, fontWeight: '600', color: theme.colors.text },
+    tabTextActive: { color: theme.colors.bg },
+    
+    chartCard: { backgroundColor: theme.colors.surface, borderRadius: 20, padding: 16, marginBottom: 16 },
+    chartLabel: { fontSize: 12, fontWeight: '600', color: theme.colors.muted, marginBottom: 16 },
+    emptyChart: { height: 120, alignItems: 'center', justifyContent: 'center' },
+    emptyText: { color: theme.colors.muted, fontSize: 13 },
+    motivationBox: { padding: 12, borderRadius: 12, marginTop: 16, alignItems: 'center' },
+    motivationText: { fontSize: 13, fontWeight: '600', textAlign: 'center' },
+    
+    historyTitle: { fontSize: 16, fontWeight: '700', color: theme.colors.text, marginBottom: 12, marginTop: 8 },
+    historyRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: theme.colors.surface, padding: 16, borderRadius: 12, marginBottom: 8 },
+    historyWeight: { fontSize: 16, fontWeight: '700', color: theme.colors.text },
+    historyDate: { fontSize: 13, color: theme.colors.muted, marginTop: 2 },
+    
+    fab: { position: 'absolute', bottom: 24, right: 20, width: 60, height: 60, borderRadius: 30, backgroundColor: theme.colors.accent, alignItems: 'center', justifyContent: 'center', elevation: 6 },
+    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+    modalContent: { backgroundColor: theme.colors.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 40 },
+    modalTitle: { fontSize: 20, fontWeight: '700', color: theme.colors.text, marginBottom: 16 },
+    input: { backgroundColor: theme.colors.surfaceHi, color: theme.colors.text, borderRadius: 12, padding: 14, fontSize: 16, marginBottom: 12 },
+    saveBtn: { backgroundColor: theme.colors.accent, padding: 16, borderRadius: 12, alignItems: 'center', marginTop: 8 },
+    saveBtnText: { color: theme.colors.bg, fontSize: 16, fontWeight: '700' },
+  }), [theme]);
 
   return (
-    <View style={{ flex: 1, backgroundColor: theme.colors.bg }}>
-      <FlatList
-        contentContainerStyle={listStyles.content}
-        data={activeTab === 'weight' ? entries : []}
-        keyExtractor={(item) => item.id}
-        ListEmptyComponent={activeTab === 'weight' ? <View style={themedStyles.empty}><Ionicons name="scale-outline" color={theme.colors.muted} size={44} /><Text style={themedStyles.emptyTitle}>Start your weight journey</Text><Text style={themedStyles.emptyText}>Add at least two entries to see your trend.</Text></View> : null}
-        ListHeaderComponent={header}
-        renderItem={renderRow}
-        showsVerticalScrollIndicator={false}
-      />
-      {activeTab === 'weight' && (
-        <Pressable onPress={() => setVisible(true)} style={themedStyles.fab}>
-          <Ionicons name="add" size={30} color={theme.colors.bg} />
-        </Pressable>
-      )}
-      <Modal visible={visible} transparent animationType="slide" onRequestClose={() => setVisible(false)}>
-        <Pressable onPress={() => setVisible(false)} style={themedStyles.overlay}>
-          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ justifyContent: 'flex-end' }}>
-            <Pressable onPress={(event) => event.stopPropagation()} style={themedStyles.modal}>
-              <Text style={themedStyles.modalTitle}>Add weight</Text>
-              <TextInput autoFocus keyboardType="decimal-pad" onChangeText={setWeight} placeholder="Weight in kg" placeholderTextColor={theme.colors.muted} style={themedStyles.input} value={weight} />
-              <TextInput onChangeText={setNote} placeholder="Optional note" placeholderTextColor={theme.colors.muted} style={themedStyles.input} value={note} />
-              <Pressable onPress={() => void save()} style={themedStyles.save}><Text style={themedStyles.saveText}>Save entry</Text></Pressable>
+    <View style={themed.screen}>
+      <ScrollView contentContainerStyle={themed.content}>
+        <View style={themed.header}>
+          <Pressable onPress={() => navigation.goBack()} style={themed.backBtn}>
+            <Ionicons name="chevron-back" size={24} color={theme.colors.text} />
+          </Pressable>
+          <Text style={themed.title}>My Progress</Text>
+        </View>
+
+        <View style={themed.heroCard}>
+          <Text style={themed.heroLabel}>Current Weight (Goal: {targetWeight}kg)</Text>
+          <View style={themed.heroRow}>
+            <Text style={themed.heroValue}>{latestWeight.toFixed(1)} kg</Text>
+            <View style={[themed.deltaPill, { backgroundColor: weightDelta <= 0 ? theme.colors.success + '20' : theme.colors.danger + '20' }]}>
+              <Text style={[themed.deltaText, { color: weightDelta <= 0 ? theme.colors.success : theme.colors.danger }]}>
+                {weightDelta > 0 ? '+' : ''}{weightDelta.toFixed(1)} kg
+              </Text>
+            </View>
+          </View>
+          <Text style={[themed.statLabel, { color: theme.colors.muted, marginTop: 8 }]}>
+            vs last {rangeDays === 7 ? 'week' : rangeDays === 14 ? '2 weeks' : rangeDays === 30 ? 'month' : '2 months'}
+          </Text>
+        </View>
+
+        {inRedZone && (
+          <View style={themed.redZoneCard}>
+            <Ionicons name="warning" size={28} color={theme.colors.danger} />
+            <Text style={themed.redZoneText}>
+              <Text style={{ fontWeight: '800' }}>RED ZONE! </Text>
+              {redZoneMessage}
+            </Text>
+          </View>
+        )}
+
+        {stats && (
+          <View style={themed.statsRow}>
+            <View style={themed.statCard}>
+              <View style={themed.statLabelRow}>
+                <Text style={themed.statLabel}>Body Fat</Text>
+                <Text style={themed.estimatedTag}>Estimated</Text>
+              </View>
+              <Text style={themed.statValue}>{stats.bodyFatPct}%</Text>
+              <Text style={[themed.statSuggestion, { color: bfStatus.color }]}>
+                {bfStatus.text}
+              </Text>
+            </View>
+            <View style={themed.statCard}>
+              <View style={themed.statLabelRow}>
+                <Text style={themed.statLabel}>Muscle Mass</Text>
+                <Text style={themed.estimatedTag}>Estimated</Text>
+              </View>
+              <Text style={themed.statValue}>{stats.leanMassKg} kg</Text>
+              <Text style={[themed.statSuggestion, { color: mmStatus.color }]}>
+                {mmStatus.text}
+              </Text>
+            </View>
+          </View>
+        )}
+
+        <View style={themed.rangeRow}>
+          {RANGES.map((r) => (
+            <Pressable key={r.val} onPress={() => setRangeDays(r.val)} style={[themed.rangeBtn, rangeDays === r.val && themed.rangeBtnActive]}>
+              <Text style={[themed.rangeText, rangeDays === r.val && themed.rangeTextActive]}>{r.label}</Text>
             </Pressable>
-          </KeyboardAvoidingView>
-        </Pressable>
+          ))}
+        </View>
+
+        <View style={themed.tabsRow}>
+          {(['weight', 'calories', 'macros', 'activity'] as Tab[]).map((t) => (
+            <Pressable key={t} onPress={() => setActiveTab(t)} style={[themed.tab, activeTab === t && themed.tabActive]}>
+              <Text style={[themed.tabText, activeTab === t && themed.tabTextActive]}>{t.charAt(0).toUpperCase() + t.slice(1)}</Text>
+            </Pressable>
+          ))}
+        </View>
+
+        {activeTab === 'weight' && (
+          <>
+            <View style={themed.chartCard}>
+              <Text style={themed.chartLabel}>WEIGHT TREND</Text>
+              
+              {displayWeights.length >= 2 ? (
+                <>
+                  <Svg width={chartWidth} height={chartHeight} viewBox={`0 0 ${chartWidth} ${chartHeight}`}>
+                    <Defs>
+                      <LinearGradient id="wGrad" x1="0" y1="0" x2="1" y2="0">
+                        <Stop offset="0" stopColor={theme.colors.accentAlt} />
+                        <Stop offset="1" stopColor={theme.colors.accent} />
+                      </LinearGradient>
+                    </Defs>
+                    <Path d={weightLine} fill="none" stroke="url(#wGrad)" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" />
+                  </Svg>
+
+                  {!inRedZone && (
+                    <View style={[themed.motivationBox, { backgroundColor: theme.colors.success + '15' }]}>
+                      <Text style={[themed.motivationText, { color: theme.colors.success }]}>
+                        {greenMessage}
+                      </Text>
+                    </View>
+                  )}
+                </>
+              ) : (
+                <View style={themed.emptyChart}><Text style={themed.emptyText}>Log your weight to see the trend</Text></View>
+              )}
+            </View>
+
+            <Text style={themed.historyTitle}>History</Text>
+            {filteredWeights.length === 0 ? (
+              <Text style={{ color: theme.colors.muted, textAlign: 'center', marginTop: 10 }}>No entries yet. Tap + to log.</Text>
+            ) : (
+              filteredWeights.map((w) => (
+                <View key={w.id} style={themed.historyRow}>
+                  <View>
+                    <Text style={themed.historyWeight}>{w.weight.toFixed(1)} kg</Text>
+                    <Text style={themed.historyDate}>{w.date} {w.note ? `· ${w.note}` : ''}</Text>
+                  </View>
+                  <Pressable onPress={() => removeWeight(w.id, w.weight, w.date)} hitSlop={10}>
+                    <Ionicons name="trash-outline" size={20} color={theme.colors.danger} />
+                  </Pressable>
+                </View>
+              ))
+            )}
+          </>
+        )}
+
+        {activeTab === 'calories' && (
+          <View style={themed.chartCard}>
+            <Text style={themed.chartLabel}>CALORIES ({rangeDays} DAYS)</Text>
+            {hasFoodLogs ? <RangeBarChart data={filteredFood.map(d => d.cal)} labels={labels} color={theme.colors.accent} height={150} /> : <View style={themed.emptyChart}><Text style={themed.emptyText}>No logs yet</Text></View>}
+          </View>
+        )}
+
+        {activeTab === 'macros' && (
+          <>
+            <View style={themed.chartCard}><Text style={themed.chartLabel}>PROTEIN</Text><RangeBarChart data={filteredFood.map(d => d.protein)} labels={labels} color={theme.colors.protein} height={100} /></View>
+            <View style={themed.chartCard}><Text style={themed.chartLabel}>CARBS</Text><RangeBarChart data={filteredFood.map(d => d.carbs)} labels={labels} color={theme.colors.carbs} height={100} /></View>
+            <View style={themed.chartCard}><Text style={themed.chartLabel}>FAT</Text><RangeBarChart data={filteredFood.map(d => d.fat)} labels={labels} color={theme.colors.fat} height={100} /></View>
+          </>
+        )}
+
+        {activeTab === 'activity' && (
+          <View style={themed.chartCard}>
+            <Text style={themed.chartLabel}>STEPS ({rangeDays} DAYS)</Text>
+            <RangeBarChart data={filteredActivity.map(d => d.steps)} labels={filteredActivity.map(d => d.date?.slice(5) || '')} color={theme.colors.water} height={150} />
+          </View>
+        )}
+      </ScrollView>
+
+      <Pressable style={themed.fab} onPress={() => setModalVisible(true)}>
+        <Ionicons name="add" size={32} color={theme.colors.bg} />
+      </Pressable>
+
+      <Modal visible={modalVisible} transparent animationType="slide" onRequestClose={() => setModalVisible(false)}>
+        <KeyboardAvoidingView behavior="padding" style={themed.modalOverlay}>
+          <Pressable style={{ flex: 1 }} onPress={() => setModalVisible(false)} />
+          <View style={themed.modalContent}>
+            <Text style={themed.modalTitle}>Log Weight</Text>
+            <TextInput style={themed.input} placeholder="Weight in kg" placeholderTextColor={theme.colors.muted} keyboardType="decimal-pad" value={newWeight} onChangeText={setNewWeight} autoFocus />
+            <TextInput style={themed.input} placeholder="Optional note" placeholderTextColor={theme.colors.muted} value={newNote} onChangeText={setNewNote} />
+            <Pressable style={themed.saveBtn} onPress={saveWeight} disabled={saving}>
+              {saving ? <ActivityIndicator color={theme.colors.bg} /> : <Text style={themed.saveBtnText}>Save Entry</Text>}
+            </Pressable>
+          </View>
+        </KeyboardAvoidingView>
       </Modal>
     </View>
   );
 }
-
-const listStyles = StyleSheet.create({
-  content: { gap: 16, padding: 20, paddingBottom: 120 },
-});

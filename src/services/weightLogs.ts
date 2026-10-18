@@ -1,5 +1,4 @@
-import { addDoc, collection, deleteDoc, doc, getDocs, limit, orderBy, query } from 'firebase/firestore';
-
+import { collection, addDoc, deleteDoc, doc, getDocs, limit, orderBy, query, updateDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import { todayLocalISO } from '../utils/streak';
 
@@ -8,6 +7,7 @@ export interface WeightEntry {
   date: string;
   weight: number;
   note?: string;
+  createdAt?: number;
 }
 
 export async function getRecentWeights(uid: string, count: number): Promise<WeightEntry[]> {
@@ -15,7 +15,13 @@ export async function getRecentWeights(uid: string, count: number): Promise<Weig
     const entries = await getDocs(query(collection(db, 'weightLogs', uid, 'entries'), orderBy('date', 'desc'), limit(count)));
     return entries.docs.map((entry) => {
       const data = entry.data();
-      return { id: entry.id, date: String(data.date), weight: Number(data.weight), note: typeof data.note === 'string' ? data.note : undefined };
+      return { 
+        id: entry.id, 
+        date: String(data.date), 
+        weight: Number(data.weight), 
+        note: typeof data.note === 'string' ? data.note : undefined,
+        createdAt: data.createdAt ? Number(data.createdAt) : 0
+      };
     });
   } catch {
     return [];
@@ -31,8 +37,22 @@ export async function deleteWeight(uid: string, entryId: string): Promise<void> 
 }
 
 export async function addWeight(uid: string, weight: number, note?: string): Promise<void> {
+  const now = Date.now();
+
+  // 1. Add to history with a precise millisecond timestamp
   await addDoc(collection(db, 'weightLogs', uid, 'entries'), {
-    // Local timezone, not UTC, so late-night entries roll to the correct calendar day.
-    date: todayLocalISO(), weight, ...(note ? { note } : {}),
+    date: todayLocalISO(),
+    weight,
+    createdAt: now,
+    ...(note ? { note } : {}),
   });
+
+  // 2. Update the user's main profile so the dashboard knows
+  try {
+    await updateDoc(doc(db, 'users', uid), {
+      'profile.weightKg': weight,
+    });
+  } catch (e) {
+    console.warn('[weightLogs] Failed to update user profile weight', e);
+  }
 }

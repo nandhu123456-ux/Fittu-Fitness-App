@@ -114,13 +114,15 @@ export default function DashboardScreen() {
 
       <StatCardsRow health={health} waterMl={water} onWaterPress={() => setWaterModalVisible(true)} />
 
-      <InsightCard
-        remaining={Math.max(0, calories - totals.calories)}
-        target={calories}
-        eaten={totals.calories}
-        protein={totals.protein}
-        targetProtein={targets?.protein ?? 0}
-      />
+      {totals.calories > 0 && (
+        <InsightCard
+          remaining={Math.max(0, calories - totals.calories)}
+          target={calories}
+          eaten={totals.calories}
+          protein={totals.protein}
+          targetProtein={targets?.protein ?? 0}
+        />
+      )}
 
       <WaterModal visible={waterModalVisible} onClose={() => setWaterModalVisible(false)} onAdd={async (ml) => { if (!user) return; await addWater(user.uid, ml); }} />
       <DayDetailModal
