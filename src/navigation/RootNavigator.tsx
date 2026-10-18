@@ -1,4 +1,4 @@
-import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
+import { NavigationContainer, DefaultTheme, DarkTheme, createNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ActivityIndicator, View } from 'react-native';
 
@@ -15,6 +15,10 @@ import { useUserDoc } from '../hooks/useRealtime';
 import type { AuthStackParamList } from '../types/navigation';
 
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
+
+// Exported so App.tsx (and anything else) can navigate without
+// receiving the navigation prop directly.
+export const navigationRef = createNavigationContainerRef();
 
 export default function RootNavigator() {
   const { user, profile, loading } = useAuthStore();
@@ -42,7 +46,7 @@ export default function RootNavigator() {
   }
 
   return (
-    <NavigationContainer theme={navTheme}>
+    <NavigationContainer ref={navigationRef} theme={navTheme}>
       {user === null ? (
         <AuthStack.Navigator screenOptions={{ headerShown: false }}>
           <AuthStack.Screen name="Welcome" component={WelcomeScreen} />

@@ -50,11 +50,18 @@ export async function saveAndScheduleReminders(settings: ReminderSettings) {
         title: `Time for ${key}!`,
         body: `Don't forget to log your ${key}.`,
         sound: true,
+        // Read by App.tsx's notification-response listener to navigate on tap.
+        // `type` is included so you can later route differently per reminder
+        // (e.g. water -> Hydration, meals -> Log) without another release.
+        data: { screen: 'Log', type: key },
       },
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.DAILY,
         hour,
         minute,
+        // Required on Android 8+ — without this the scheduled notification
+        // may not fire on the custom channel you created above.
+        channelId: 'reminders',
       },
     });
   }
