@@ -7,6 +7,7 @@ import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { RouteProp } from '@react-navigation/native';
 
 import { PortionModal } from '../components/PortionModal';
+import { LogCircleMenu } from '../components/LogCircleMenu';
 import { SearchHeader, type SearchHeaderAction } from '../components/SearchHeader';
 import { addFoodLog, getEntriesForDate, type FoodLogEntry } from '../services/foodLogService';
 import { searchFood, type FoodResult } from '../services/foodSearch';
@@ -74,7 +75,9 @@ export default function LogScreen() {
   const [notice, setNotice] = useState<string | null>(null);
   const [recents, setRecents] = useState<RecentFood[]>([]);
   const [yesterday, setYesterday] = useState<{ count: number; cal: number } | null>(null);
+  const [showRecents, setShowRecents] = useState(true);
   const [aiOpen, setAiOpen] = useState(false);
+  const [logMenuVisible, setLogMenuVisible] = useState(false);
   const [aiQuery, setAiQuery] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
 
@@ -199,16 +202,16 @@ export default function LogScreen() {
 
   const themedStyles = useMemo(() => StyleSheet.create({
     screen: { backgroundColor: theme.colors.bg, flex: 1 },
-    content: { padding: 20, gap: 18 },
+    content: { padding: 20, paddingTop: 28, gap: 18 },
     headerRow: { alignItems: 'center', flexDirection: 'row', gap: 10 },
     headerTitle: { color: theme.colors.text, fontSize: 20, fontWeight: '600' },
     chipRowContainer: { flexDirection: 'row', gap: 8, paddingVertical: 2 },
-    chip: { alignItems: 'center', backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 20, borderWidth: 1, paddingHorizontal: 12, paddingVertical: 6 },
+    chip: { alignItems: 'center', backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 20, borderWidth: 1, paddingHorizontal: 18, paddingVertical: 10 },
     chipActive: { backgroundColor: theme.colors.accent, borderColor: theme.colors.accent },
-    chipText: { color: theme.colors.text, fontSize: 13, fontWeight: '600' },
+    chipText: { color: theme.colors.text, fontSize: 15, fontWeight: '600' },
     chipTextActive: { color: theme.colors.bg },
-    customChip: { alignItems: 'center', borderColor: theme.colors.accent, borderRadius: 20, borderStyle: 'dashed', borderWidth: 1, flexDirection: 'row', paddingHorizontal: 10, paddingVertical: 6 },
-    customChipText: { color: theme.colors.accent, fontSize: 13, fontWeight: '600' },
+    customChip: { alignItems: 'center', borderColor: theme.colors.accent, borderRadius: 20, borderStyle: 'dashed', borderWidth: 1, flexDirection: 'row', paddingHorizontal: 14, paddingVertical: 10 },
+    customChipText: { color: theme.colors.accent, fontSize: 15, fontWeight: '600' },
     sectionRow: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 },
     sectionLabel: { color: theme.colors.muted, fontSize: 11, fontWeight: '700', letterSpacing: 1.2, textTransform: 'uppercase' },
     seeAll: { color: theme.colors.accent, fontSize: 13, fontWeight: '600' },
@@ -255,7 +258,7 @@ export default function LogScreen() {
           aiLoading={aiLoading}
           aiOpen={aiOpen}
           aiQuery={aiQuery}
-          actions={actions}
+          actions={[]}
           onChangeText={setSearch}
           onAiQueryChange={setAiQuery}
           onRunEstimate={() => void runEstimate()}
@@ -281,9 +284,9 @@ export default function LogScreen() {
               <Text style={[themedStyles.chipText, mealType === option.value && themedStyles.chipTextActive]}>{option.label}</Text>
             </Pressable>
           ))}
-          <Pressable onPress={() => { if (!ensureMealConfirmed()) return; navigation.navigate('AddCustomFood', { mealType }); }} style={themedStyles.customChip}>
-            <Ionicons color={theme.colors.accent} name='add-circle-outline' size={18} />
-          </Pressable>
+<Pressable onPress={() => { if (!ensureMealConfirmed()) return; navigation.navigate('AddCustomFood', { mealType }); }} style={themedStyles.customChip}>
+              <Text style={themedStyles.customChipText}>Custom</Text>
+            </Pressable>
         </ScrollView>
         {yesterday && !isSearching ? (
           <View style={themedStyles.sameCard}>
@@ -302,11 +305,13 @@ export default function LogScreen() {
         {!isSearching && (
           <View style={themedStyles.sectionRow}>
             <Text style={themedStyles.sectionLabel}>Recent Meals</Text>
-            <Text style={themedStyles.seeAll}>See all</Text>
+            <Pressable onPress={() => setShowRecents((v) => !v)}>
+              <Text style={themedStyles.seeAll}>{showRecents ? 'Hide' : 'Show'}</Text>
+            </Pressable>
           </View>
         )}
 
-        {!isSearching && (
+        {!isSearching && showRecents && (
           recents.length > 0 ? (
             <View>
               {recents.map((food) => (
@@ -387,6 +392,10 @@ export default function LogScreen() {
           <ActivityIndicator color={theme.colors.accent} size="large" />
         </View>
       )}
+      <Pressable onPress={() => setLogMenuVisible(true)} style={{ position: 'absolute', right: 20, bottom: 20, width: 56, height: 56, borderRadius: 28, backgroundColor: theme.colors.accent, alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
+        <Ionicons name="add" size={28} color={theme.colors.bg} />
+      </Pressable>
+      <LogCircleMenu visible={logMenuVisible} onClose={() => setLogMenuVisible(false)} />
     </KeyboardAvoidingView>
   );
 }
