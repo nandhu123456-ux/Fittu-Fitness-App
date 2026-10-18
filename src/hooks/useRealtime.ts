@@ -225,6 +225,36 @@ export function useTodayMood(uid: string | undefined) {
   return { mood, loading, error };
 }
 
+/**
+ * Live view of today's sleep minutes. Sleep is stored in the activityLogs
+ * document (merged by both Health Connect and manual entry), so this listens
+ * to that exact document rather than querying the collection.
+ */
+export function useTodaySleep(uid: string | undefined) {
+  const [sleepMinutes, setSleepMinutes] = useState(0);
+
+  useEffect(() => {
+    if (!uid) {
+      setSleepMinutes(0);
+      return;
+    }
+    const today = todayLocalISO();
+    const docRef = doc(db, 'activityLogs', uid, 'entries', today);
+    const unsub = onSnapshot(
+      docRef,
+      (snap) => {
+        setSleepMinutes(Number(snap.data()?.sleepMinutes ?? 0));
+      },
+      (err) => {
+        console.warn('[useTodaySleep]', err.message);
+      },
+    );
+    return () => unsub();
+  }, [uid]);
+
+  return sleepMinutes;
+}
+
 /** Live view of the most recent weight entries, newest first. */
 export function useRecentWeights(uid: string | undefined, count = 30) {
   const [entries, setEntries] = useState<WeightEntry[]>([]);

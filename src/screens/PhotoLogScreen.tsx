@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
@@ -53,13 +54,16 @@ const toItem = (food: { id: string; name: string; serving: string; cal: number; 
 
 export default function PhotoLogScreen() {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const route = useRoute<PhotoLogRoute>();
   const navigation = useNavigation<Navigation>();
   const user = useAuthStore((state) => state.user);
   const mealType: MealType = route.params?.mealType ?? 'breakfast';
+  const uid = user?.uid;
+
   const themedStyles = useMemo(() => StyleSheet.create({
     screen: { backgroundColor: theme.colors.bg, flex: 1 },
-    content: { padding: 20, gap: 16 },
+    content: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 120, gap: 16 },
     title: { color: theme.colors.text, fontSize: 24, fontWeight: '700' },
     subtitle: { color: theme.colors.muted, fontSize: 13, marginTop: 3 },
     button: { alignItems: 'center', backgroundColor: theme.colors.accent, borderRadius: 14, flex: 1, flexDirection: 'row', gap: 8, justifyContent: 'center', padding: 15 },
@@ -81,8 +85,22 @@ export default function PhotoLogScreen() {
     trash: { padding: 4 },
     addItem: { alignItems: 'center', borderColor: theme.colors.border, borderRadius: 12, borderStyle: 'dashed', borderWidth: 1, flexDirection: 'row', gap: 8, justifyContent: 'center', padding: 14 },
     addItemText: { color: theme.colors.accent, fontSize: 14, fontWeight: '600' },
-    bottom: { borderColor: theme.colors.border, borderTopWidth: 1, flexDirection: 'row', gap: 12, padding: 16, paddingBottom: 28 },
-  }), [theme]);
+    bottom: { 
+      borderColor: theme.colors.border, 
+      borderTopWidth: 1, 
+      flexDirection: 'row', 
+      gap: 12, 
+      paddingHorizontal: 20, 
+      paddingTop: 16, 
+      paddingBottom: Math.max(insets.bottom, 16), // Safe area handling for home indicator
+      backgroundColor: theme.colors.bg 
+    },
+  }), [theme, insets.bottom]);
+
+  const [status, setStatus] = useState<Status>('idle');
+  const [imageUri, setImageUri] = useState<string | null>(null);
+  const [items, setItems] = useState<EditableItem[]>([]);
+  const [saving, setSaving] = useState(false);
 
   const patch = (id: string, changes: Partial<EditableItem>): void => {
     setItems((prev) => prev.map((it) => (it.id === id ? { ...it, ...changes } : it)));
@@ -96,7 +114,6 @@ export default function PhotoLogScreen() {
     setItems((prev) => [...prev, { id: `manual_${Date.now()}`, name: '', serving: '1 serving', cal: '0', protein: '0', carbs: '0', fat: '0', updated: false }]);
   };
 
-  // On name blur, look the name up and refill macros if there's a confident match.
   const refillFromName = async (id: string, newName: string): Promise<void> => {
     const trimmed = newName.trim();
     if (trimmed.length < 2) return;
@@ -108,18 +125,9 @@ export default function PhotoLogScreen() {
       if (topName.startsWith(trimmed.toLowerCase())) {
         patch(id, { serving: top.serving, cal: String(Math.round(top.cal)), protein: String(Math.round(top.protein * 10) / 10), carbs: String(Math.round(top.carbs * 10) / 10), fat: String(Math.round(top.fat * 10) / 10), updated: true });
       }
-    } catch {
-      // ignore — leave the item unchanged
-    }
+    } catch {}
   };
 
-
-  const uid = user?.uid;
-
-  const [status, setStatus] = useState<Status>('idle');
-  const [imageUri, setImageUri] = useState<string | null>(null);
-  const [items, setItems] = useState<EditableItem[]>([]);
-  const [saving, setSaving] = useState(false);
   const analyze = async (asset: ImagePicker.ImagePickerAsset): Promise<void> => {
     setStatus('uploading');
     try {
@@ -155,16 +163,7 @@ export default function PhotoLogScreen() {
       for (const it of valid) {
         await addFoodLog(uid, {
           mealType,
-          food: {
-            id: it.id,
-            name: it.name.trim(),
-            source: 'custom',
-            serving: it.serving || '1 serving',
-            cal: Number(it.cal) || 0,
-            protein: Number(it.protein) || 0,
-            carbs: Number(it.carbs) || 0,
-            fat: Number(it.fat) || 0,
-          },
+          food: { id: it.id, name: it.name.trim(), source: 'custom', serving: it.serving || '1 serving', cal: Number(it.cal) || 0, protein: Number(it.protein) || 0, carbs: Number(it.carbs) || 0, fat: Number(it.fat) || 0 },
           servings: 1,
         });
       }
@@ -176,114 +175,91 @@ export default function PhotoLogScreen() {
     }
   };
 
-
   return (
-    <KeyboardAvoidingView style={themedStyles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <ScrollView contentContainerStyle={themedStyles.content} keyboardShouldPersistTaps="handled">
-        {(status === 'idle' || status === 'uploading') && (
-          <>
-            <View>
-              <Text style={themedStyles.title}>Snap your meal</Text>
-              <Text style={themedStyles.subtitle}>Photograph your plate — we'll list every dish for you to edit.</Text>
-            </View>
-            <View style={{ flexDirection: 'row', gap: 12 }}>
-              <Pressable onPress={() => void pick(ImagePicker.launchCameraAsync)} style={themedStyles.button}>
-                <Ionicons color={theme.colors.bg} name="camera" size={20} />
-                <Text style={themedStyles.buttonText}>Take Photo</Text>
-              </Pressable>
-              <Pressable onPress={() => void pick(ImagePicker.launchImageLibraryAsync)} style={themedStyles.secondary}>
-                <Ionicons color={theme.colors.text} name="images" size={20} />
-                <Text style={themedStyles.secondaryText}>Library</Text>
-              </Pressable>
-            </View>
-          </>
-        )}
+    <SafeAreaView style={themedStyles.screen}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <ScrollView contentContainerStyle={themedStyles.content} keyboardShouldPersistTaps="handled">
+          {(status === 'idle' || status === 'uploading') && (
+            <>
+              <View>
+                <Text style={themedStyles.title}>Snap your meal</Text>
+                <Text style={themedStyles.subtitle}>Photograph your plate — we'll list every dish for you to edit.</Text>
+              </View>
+              <View style={{ flexDirection: 'row', gap: 12 }}>
+                <Pressable onPress={() => void pick(ImagePicker.launchCameraAsync)} style={themedStyles.button}>
+                  <Ionicons color={theme.colors.bg} name="camera" size={20} />
+                  <Text style={themedStyles.buttonText}>Take Photo</Text>
+                </Pressable>
+                <Pressable onPress={() => void pick(ImagePicker.launchImageLibraryAsync)} style={themedStyles.secondary}>
+                  <Ionicons color={theme.colors.text} name="images" size={20} />
+                  <Text style={themedStyles.secondaryText}>Library</Text>
+                </Pressable>
+              </View>
+            </>
+          )}
 
-        {(status === 'uploading' || status === 'analyzing') && (
-          <View style={themedStyles.state}>
-            <ActivityIndicator color={theme.colors.accent} size="large" />
-            <Text style={themedStyles.stateText}>{status === 'uploading' ? 'Preparing photo…' : 'Identifying your meal…'}</Text>
-          </View>
-        )}
+          {(status === 'uploading' || status === 'analyzing') && (
+            <View style={themedStyles.state}>
+              <ActivityIndicator color={theme.colors.accent} size="large" />
+              <Text style={themedStyles.stateText}>{status === 'uploading' ? 'Preparing photo…' : 'Identifying your meal…'}</Text>
+            </View>
+          )}
 
-        {status === 'error' && (
-          <View style={themedStyles.state}>
-            <Ionicons color={theme.colors.danger} name="alert-circle" size={44} />
-            <Text style={themedStyles.stateText}>Couldn't identify the food. Try a clearer photo.</Text>
-            <Pressable onPress={() => setStatus('idle')} style={themedStyles.button}>
-              <Text style={themedStyles.buttonText}>Try again</Text>
-            </Pressable>
-          </View>
-        )}
+          {status === 'error' && (
+            <View style={themedStyles.state}>
+              <Ionicons color={theme.colors.danger} name="alert-circle" size={44} />
+              <Text style={themedStyles.stateText}>Couldn't identify the food. Try a clearer photo.</Text>
+              <Pressable onPress={() => setStatus('idle')} style={themedStyles.button}>
+                <Text style={themedStyles.buttonText}>Try again</Text>
+              </Pressable>
+            </View>
+          )}
+
+          {status === 'review' && (
+            <>
+              {imageUri && <Image resizeMode="cover" source={{ uri: imageUri }} style={themedStyles.preview} />}
+              <Text style={themedStyles.subtitle}>{items.length} item{items.length === 1 ? '' : 's'} detected · edit any value or remove items</Text>
+
+              {items.map((it) => (
+                <View key={it.id} style={themedStyles.card}>
+                  <View style={themedStyles.cardTop}>
+                    <TextInput onChangeText={(text) => patch(it.id, { name: text })} onBlur={() => void refillFromName(it.id, it.name)} placeholder="Food name" placeholderTextColor={theme.colors.muted} style={themedStyles.nameInput} value={it.name} />
+                    {it.updated && <Text style={themedStyles.updatedTag}>Updated</Text>}
+                    <Pressable hitSlop={10} onPress={() => remove(it.id)} style={themedStyles.trash}>
+                      <Ionicons color={theme.colors.danger} name="trash-outline" size={20} />
+                    </Pressable>
+                  </View>
+                  <TextInput onChangeText={(text) => patch(it.id, { serving: text })} placeholder="Serving (e.g. 1 plate)" placeholderTextColor={theme.colors.muted} style={themedStyles.servingInput} value={it.serving} />
+                  <View style={themedStyles.macroRow}>
+                    {([ { label: 'CAL', key: 'cal' as const }, { label: 'P', key: 'protein' as const }, { label: 'C', key: 'carbs' as const }, { label: 'F', key: 'fat' as const } ]).map((field) => (
+                      <View key={field.key} style={themedStyles.macroField}>
+                        <Text style={themedStyles.macroLabel}>{field.label}</Text>
+                        <TextInput keyboardType="numeric" onChangeText={(text) => patch(it.id, { [field.key]: text })} style={themedStyles.macroInput} value={it[field.key]} />
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              ))}
+
+              <Pressable onPress={addItem} style={themedStyles.addItem}>
+                <Ionicons color={theme.colors.accent} name="add-circle-outline" size={20} />
+                <Text style={themedStyles.addItemText}>Add item</Text>
+              </Pressable>
+            </>
+          )}
+        </ScrollView>
 
         {status === 'review' && (
-          <>
-            {imageUri && <Image resizeMode="cover" source={{ uri: imageUri }} style={themedStyles.preview} />}
-            <Text style={themedStyles.subtitle}>{items.length} item{items.length === 1 ? '' : 's'} detected · edit any value or remove items</Text>
-
-            {items.map((it) => (
-              <View key={it.id} style={themedStyles.card}>
-                <View style={themedStyles.cardTop}>
-                  <TextInput
-                    onChangeText={(text) => patch(it.id, { name: text })}
-                    onBlur={() => void refillFromName(it.id, it.name)}
-                    placeholder="Food name"
-                    placeholderTextColor={theme.colors.muted}
-                    style={themedStyles.nameInput}
-                    value={it.name}
-                  />
-                  {it.updated && <Text style={themedStyles.updatedTag}>Updated</Text>}
-                  <Pressable hitSlop={10} onPress={() => remove(it.id)} style={themedStyles.trash}>
-                    <Ionicons color={theme.colors.danger} name="trash-outline" size={20} />
-                  </Pressable>
-                </View>
-                <TextInput
-                  onChangeText={(text) => patch(it.id, { serving: text })}
-                  placeholder="Serving (e.g. 1 plate)"
-                  placeholderTextColor={theme.colors.muted}
-                  style={themedStyles.servingInput}
-                  value={it.serving}
-                />
-                <View style={themedStyles.macroRow}>
-                  {([
-                    { label: 'CAL', key: 'cal' as const },
-                    { label: 'P', key: 'protein' as const },
-                    { label: 'C', key: 'carbs' as const },
-                    { label: 'F', key: 'fat' as const },
-                  ]).map((field) => (
-                    <View key={field.key} style={themedStyles.macroField}>
-                      <Text style={themedStyles.macroLabel}>{field.label}</Text>
-                      <TextInput
-                        keyboardType="numeric"
-                        onChangeText={(text) => patch(it.id, { [field.key]: text })}
-                        style={themedStyles.macroInput}
-                        value={it[field.key]}
-                      />
-                    </View>
-                  ))}
-                </View>
-              </View>
-            ))}
-
-            <Pressable onPress={addItem} style={themedStyles.addItem}>
-              <Ionicons color={theme.colors.accent} name="add-circle-outline" size={20} />
-              <Text style={themedStyles.addItemText}>Add item</Text>
+          <View style={themedStyles.bottom}>
+            <Pressable onPress={() => navigation.goBack()} style={themedStyles.secondary}>
+              <Text style={themedStyles.secondaryText}>Cancel</Text>
             </Pressable>
-          </>
+            <Pressable disabled={saving} onPress={() => void saveAll()} style={[themedStyles.button, saving && { opacity: 0.6 }]}>
+              <Text style={themedStyles.buttonText}>{saving ? 'Saving…' : `Log ${items.length} item${items.length === 1 ? '' : 's'}`}</Text>
+            </Pressable>
+          </View>
         )}
-      </ScrollView>
-
-      {status === 'review' && (
-        <View style={themedStyles.bottom}>
-          <Pressable onPress={() => navigation.goBack()} style={themedStyles.secondary}>
-            <Text style={themedStyles.secondaryText}>Cancel</Text>
-          </Pressable>
-          <Pressable disabled={saving} onPress={() => void saveAll()} style={[themedStyles.button, saving && { opacity: 0.6 }]}>
-            <Text style={themedStyles.buttonText}>{saving ? 'Saving…' : `Log ${items.length} item${items.length === 1 ? '' : 's'}`}</Text>
-          </Pressable>
-        </View>
-      )}
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
-

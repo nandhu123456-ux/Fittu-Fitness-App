@@ -41,6 +41,19 @@ export async function addActivityEntry(uid: string, summary: ActivitySummary): P
   }, { merge: true });
 }
 
+/**
+ * Manually logs sleep duration by merging into today's activityLogs document.
+ * Uses merge: true so it never overwrites other fields (steps, activeKcal, etc.).
+ */
+export async function logManualSleep(uid: string, sleepMinutes: number): Promise<void> {
+  const today = todayLocalISO();
+  const docRef = doc(db, 'activityLogs', uid, 'entries', today);
+  await setDoc(docRef, {
+    date: today,
+    sleepMinutes: sleepMinutes,
+  }, { merge: true });
+}
+
 /** Last N days, oldest → newest. Missing dates simply have no row (no fake zeros). */
 export async function getRecentActivity(uid: string, count = 7): Promise<DailyActivity[]> {
   const since = shiftDate(todayLocalISO(), -(count - 1));

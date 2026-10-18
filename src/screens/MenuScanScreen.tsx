@@ -1,5 +1,5 @@
 import { useMemo, useState, type ReactNode } from 'react';
-import { ActivityIndicator, Alert, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
@@ -42,7 +42,6 @@ export default function MenuScanScreen() {
   const insets = useSafeAreaInsets();
 
   const [status, setStatus] = useState<Status>('idle');
-  const [imageUri, setImageUri] = useState<string | null>(null);
   const [result, setResult] = useState<MenuScanResult | null>(null);
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [pressedIndex, setPressedIndex] = useState<number | null>(null);
@@ -61,9 +60,9 @@ export default function MenuScanScreen() {
     buttonText: { color: theme.colors.accentText, fontSize: 16, fontWeight: '700' },
     secondary: { alignItems: 'center', borderColor: theme.colors.border, borderRadius: 14, borderWidth: 1, flexDirection: 'row', gap: 8, height: 52, justifyContent: 'center', width: '100%' },
     secondaryText: { color: theme.colors.text, fontSize: 16, fontWeight: '600' },
-    resultHeader: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 20, paddingTop: 8, paddingBottom: 4 },
+    resultHeader: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8 },
     headerTitle: { color: theme.colors.text, fontSize: 20, fontWeight: '600' },
-    itemsFound: { color: theme.colors.muted, fontSize: 13, marginTop: 4, paddingHorizontal: 20 },
+    itemsFound: { color: theme.colors.muted, fontSize: 13, paddingHorizontal: 20 },
     section: { marginTop: 16, paddingHorizontal: 20 },
     sectionLabel: { color: theme.colors.accent, fontSize: 11, fontWeight: '700', letterSpacing: 1.2, marginBottom: 8, textTransform: 'uppercase' },
     pill: { alignSelf: 'flex-start', backgroundColor: theme.colors.accentGlow, borderRadius: 20, paddingHorizontal: 10, paddingVertical: 5 },
@@ -116,7 +115,6 @@ export default function MenuScanScreen() {
       setStatus('scanning');
       const manip = await manipulateAsync(picked.assets[0].uri, [{ resize: { width: 1000 } }], { compress: 0.6, format: SaveFormat.JPEG, base64: true });
       if (!manip.base64) { setStatus('error'); return; }
-      setImageUri(manip.uri);
       let remainingCal = 0;
       let targetProtein = 0;
       if (uid) {
@@ -207,14 +205,16 @@ export default function MenuScanScreen() {
       </View>
       <Text style={themedStyles.title}>Scan a menu</Text>
       <Text style={themedStyles.subtitle}>Point at any restaurant menu. We'll suggest what fits your day.</Text>
-      <Pressable disabled={status === 'picking'} onPress={() => void pick(ImagePicker.launchCameraAsync)} style={themedStyles.button}>
-        <Ionicons color={theme.colors.accentText} name="camera" size={20} />
-        <Text style={themedStyles.buttonText}>Take Photo</Text>
-      </Pressable>
-      <Pressable disabled={status === 'picking'} onPress={() => void pick(ImagePicker.launchImageLibraryAsync)} style={[themedStyles.secondary, { marginTop: 12 }]}>
-        <Ionicons color={theme.colors.text} name="images" size={20} />
-        <Text style={themedStyles.secondaryText}>Choose from Library</Text>
-      </Pressable>
+      <View style={{ marginTop: 24, width: '100%' }}>
+        <Pressable disabled={status === 'picking'} onPress={() => void pick(ImagePicker.launchCameraAsync)} style={themedStyles.button}>
+          <Ionicons color={theme.colors.accentText} name="camera" size={20} />
+          <Text style={themedStyles.buttonText}>Take Photo</Text>
+        </Pressable>
+        <Pressable disabled={status === 'picking'} onPress={() => void pick(ImagePicker.launchImageLibraryAsync)} style={[themedStyles.secondary, { marginTop: 12 }]}>
+          <Ionicons color={theme.colors.text} name="images" size={20} />
+          <Text style={themedStyles.secondaryText}>Choose from Library</Text>
+        </Pressable>
+      </View>
     </>
   );
 
@@ -232,10 +232,7 @@ export default function MenuScanScreen() {
             </View>
           </View>
           <Text style={themedStyles.itemsFound}>{result.items.length} items found</Text>
-          <ScrollView
-            contentContainerStyle={{ ...themedStyles.section, paddingBottom: BAR_HEIGHT + insets.bottom }}
-            keyboardShouldPersistTaps="handled"
-          >
+          <ScrollView contentContainerStyle={{ paddingBottom: BAR_HEIGHT + insets.bottom }} keyboardShouldPersistTaps="handled">
             {renderSection('best')}
             {renderSection('moderate')}
             {renderSection('skip')}
@@ -246,11 +243,7 @@ export default function MenuScanScreen() {
                 <Text style={themedStyles.barSelected}>{selected.size} selected</Text>
                 <Text style={themedStyles.barTotal}>{Math.round(selectedTotal())} kcal</Text>
               </View>
-              <Pressable
-                disabled={selected.size === 0 || saving}
-                onPress={() => void logSelected()}
-                style={[themedStyles.barBtn, (selected.size === 0 || saving) && themedStyles.barBtnDisabled]}
-              >
+              <Pressable disabled={selected.size === 0 || saving} onPress={() => void logSelected()} style={[themedStyles.barBtn, (selected.size === 0 || saving) && themedStyles.barBtnDisabled]}>
                 <Text style={themedStyles.barBtnText}>{saving ? 'Logging…' : 'Log items'}</Text>
               </Pressable>
             </View>
@@ -260,31 +253,21 @@ export default function MenuScanScreen() {
         <View style={themedStyles.center}>
           {status === 'scanning' ? (
             <>
-              <View style={themedStyles.circleScanning}>
-                <ActivityIndicator color={theme.colors.accent} size="large" />
-              </View>
+              <View style={themedStyles.circleScanning}><ActivityIndicator color={theme.colors.accent} size="large" /></View>
               <Text style={themedStyles.scanningTitle}>Reading the menu…</Text>
               <Text style={themedStyles.scanningSub}>This usually takes a few seconds.</Text>
             </>
           ) : status === 'error' ? (
             <>
-              <View style={themedStyles.errorCircle}>
-                <Ionicons color={theme.colors.muted} name="alert-circle-outline" size={48} />
-              </View>
+              <View style={themedStyles.errorCircle}><Ionicons color={theme.colors.muted} name="alert-circle-outline" size={48} /></View>
               <Text style={themedStyles.errorTitle}>Couldn't read that menu</Text>
               <Text style={themedStyles.errorSub}>Try a clearer photo or type the dish name instead.</Text>
               <View style={themedStyles.errorButtons}>
-                <Pressable onPress={() => setStatus('idle')} style={themedStyles.errorTryAgain}>
-                  <Text style={themedStyles.errorTryAgainText}>Try again</Text>
-                </Pressable>
-                <Pressable onPress={() => navigation.goBack()} style={themedStyles.errorCancel}>
-                  <Text style={themedStyles.errorCancelText}>Cancel</Text>
-                </Pressable>
+                <Pressable onPress={() => setStatus('idle')} style={themedStyles.errorTryAgain}><Text style={themedStyles.errorTryAgainText}>Try again</Text></Pressable>
+                <Pressable onPress={() => navigation.goBack()} style={themedStyles.errorCancel}><Text style={themedStyles.errorCancelText}>Cancel</Text></Pressable>
               </View>
             </>
-          ) : (
-            idleContent
-          )}
+          ) : idleContent}
         </View>
       )}
     </SafeAreaView>

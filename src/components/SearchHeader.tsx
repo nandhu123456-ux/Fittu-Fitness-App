@@ -46,14 +46,14 @@ export function SearchHeader({
   const themedStyles = useMemo(() => StyleSheet.create({
     searchBar: { alignItems: 'center', backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: theme.radius.lg, borderWidth: 1, flexDirection: 'row', gap: 8, paddingHorizontal: 14 },
     input: { color: theme.colors.text, flex: 1, fontSize: 15, paddingVertical: 14 },
-    pill: { backgroundColor: theme.colors.accent, borderRadius: theme.radius.pill, paddingHorizontal: 12, paddingVertical: 6 },
-    pillText: { color: theme.colors.bg, fontSize: 12, fontWeight: '700' },
+    pill: { backgroundColor: theme.colors.success, borderColor: 'rgba(255,255,255,0.6)', borderRadius: theme.radius.pill, borderWidth: 1, paddingHorizontal: 12, paddingVertical: 6 },
+    pillText: { color: '#000000', fontSize: 12, fontWeight: '700' },
     aiRow: { flexDirection: 'row', gap: 8, marginTop: 10 },
-    aiInput: { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: theme.radius.md, borderWidth: 1, color: theme.colors.text, flex: 1, fontSize: 14, paddingHorizontal: 12, paddingVertical: 10 },
-    estimateBtn: { alignItems: 'center', backgroundColor: theme.colors.accent, borderRadius: theme.radius.md, justifyContent: 'center', paddingHorizontal: 16 },
+    aiInput: { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: theme.radius.md, borderWidth: 1, color: '#000000', flex: 1, fontSize: 14, paddingHorizontal: 12, paddingVertical: 10 },
+    estimateBtn: { alignItems: 'center', backgroundColor: theme.colors.carbs + '33', borderRadius: theme.radius.md, justifyContent: 'center', paddingHorizontal: 16 },
     iconRow: { flexDirection: 'row', gap: 8, marginTop: 10 },
     iconBtn: { alignItems: 'center', backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: theme.radius.md, borderWidth: 1, flex: 1, gap: 4, paddingVertical: 10 },
-    iconLabel: { color: theme.colors.muted, fontSize: 11, fontWeight: '600' },
+    estimateText: { color: '#FFFFFF', fontSize: 12, fontWeight: '700' },
   }), [theme]);
 
   return (
@@ -86,7 +86,7 @@ export function SearchHeader({
             value={aiQuery}
           />
           <Pressable disabled={aiLoading} onPress={onRunEstimate} style={themedStyles.estimateBtn}>
-            {aiLoading ? <ActivityIndicator color={theme.colors.bg} /> : <Text style={themedStyles.pillText}>Estimate</Text>}
+            {aiLoading ? <ActivityIndicator color="#FFFFFF" /> : <Text style={themedStyles.estimateText}>Estimate</Text>}
           </Pressable>
         </View>
       ) : null}

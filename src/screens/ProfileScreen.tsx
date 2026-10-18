@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Image, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -32,7 +32,6 @@ export default function ProfileScreen() {
 
   const displayName = profile?.displayName ?? user?.displayName ?? 'there';
   const email = user?.email ?? profile?.email ?? '';
-  const avatarLetter = displayName.trim().slice(0, 1).toUpperCase() || 'B';
 
   const rows = useMemo<ProfileRow[]>(() => [
     { key: 'goals', icon: 'flag-outline', title: 'Goals', subtitle: 'Set your targets', onPress: () => navigation.navigate('Goals') },
@@ -82,19 +81,20 @@ export default function ProfileScreen() {
   };
 
   const themedStyles = useMemo(() => StyleSheet.create({
-    hero: { alignItems: 'center', backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 20, borderWidth: 1, flexDirection: 'row', gap: 16, padding: 20 },
-    avatar: { alignItems: 'center', backgroundColor: theme.colors.accent, borderRadius: 36, height: 72, justifyContent: 'center', width: 72 },
+    hero: { alignItems: 'center', backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 20, borderWidth: 1, flexDirection: 'row', gap: 20, padding: 24 },
+    avatar: { alignItems: 'center', backgroundColor: theme.colors.accent, borderRadius: 42, height: 84, justifyContent: 'center', overflow: 'hidden', width: 84 },
+    avatarImage: { height: '100%', resizeMode: 'cover', width: '100%' },
     avatarLetter: { color: theme.colors.accentText, fontSize: 28, fontWeight: '700' },
     name: { color: theme.colors.text, fontSize: 20, fontWeight: '700' },
     email: { color: theme.colors.muted, fontSize: 13, marginTop: 2 },
     premiumPill: { alignSelf: 'flex-start', backgroundColor: theme.colors.accentGlow, borderRadius: 999, marginTop: 8, paddingHorizontal: 10, paddingVertical: 4 },
     premiumText: { color: theme.colors.accent, fontSize: 10, fontWeight: '700', letterSpacing: 1, textTransform: 'uppercase' },
     listCard: { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 20, borderWidth: 1, overflow: 'hidden' },
-    row: { alignItems: 'center', flexDirection: 'row', gap: 14, height: 56, paddingHorizontal: 16 },
+    row: { alignItems: 'center', flexDirection: 'row', gap: 18, height: 84, paddingHorizontal: 24 },
     rowDivider: { borderTopColor: theme.colors.border, borderTopWidth: 1 },
     rowText: { flex: 1 },
-    rowTitle: { color: theme.colors.text, fontSize: 15, fontWeight: '600' },
-    rowSubtitle: { color: theme.colors.muted, fontSize: 12, marginTop: 1 },
+    rowTitle: { color: theme.colors.text, fontSize: 19, fontWeight: '600' },
+    rowSubtitle: { color: theme.colors.muted, fontSize: 14, marginTop: 3 },
     coachCard: { alignItems: 'center', backgroundColor: theme.colors.surfaceHi, borderRadius: 20, flexDirection: 'row', gap: 14, marginTop: 12, padding: 20 },
     coachText: { flex: 1 },
     coachTitle: { color: theme.colors.text, fontSize: 16, fontWeight: '600' },
@@ -108,7 +108,7 @@ export default function ProfileScreen() {
     <ScrollView style={{ flex: 1, backgroundColor: theme.colors.bg }} contentContainerStyle={styles.content}>
       <View style={themedStyles.hero}>
         <View style={themedStyles.avatar}>
-          <Text style={themedStyles.avatarLetter}>{avatarLetter}</Text>
+          <Image source={require('../assets/icon.png')} style={themedStyles.avatarImage} />
         </View>
         <View style={styles.identity}>
           <Text numberOfLines={1} style={themedStyles.name}>{displayName}</Text>
@@ -122,12 +122,12 @@ export default function ProfileScreen() {
       <View style={themedStyles.listCard}>
         {rows.map((row, index) => (
           <Pressable key={row.key} onPress={row.onPress} style={[themedStyles.row, index > 0 && themedStyles.rowDivider]}>
-            <Ionicons color={theme.colors.accent} name={row.icon} size={20} />
+            <Ionicons color={theme.colors.accent} name={row.icon} size={24} />
             <View style={themedStyles.rowText}>
               <Text style={themedStyles.rowTitle}>{row.title}</Text>
               <Text style={themedStyles.rowSubtitle}>{row.subtitle}</Text>
             </View>
-            <Ionicons color={theme.colors.muted} name="chevron-forward" size={18} />
+<Ionicons color={theme.colors.muted} name="chevron-forward" size={20} />
           </Pressable>
         ))}
       </View>

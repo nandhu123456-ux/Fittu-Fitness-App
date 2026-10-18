@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-
 import { useTheme } from '../theme';
 
 interface StatCardProps {
@@ -33,35 +32,32 @@ export function StatCard({
           backgroundColor: theme.colors.surface,
           borderColor: theme.colors.border,
           borderWidth: 1,
-          borderRadius: 16,
-          padding: 12,
-          minHeight: 96,
+          borderRadius: 14, // slightly tighter radius
+          paddingVertical: 10, // reduced from 12
+          paddingHorizontal: 8,
           alignItems: 'center',
           justifyContent: 'center',
           flex: 1,
-        },
-        icon: {
-          fontSize: 22,
-          color: iconColor,
-          marginBottom: 6,
+          // REMOVED the large minHeight: 96 to let it fit its content
         },
         value: {
-          fontSize: 20,
+          fontSize: 16, // reduced from 20
           fontWeight: '700',
           color: theme.colors.text,
+          marginTop: 4,
         },
         label: {
-          fontSize: 11,
+          fontSize: 9, // reduced from 11
           fontWeight: '600',
           color: theme.colors.muted,
-          letterSpacing: 0.8,
+          letterSpacing: 0.5,
           marginTop: 2,
           textTransform: 'uppercase',
         },
         subtitle: {
-          fontSize: 11,
+          fontSize: 9, // reduced from 11
           color: subtitleColor ?? theme.colors.muted,
-          marginTop: 4,
+          marginTop: 2,
         },
       }),
     [theme, iconColor, subtitleColor],
@@ -75,7 +71,7 @@ export function StatCard({
         isPressable ? { opacity: pressed ? 0.7 : 1 } : undefined,
       ]}
     >
-      <Ionicons name={icon} size={22} color={iconColor} />
+      <Ionicons name={icon} size={18} color={iconColor} />
       <Text style={themedStyles.value}>{value}</Text>
       <Text style={themedStyles.label}>{label}</Text>
       {subtitle ? <Text style={themedStyles.subtitle}>{subtitle}</Text> : null}

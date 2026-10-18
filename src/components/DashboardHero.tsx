@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 import { useTheme } from '../theme';
@@ -8,14 +8,12 @@ interface DashboardHeroProps {
   displayName: string;
   /** Omitted on layouts that show the streak as a stat card instead. */
   streakDays?: number;
-  avatarLetter: string;
   onMenuPress?: () => void;
 }
 
 export function DashboardHero({
   displayName,
   streakDays,
-  avatarLetter,
   onMenuPress,
 }: DashboardHeroProps) {
   const theme = useTheme();
@@ -66,12 +64,9 @@ export function DashboardHero({
           backgroundColor: theme.colors.accent,
           alignItems: 'center',
           justifyContent: 'center',
+          overflow: 'hidden',
         },
-        avatarLetter: {
-          color: theme.colors.accentText,
-          fontWeight: '700',
-          fontSize: 14,
-        },
+        avatarImage: { height: '100%', resizeMode: 'cover', width: '100%' },
         date: {
           fontSize: 13,
           color: theme.colors.muted,
@@ -105,7 +100,7 @@ export function DashboardHero({
           </View>
         )}
         <View style={themedStyles.avatar}>
-          <Text style={themedStyles.avatarLetter}>{avatarLetter}</Text>
+          <Image source={require('../assets/icon.png')} style={themedStyles.avatarImage} />
         </View>
       </View>
       <Text style={themedStyles.date}>

@@ -1,5 +1,6 @@
 ﻿import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -18,6 +19,7 @@ import { type MealType } from '../services/foodLogs';
 import { useTodayFoodLogs } from '../hooks/useRealtime';
 import { shiftDate, todayLocalISO } from '../utils/streak';
 import { useAuthStore } from '../store/authStore';
+import { useLogScreenStore } from '../store/logScreenStore';
 import { useTheme } from '../theme';
 import type { RootTabParamList } from '../types/navigation';
 
@@ -59,12 +61,10 @@ export default function LogScreen() {
   const user = useAuthStore((state) => state.user);
   const target = useAuthStore((state) => state.profile?.targets?.calories) ?? 0;
   const uid = user?.uid;
-  // Live today total so the header updates the moment a food is logged.
+  
   const { totals } = useTodayFoodLogs(uid);
 
-  // Selected meal; a chip is highlighted on mount (inferred by time of day) but
-  // it is NOT confirmed until the user taps a chip (or arrives with a param).
-  const [mealType, setMealType] = useState<MealType>(() => route.params?.mealType ?? inferMealType(new Date().getHours()));
+  const [mealType, setMealType] = useState<MealType | null>(() => route.params?.mealType ?? null);
   const [mealConfirmed, setMealConfirmed] = useState<boolean>(!!route.params?.mealType);
   const [search, setSearch] = useState('');
   const [results, setResults] = useState<FoodResult[]>([]);
@@ -75,16 +75,15 @@ export default function LogScreen() {
   const [notice, setNotice] = useState<string | null>(null);
   const [recents, setRecents] = useState<RecentFood[]>([]);
   const [yesterday, setYesterday] = useState<{ count: number; cal: number } | null>(null);
-  const [showRecents, setShowRecents] = useState(true);
+  const showRecents = useLogScreenStore((state) => state.showRecents);
+  const toggleRecents = useLogScreenStore((state) => state.toggleRecents);
   const [aiOpen, setAiOpen] = useState(false);
   const [logMenuVisible, setLogMenuVisible] = useState(false);
   const [aiQuery, setAiQuery] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
 
-  // While the user is typing, the search results take priority over recents.
   const isSearching = search.trim().length > 0;
 
-  // Every meal-logging action and the Custom-food navigation pass through here.
   const ensureMealConfirmed = (): boolean => {
     if (mealConfirmed) return true;
     Alert.alert('Pick a meal first', 'Select Breakfast, Lunch, Dinner, or Snacks before logging.', [{ text: 'OK' }]);
@@ -95,7 +94,6 @@ export default function LogScreen() {
     if (uid) getRecentFoods(uid).then(setRecents);
   };
 
-  // Recents and yesterday's summary on mount; today's total is live.
   useEffect(() => {
     if (!uid) return;
     reloadRecents();
@@ -105,7 +103,6 @@ export default function LogScreen() {
     });
   }, [uid]);
 
-  // Debounced search. The bar is always visible now, so this runs as you type.
   useEffect(() => {
     const trimmed = search.trim();
     if (!trimmed) { setResults([]); setLoading(false); return; }
@@ -121,7 +118,7 @@ export default function LogScreen() {
     if (!uid) return;
     try {
       setSaving(true);
-      await addFoodLog(uid, { mealType, food, servings });
+      await addFoodLog(uid, { mealType: mealType!, food, servings });
       setSelected(null);
       reloadRecents();
     } catch {
@@ -131,14 +128,12 @@ export default function LogScreen() {
     }
   };
 
-  // The "+" button on a recent row: instant 1-serving log, no portion modal.
-  // Writes via addFoodLog directly, so it needs its own guard.
   const quickLog = async (food: RecentFood): Promise<void> => {
     if (!ensureMealConfirmed()) return;
     if (!uid) return;
     try {
       setSaving(true);
-      await addFoodLog(uid, { mealType, food, servings: 1 });
+      await addFoodLog(uid, { mealType: mealType!, food, servings: 1 });
       setNotice(`${food.name} added to log`);
       reloadRecents();
     } catch {
@@ -153,14 +148,12 @@ export default function LogScreen() {
     setSelected(food);
   };
 
-  // Popular chips: resolve via local search, open the portion modal on the top hit.
   const onPickPopular = async (name: string): Promise<void> => {
     const found = await searchFood(name, uid);
     if (found.length) setSelected(found[0]);
     else setError(`Couldn't find ${name}.`);
   };
 
-  // AI estimate from a typed name only.
   const runEstimate = async (): Promise<void> => {
     const q = aiQuery.trim();
     if (q.length < 2) { setError('Type a food name first.'); return; }
@@ -182,7 +175,7 @@ export default function LogScreen() {
     if (!entries.length) { setNotice('Nothing logged yesterday.'); return; }
     setSaving(true);
     try {
-      for (const entry of entries) await addFoodLog(uid, { mealType, food: entryToFood(entry), servings: 1 });
+      for (const entry of entries) await addFoodLog(uid, { mealType: mealType!, food: entryToFood(entry), servings: 1 });
       setNotice(`Logged ${entries.length} items from yesterday.`);
       reloadRecents();
     } catch {
@@ -192,31 +185,31 @@ export default function LogScreen() {
     }
   };
 
-  // Quick-capture buttons, kept accessible at the top of the screen.
   const actions = useMemo<SearchHeaderAction[]>(() => [
-    { icon: 'mic-outline', label: 'Voice', onPress: () => navigation.navigate('VoiceLog', { mealType }) },
-    { icon: 'camera-outline', label: 'Photo', onPress: () => navigation.navigate('PhotoLog', { mealType }) },
-    { icon: 'barcode-outline', label: 'Barcode', onPress: () => navigation.navigate('Barcode', { mealType }) },
-    { icon: 'restaurant-outline', label: 'Menu', onPress: () => navigation.navigate('MenuScan', { mealType }) },
+    { icon: 'mic-outline', label: 'Voice', onPress: () => navigation.navigate('VoiceLog', { mealType: mealType! }) },
+    { icon: 'camera-outline', label: 'Photo', onPress: () => navigation.navigate('PhotoLog', { mealType: mealType! }) },
+    { icon: 'barcode-outline', label: 'Barcode', onPress: () => navigation.navigate('Barcode', { mealType: mealType! }) },
+    { icon: 'restaurant-outline', label: 'Menu', onPress: () => navigation.navigate('MenuScan', { mealType: mealType! }) },
   ], [navigation, mealType]);
 
   const themedStyles = useMemo(() => StyleSheet.create({
     screen: { backgroundColor: theme.colors.bg, flex: 1 },
-    content: { padding: 20, paddingTop: 28, gap: 18 },
-    headerRow: { alignItems: 'center', flexDirection: 'row', gap: 10 },
+    // INCREASED paddingTop to give breathing room from the notch
+    content: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 100, gap: 16 },
+    headerRow: { alignItems: 'center', flexDirection: 'row', gap: 10, marginBottom: 4 },
     headerTitle: { color: theme.colors.text, fontSize: 20, fontWeight: '600' },
     chipRowContainer: { flexDirection: 'row', gap: 8, paddingVertical: 2 },
-    chip: { alignItems: 'center', backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 20, borderWidth: 1, paddingHorizontal: 18, paddingVertical: 10 },
+    chip: { alignItems: 'center', backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 20, borderWidth: 1, paddingHorizontal: 16, paddingVertical: 8 },
     chipActive: { backgroundColor: theme.colors.accent, borderColor: theme.colors.accent },
-    chipText: { color: theme.colors.text, fontSize: 15, fontWeight: '600' },
+    chipText: { color: theme.colors.text, fontSize: 14, fontWeight: '600' },
     chipTextActive: { color: theme.colors.bg },
-    customChip: { alignItems: 'center', borderColor: theme.colors.accent, borderRadius: 20, borderStyle: 'dashed', borderWidth: 1, flexDirection: 'row', paddingHorizontal: 14, paddingVertical: 10 },
-    customChipText: { color: theme.colors.accent, fontSize: 15, fontWeight: '600' },
-    sectionRow: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 },
+    customChip: { alignItems: 'center', borderColor: theme.colors.accent, borderRadius: 20, borderStyle: 'dashed', borderWidth: 1, flexDirection: 'row', paddingHorizontal: 14, paddingVertical: 8 },
+    customChipText: { color: theme.colors.accent, fontSize: 14, fontWeight: '600' },
+    sectionRow: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 },
     sectionLabel: { color: theme.colors.muted, fontSize: 11, fontWeight: '700', letterSpacing: 1.2, textTransform: 'uppercase' },
     seeAll: { color: theme.colors.accent, fontSize: 13, fontWeight: '600' },
     mealCard: { alignItems: 'center', backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 16, borderWidth: 1, flexDirection: 'row', gap: 12, padding: 12 },
-    mealThumb: { alignItems: 'center', backgroundColor: theme.colors.surfaceHi, borderRadius: 12, height: 48, justifyContent: 'center', width: 48 },
+    mealThumb: { alignItems: 'center', backgroundColor: theme.colors.surfaceHi, borderRadius: 12, height: 44, justifyContent: 'center', width: 44 },
     mealInfo: { flex: 1 },
     mealName: { color: theme.colors.text, fontSize: 15, fontWeight: '600' },
     mealMeta: { color: theme.colors.muted, fontSize: 12, marginTop: 2 },
@@ -241,161 +234,167 @@ export default function LogScreen() {
     sameSub: { color: theme.colors.muted, fontSize: 12, marginTop: 2 },
     sameBtn: { backgroundColor: theme.colors.accent, borderRadius: 12, paddingHorizontal: 16, paddingVertical: 10 },
     sameBtnText: { color: theme.colors.bg, fontSize: 13, fontWeight: '700' },
+    logFab: { position: 'absolute', right: 20, bottom: 24, width: 56, height: 56, borderRadius: 28, backgroundColor: theme.colors.accent, alignItems: 'center', justifyContent: 'center', zIndex: 100 },
   }), [theme]);
 
   return (
-    <KeyboardAvoidingView style={themedStyles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={Platform.OS === 'ios' ? 88 : 24}>
-      <ScrollView contentContainerStyle={themedStyles.content} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
-        <View style={themedStyles.headerRow}>
-          <Pressable hitSlop={8} onPress={() => navigation.goBack()}>
-            <Ionicons color={theme.colors.text} name="chevron-back" size={22} />
-          </Pressable>
-          <Text style={themedStyles.headerTitle}>Log Your Meal</Text>
-          <Ionicons color={theme.colors.muted} name="ellipsis-vertical" size={20} />
-        </View>
-
-        <SearchHeader
-          aiLoading={aiLoading}
-          aiOpen={aiOpen}
-          aiQuery={aiQuery}
-          actions={[]}
-          onChangeText={setSearch}
-          onAiQueryChange={setAiQuery}
-          onRunEstimate={() => void runEstimate()}
-          onToggleAi={() => setAiOpen((v) => !v)}
-          value={search}
-        />
-
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          scrollEnabled
-          contentContainerStyle={{ gap: 8, paddingRight: 20 }}
-        >
-          {FILTERS.map((option) => (
-            <Pressable
-              key={option.value}
-              onPress={() => {
-                setMealType(option.value);
-                setMealConfirmed(true);
-              }}
-              style={[themedStyles.chip, mealType === option.value && themedStyles.chipActive]}
-            >
-              <Text style={[themedStyles.chipText, mealType === option.value && themedStyles.chipTextActive]}>{option.label}</Text>
+    // 1. Wrapped in SafeAreaView with edges={['top']} to push content down from the notch/status bar
+    <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.bg }} edges={['top']}>
+      <KeyboardAvoidingView style={themedStyles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}>
+        <ScrollView contentContainerStyle={themedStyles.content} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
+          
+          <View style={themedStyles.headerRow}>
+            <Pressable hitSlop={8} onPress={() => navigation.goBack()}>
+              <Ionicons color={theme.colors.text} name="chevron-back" size={22} />
             </Pressable>
-          ))}
-<Pressable onPress={() => { if (!ensureMealConfirmed()) return; navigation.navigate('AddCustomFood', { mealType }); }} style={themedStyles.customChip}>
+            <Text style={themedStyles.headerTitle}>Log Your Meal</Text>
+            <Ionicons color={theme.colors.muted} name="ellipsis-vertical" size={20} />
+          </View>
+
+          <SearchHeader
+            aiLoading={aiLoading}
+            aiOpen={aiOpen}
+            aiQuery={aiQuery}
+            actions={[]}
+            onChangeText={setSearch}
+            onAiQueryChange={setAiQuery}
+            onRunEstimate={() => void runEstimate()}
+            onToggleAi={() => setAiOpen((v) => !v)}
+            value={search}
+          />
+
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            scrollEnabled
+            contentContainerStyle={{ gap: 8, paddingRight: 20 }}
+          >
+            {FILTERS.map((option) => (
+              <Pressable
+                key={option.value}
+                onPress={() => {
+                  setMealType(option.value);
+                  setMealConfirmed(true);
+                }}
+                style={[themedStyles.chip, mealType === option.value && themedStyles.chipActive]}
+              >
+                <Text style={[themedStyles.chipText, mealType === option.value && themedStyles.chipTextActive]}>{option.label}</Text>
+              </Pressable>
+            ))}
+            <Pressable onPress={() => { if (!ensureMealConfirmed()) return; navigation.navigate('AddCustomFood', { mealType: mealType! }); }} style={themedStyles.customChip}>
               <Text style={themedStyles.customChipText}>Custom</Text>
             </Pressable>
-        </ScrollView>
-        {yesterday && !isSearching ? (
-          <View style={themedStyles.sameCard}>
-            <Ionicons color={theme.colors.accent} name='repeat' size={26} />
-            <View style={themedStyles.sameBody}>
-              <Text style={themedStyles.sameTitle}>Same as yesterday?</Text>
-              <Text style={themedStyles.sameSub}>{yesterday.count} items · {yesterday.cal} kcal</Text>
-            </View>
-            <Pressable disabled={saving} onPress={() => void logYesterday()} style={themedStyles.sameBtn}>
-              <Text style={themedStyles.sameBtnText}>Log all</Text>
-            </Pressable>
-          </View>
-        ) : null}
+          </ScrollView>
 
-        {/* RECENT MEALS */}
-        {!isSearching && (
-          <View style={themedStyles.sectionRow}>
-            <Text style={themedStyles.sectionLabel}>Recent Meals</Text>
-            <Pressable onPress={() => setShowRecents((v) => !v)}>
-              <Text style={themedStyles.seeAll}>{showRecents ? 'Hide' : 'Show'}</Text>
-            </Pressable>
-          </View>
-        )}
-
-        {!isSearching && showRecents && (
-          recents.length > 0 ? (
-            <View>
-              {recents.map((food) => (
-                <Pressable
-                  key={food.id}
-                  onPress={() => {
-                    if (!ensureMealConfirmed()) return;
-                    setSelected(food);
-                  }}
-                  style={themedStyles.mealCard}
-                >
-                  <View style={themedStyles.mealThumb}>
-                    <Ionicons color={theme.colors.muted} name="restaurant-outline" size={22} />
-                  </View>
-                  <View style={themedStyles.mealInfo}>
-                    <Text numberOfLines={1} style={themedStyles.mealName}>{food.name}</Text>
-                    <Text style={themedStyles.mealMeta}>{food.serving} · {Math.round(food.cal)} kcal</Text>
-                  </View>
-                  <Pressable hitSlop={8} onPress={() => void quickLog(food)} style={themedStyles.addBtn}>
-                    <Ionicons color={theme.colors.bg} name="add" size={20} />
-                  </Pressable>
-                </Pressable>
-              ))}
-            </View>
-          ) : (
-            <View>
-              <Text style={themedStyles.noticeText}>{notice}</Text>
-            </View>
-          )
-        )}
-
-        {/* Search results (when searching) */}
-        {isSearching ? (
-          <View>
-            {loading ? (
-              <View style={themedStyles.center}>
-                <ActivityIndicator color={theme.colors.accent} />
+          {yesterday && !isSearching ? (
+            <View style={themedStyles.sameCard}>
+              <Ionicons color={theme.colors.accent} name='repeat' size={26} />
+              <View style={themedStyles.sameBody}>
+                <Text style={themedStyles.sameTitle}>Same as yesterday?</Text>
+                <Text style={themedStyles.sameSub}>{yesterday.count} items · {yesterday.cal} kcal</Text>
               </View>
-            ) : error ? (
-              <Text style={themedStyles.errorText}>{error}</Text>
-            ) : results.length === 0 ? (
-              <View style={[themedStyles.center, { gap: 14 }]}>
-                <Text style={themedStyles.empty}>No foods found for '{search}'</Text>
-                <Pressable
-                  onPress={() => navigation.navigate('AddCustomFood', { prefillQuery: search, mealType })}
-                  style={[themedStyles.sameBtn, { borderRadius: 12 }]}
-                >
-                  <Text style={themedStyles.sameBtnText}>Add "{search}" as custom food</Text>
-                </Pressable>
-                <Pressable
-                  onPress={() => { setAiQuery(search); setAiOpen(true); }}
-                  style={[themedStyles.link, { justifyContent: 'center' }]}
-                >
-                  <Ionicons color={theme.colors.accent} name="sparkles-outline" size={16} />
-                  <Text style={themedStyles.linkAccent}>Estimate with AI</Text>
-                </Pressable>
+              <Pressable disabled={saving} onPress={() => void logYesterday()} style={themedStyles.sameBtn}>
+                <Text style={themedStyles.sameBtnText}>Log all</Text>
+              </Pressable>
+            </View>
+          ) : null}
+
+          {/* RECENT MEALS */}
+          {!isSearching && (
+            <View style={themedStyles.sectionRow}>
+              <Text style={themedStyles.sectionLabel}>Recent Meals</Text>
+              <Pressable onPress={() => toggleRecents()} style={{ borderColor: !showRecents ? theme.colors.accent : theme.colors.border, borderWidth: 1, borderRadius: 8, paddingHorizontal: 8, paddingVertical: 2 }}>
+                <Text style={[themedStyles.seeAll, { color: theme.colors.accent }]}>{showRecents ? 'Hide' : 'Show'}</Text>
+              </Pressable>
+            </View>
+          )}
+
+          {!isSearching && showRecents && (
+            recents.length > 0 ? (
+              <View>
+                {recents.map((food) => (
+                  <Pressable
+                    key={food.id}
+                    onPress={() => {
+                      if (!ensureMealConfirmed()) return;
+                      setSelected(food);
+                    }}
+                    style={themedStyles.mealCard}
+                  >
+                    <View style={themedStyles.mealThumb}>
+                      <Ionicons color={theme.colors.muted} name="restaurant-outline" size={22} />
+                    </View>
+                    <View style={themedStyles.mealInfo}>
+                      <Text numberOfLines={1} style={themedStyles.mealName}>{food.name}</Text>
+                      <Text style={themedStyles.mealMeta}>{food.serving} · {Math.round(food.cal)} kcal</Text>
+                    </View>
+                    <Pressable hitSlop={8} onPress={() => void quickLog(food)} style={themedStyles.addBtn}>
+                      <Ionicons color={theme.colors.bg} name="add" size={20} />
+                    </Pressable>
+                  </Pressable>
+                ))}
               </View>
             ) : (
-              results.map((item) => (
-                <Pressable key={`${item.source}-${item.id}`} onPress={() => onPickResult(item)} style={themedStyles.result}>
-                  <View style={themedStyles.resultCopy}>
-                    <Text style={themedStyles.resultName}>{item.name}</Text>
-                    <Text style={themedStyles.resultMeta}>{item.serving} · {item.source.toUpperCase()} · P {item.protein}g C {item.carbs}g F {item.fat}g</Text>
-                  </View>
-                  <Text style={themedStyles.resultCal}>{Math.round(item.cal)} kcal</Text>
-                </Pressable>
-              ))
-            )}
+              <View>
+                <Text style={themedStyles.noticeText}>{notice}</Text>
+              </View>
+            )
+          )}
+
+          {/* Search results (when searching) */}
+          {isSearching ? (
+            <View>
+              {loading ? (
+                <View style={themedStyles.center}>
+                  <ActivityIndicator color={theme.colors.accent} />
+                </View>
+              ) : error ? (
+                <Text style={themedStyles.errorText}>{error}</Text>
+              ) : results.length === 0 ? (
+                <View style={[themedStyles.center, { gap: 14 }]}>
+                  <Text style={themedStyles.empty}>No foods found for '{search}'</Text>
+                  <Pressable
+                    onPress={() => navigation.navigate('AddCustomFood', { prefillQuery: search, mealType: mealType! })}
+                    style={[themedStyles.sameBtn, { borderRadius: 12 }]}
+                  >
+                    <Text style={themedStyles.sameBtnText}>Add "{search}" as custom food</Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => { setAiQuery(search); setAiOpen(true); }}
+                    style={[themedStyles.link, { justifyContent: 'center' }]}
+                  >
+                    <Ionicons color={theme.colors.accent} name="sparkles-outline" size={16} />
+                    <Text style={themedStyles.linkAccent}>Estimate with AI</Text>
+                  </Pressable>
+                </View>
+              ) : (
+                results.map((item) => (
+                  <Pressable key={`${item.source}-${item.id}`} onPress={() => onPickResult(item)} style={themedStyles.result}>
+                    <View style={themedStyles.resultCopy}>
+                      <Text style={themedStyles.resultName}>{item.name}</Text>
+                      <Text style={themedStyles.resultMeta}>{item.serving} · {item.source.toUpperCase()} · P {item.protein}g C {item.carbs}g F {item.fat}g</Text>
+                    </View>
+                    <Text style={themedStyles.resultCal}>{Math.round(item.cal)} kcal</Text>
+                  </Pressable>
+                ))
+              )}
+            </View>
+          ) : null}
+          {!isSearching && search.trim() && error ? <Text style={themedStyles.errorText}>{error}</Text> : null}
+
+        </ScrollView>
+
+        <PortionModal visible={selected !== null} food={selected} onClose={() => setSelected(null)} onConfirm={(servings, edited) => { if (selected) void commit(edited ?? selected, servings); }} />
+        {saving && (
+          <View style={[StyleSheet.absoluteFill, themedStyles.center, { backgroundColor: theme.colors.overlay }]}>
+            <ActivityIndicator color={theme.colors.accent} size="large" />
           </View>
-        ) : null}
-        {!isSearching && search.trim() && error ? <Text style={themedStyles.errorText}>{error}</Text> : null}
-
-      </ScrollView>
-
-      <PortionModal visible={selected !== null} food={selected} onClose={() => setSelected(null)} onConfirm={(servings, edited) => { if (selected) void commit(edited ?? selected, servings); }} />
-      {saving && (
-        <View style={[StyleSheet.absoluteFill, themedStyles.center, { backgroundColor: theme.colors.overlay }]}>
-          <ActivityIndicator color={theme.colors.accent} size="large" />
-        </View>
-      )}
-      <Pressable onPress={() => setLogMenuVisible(true)} style={{ position: 'absolute', right: 20, bottom: 20, width: 56, height: 56, borderRadius: 28, backgroundColor: theme.colors.accent, alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
-        <Ionicons name="add" size={28} color={theme.colors.bg} />
-      </Pressable>
-      <LogCircleMenu visible={logMenuVisible} onClose={() => setLogMenuVisible(false)} />
-    </KeyboardAvoidingView>
+        )}
+        <Pressable onPress={() => setLogMenuVisible(true)} style={themedStyles.logFab}>
+          <Ionicons name="add" size={28} color={theme.colors.bg} />
+        </Pressable>
+        <LogCircleMenu visible={logMenuVisible} onClose={() => setLogMenuVisible(false)} />
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }

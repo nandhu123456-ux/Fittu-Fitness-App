@@ -10,6 +10,7 @@ import PreferencesScreen from '../screens/PreferencesScreen';
 import ProgressScreen from '../screens/ProgressScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import RemindersScreen from '../screens/RemindersScreen';
+import NotificationsScreen from '../screens/NotificationsScreen';
 import GoalsScreen from '../screens/GoalsScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import AddCustomFoodScreen from '../screens/AddCustomFoodScreen';
@@ -65,6 +66,7 @@ export default function TabNavigator() {
       <Tab.Screen name="Settings" component={SettingsScreen} options={{ tabBarButton: () => null, headerShown: false, tabBarItemStyle: { display: 'none', width: 0, flex: 0 } }} />
       <Tab.Screen name="Preferences" component={PreferencesScreen} options={{ tabBarButton: () => null, headerShown: false, tabBarItemStyle: { display: 'none', width: 0, flex: 0 } }} />
       <Tab.Screen name="Reminders" component={RemindersScreen} options={{ tabBarButton: () => null, headerShown: false, tabBarItemStyle: { display: 'none', width: 0, flex: 0 } }} />
+      <Tab.Screen name="Notifications" component={NotificationsScreen} options={{ tabBarButton: () => null, headerShown: false, tabBarItemStyle: { display: 'none', width: 0, flex: 0 } }} />
       <Tab.Screen name="Goals" component={GoalsScreen} options={{ tabBarButton: () => null, headerShown: false, tabBarItemStyle: { display: 'none', width: 0, flex: 0 } }} />
       <Tab.Screen name="AddCustomFood" component={AddCustomFoodScreen} options={{ tabBarButton: () => null, tabBarItemStyle: { display: 'none', width: 0, flex: 0 } }} />
       <Tab.Screen name="Barcode" component={BarcodeScreen} options={{ tabBarButton: () => null, tabBarItemStyle: { display: 'none', width: 0, flex: 0 } }} />

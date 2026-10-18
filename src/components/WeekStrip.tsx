@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
 
 import { useTheme } from '../theme';
 import { todayLocalISO } from '../utils/streak';
@@ -58,6 +58,7 @@ function WeekPill({ dayLabel, dateNumber, isToday, isSelected, onPress, theme }:
   const bg = isSelected ? theme.colors.accent : isToday ? theme.colors.accent + '55' : theme.colors.surface;
   const dayColor = isSelected ? theme.colors.bg : theme.colors.muted;
   const dateColor = isSelected ? theme.colors.bg : theme.colors.text;
+  
   return (
     <Pressable onPress={onPress} style={[styles.pill, { backgroundColor: bg }]}>
       <Text style={[styles.dayLabel, { color: dayColor }]}>{dayLabel}</Text>
@@ -67,8 +68,10 @@ function WeekPill({ dayLabel, dateNumber, isToday, isSelected, onPress, theme }:
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', gap: 6, marginTop: 16, paddingHorizontal: 2 },
-  pill: { width: 48, minHeight: 68, borderRadius: 16, padding: 10, alignItems: 'center', justifyContent: 'center' },
-  dayLabel: { fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.6 },
-  dateNumber: { fontSize: 18, fontWeight: '700', marginTop: 4 },
+  // Reduced margins and gap
+  row: { flexDirection: 'row', gap: 4, marginTop: 8, paddingHorizontal: 2 },
+  // Drastically reduced width, height, and radius
+  pill: { width: 38, minHeight: 50, borderRadius: 12, padding: 6, alignItems: 'center', justifyContent: 'center' },
+  dayLabel: { fontSize: 9, textTransform: 'uppercase', letterSpacing: 0.5 },
+  dateNumber: { fontSize: 14, fontWeight: '700', marginTop: 2 },
 });

@@ -1,126 +1,170 @@
-import { useMemo, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { useEffect, useMemo, useState } from 'react';
+import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Switch, Text, View, Modal } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 
-import { getReminder, setReminder, type ReminderKey } from '../services/preferences';
+import { DEFAULT_SETTINGS, getReminderSettings, ReminderSettings, saveAndScheduleReminders } from '../services/reminderService';
 import { useTheme } from '../theme';
 import type { RootTabParamList } from '../types/navigation';
 
-type Navigation = BottomTabNavigationProp<RootTabParamList, 'Profile'>;
+type Navigation = BottomTabNavigationProp<RootTabParamList, 'Reminders'>;
+type ReminderKey = keyof ReminderSettings;
 
-interface ReminderRow {
-  key: ReminderKey;
-  title: string;
-  subtitle: string;
+const LABELS: Record<ReminderKey, string> = {
+  breakfast: 'Breakfast',
+  lunch: 'Lunch',
+  dinner: 'Dinner',
+  water: 'Water',
+};
+
+const SUBTITLES: Record<ReminderKey, string> = {
+  breakfast: 'Morning meal',
+  lunch: 'Midday meal',
+  dinner: 'Evening meal',
+  water: 'Hydration',
+};
+
+const HOURS = [...Array(24).keys()];
+
+function timeFor(hour: number): string {
+  return String(hour).padStart(2, '0') + ':00';
 }
-
-const REMINDERS: ReminderRow[] = [
-  { key: 'breakfast', title: 'Breakfast reminder', subtitle: '8:00 AM' },
-  { key: 'lunch', title: 'Lunch reminder', subtitle: '1:00 PM' },
-  { key: 'dinner', title: 'Dinner reminder', subtitle: '8:00 PM' },
-  { key: 'water', title: 'Water reminder', subtitle: 'Every 2 hours' },
-  { key: 'weighIn', title: 'Weigh-in reminder', subtitle: '7:00 AM' },
-];
 
 export default function RemindersScreen() {
   const theme = useTheme();
   const navigation = useNavigation<Navigation>();
-  const [reminders, setReminders] = useState<Record<ReminderKey, boolean>>({
-    breakfast: getReminder('breakfast'),
-    lunch: getReminder('lunch'),
-    dinner: getReminder('dinner'),
-    water: getReminder('water'),
-    weighIn: getReminder('weighIn'),
-  });
+  const [settings, setSettings] = useState<ReminderSettings | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [pickerKey, setPickerKey] = useState<ReminderKey | null>(null);
 
-  const themedStyles = useMemo(
-    () =>
-      StyleSheet.create({
-        screen: { backgroundColor: theme.colors.bg, flex: 1 },
-        header: {
-          alignItems: 'center',
-          flexDirection: 'row',
-          paddingHorizontal: 20,
-          paddingTop: 20,
-        },
-        headerTitle: {
-          color: theme.colors.text,
-          fontSize: 20,
-          fontWeight: '600',
-          marginLeft: 12,
-        },
-        subtitle: {
-          color: theme.colors.muted,
-          fontSize: 13,
-          marginTop: 8,
-          paddingHorizontal: 20,
-        },
-        card: {
-          backgroundColor: theme.colors.surface,
-          borderColor: theme.colors.border,
-          borderRadius: 20,
-          borderWidth: 1,
-          marginHorizontal: 20,
-          marginTop: 16,
-          overflow: 'hidden',
-        },
-        row: {
-          alignItems: 'center',
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          paddingHorizontal: 16,
-          paddingVertical: 14,
-        },
-        rowDivider: { borderTopColor: theme.colors.border, borderTopWidth: 1 },
-        rowText: { flex: 1 },
-        rowTitle: { color: theme.colors.text, fontSize: 15, fontWeight: '600' },
-        rowSubtitle: { color: theme.colors.muted, fontSize: 12, marginTop: 1 },
-      }),
-    [theme]
-  );
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        setSettings(await getReminderSettings());
+      } catch {
+        setSettings(DEFAULT_SETTINGS);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
-  const toggleReminder = (key: ReminderKey, value: boolean) => {
-    setReminders((prev) => ({ ...prev, [key]: value }));
-    setReminder(key, value);
-    if (value) {
-      Alert.alert(
-        'Notification support is coming in the next update. Your preference has been saved.'
-      );
+  const KEYS: ReminderKey[] = ['breakfast', 'lunch', 'dinner', 'water'];
+  const rows = useMemo(() => KEYS.map((key) => ({ key, ...(settings?.[key] ?? DEFAULT_SETTINGS[key]) })), [settings]);
+
+  const apply = async (next: ReminderSettings) => {
+    setSettings(next);
+    try {
+      await saveAndScheduleReminders(next);
+    } catch {
+      Alert.alert('Could not save reminder settings');
     }
   };
 
-  return (
-    <ScrollView style={themedStyles.screen} contentContainerStyle={styles.content}>
-      <View style={themedStyles.header}>
-        <Pressable onPress={() => navigation.goBack()}>
-          <Ionicons color={theme.colors.text} name="chevron-back" size={24} />
-        </Pressable>
-        <Text style={themedStyles.headerTitle}>Reminders</Text>
-      </View>
-      <Text style={themedStyles.subtitle}>Get notified to stay on track</Text>
+  const toggle = (key: ReminderKey, enabled: boolean) => {
+    if (!settings) return;
+    apply({ ...settings, [key]: { ...settings[key], enabled } });
+  };
 
-      <View style={themedStyles.card}>
-        {REMINDERS.map((row, index) => (
-          <View key={row.key} style={[themedStyles.row, index > 0 && themedStyles.rowDivider]}>
-            <View style={themedStyles.rowText}>
-              <Text style={themedStyles.rowTitle}>{row.title}</Text>
-              <Text style={themedStyles.rowSubtitle}>{row.subtitle}</Text>
+  const setTime = (key: ReminderKey, time: string) => {
+    if (!settings) return;
+    setPickerKey(null);
+    apply({ ...settings, [key]: { ...settings[key], time } });
+  };
+
+  const themed = useMemo(() => StyleSheet.create({
+    screen: { backgroundColor: theme.colors.bg, flex: 1 },
+    header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: 16, paddingBottom: 16 },
+    headerTitle: { color: theme.colors.text, fontSize: 22, fontWeight: '700', marginLeft: 12 },
+    
+    // Replaced marginHorizontal with padding on the ScrollView
+    scrollContent: { paddingHorizontal: 20, paddingBottom: 60 },
+    card: { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 16, borderWidth: 1, marginBottom: 12, overflow: 'hidden' },
+    row: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between', padding: 16 },
+    rowLeft: { flex: 1 },
+    rowTitle: { color: theme.colors.text, fontSize: 15, fontWeight: '600' },
+    rowSubtitle: { color: theme.colors.muted, fontSize: 12, marginTop: 2 },
+    timeBtn: { alignItems: 'center', flexDirection: 'row', gap: 6 },
+    timeText: { color: theme.colors.accent, fontSize: 15, fontWeight: '600' },
+    
+    modalBackdrop: { backgroundColor: 'rgba(0,0,0,0.5)', flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
+    modalCard: { backgroundColor: theme.colors.surface, borderRadius: 24, padding: 20, width: '100%', maxWidth: 340 },
+    modalHeader: { alignItems: 'center', flexDirection: 'row', gap: 10, marginBottom: 16 },
+    modalTitle: { color: theme.colors.text, fontSize: 18, fontWeight: '700' },
+    modalList: { maxHeight: 300 },
+    modalOption: { alignItems: 'center', borderRadius: 12, paddingVertical: 14 },
+    modalOptionSelected: { backgroundColor: theme.colors.accentGlow },
+    modalOptionText: { color: theme.colors.text, fontSize: 16 },
+    modalOptionSelectedText: { color: theme.colors.accent, fontWeight: '700' },
+    modalClose: { alignItems: 'center', marginTop: 16, paddingVertical: 12 },
+    modalCloseText: { color: theme.colors.accent, fontSize: 16, fontWeight: '600' },
+  }), [theme]);
+
+  if (loading) {
+    return (
+      <SafeAreaView style={themed.screen}>
+        <ActivityIndicator size="large" color={theme.colors.accent} style={{ flex: 1 }} />
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView style={themed.screen}>
+      <View style={themed.header}>
+        <Pressable onPress={() => navigation.goBack()} hitSlop={8}>
+          <Ionicons name="chevron-back" size={24} color={theme.colors.text} />
+        </Pressable>
+        <Text style={themed.headerTitle}>Reminders</Text>
+      </View>
+      
+      <ScrollView contentContainerStyle={themed.scrollContent}>
+        {rows.map((row) => (
+          <View key={row.key} style={themed.card}>
+            <View style={themed.row}>
+              <View style={themed.rowLeft}>
+                <Text style={themed.rowTitle}>{LABELS[row.key]} Reminder</Text>
+                <Text style={themed.rowSubtitle}>{SUBTITLES[row.key]}</Text>
+              </View>
+              <View style={themed.timeBtn}>
+                <Switch value={row.enabled} onValueChange={(v) => toggle(row.key, v)} trackColor={{ false: theme.colors.muted, true: theme.colors.accent }} thumbColor={theme.colors.accentText} />
+                <Pressable onPress={() => setPickerKey(row.key)} style={{ marginLeft: 12, flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                  <Text style={themed.timeText}>{row.time}</Text>
+                  <Ionicons name="chevron-forward" size={16} color={theme.colors.muted} />
+                </Pressable>
+              </View>
             </View>
-            <Switch
-              value={reminders[row.key]}
-              onValueChange={(value) => toggleReminder(row.key, value)}
-              trackColor={{ false: theme.colors.borderStrong, true: theme.colors.accent }}
-              thumbColor="#fff"
-            />
           </View>
         ))}
-      </View>
-    </ScrollView>
+      </ScrollView>
+      
+      <Modal visible={pickerKey !== null} transparent onRequestClose={() => setPickerKey(null)} animationType="fade">
+        <Pressable style={themed.modalBackdrop} onPress={() => setPickerKey(null)}>
+          <View style={themed.modalCard} collapsable={false}>
+            <View style={themed.modalHeader}>
+              <Ionicons name="time" size={24} color={theme.colors.accent} />
+              <Text style={themed.modalTitle}>Time for {LABELS[pickerKey!]}</Text>
+            </View>
+            <ScrollView style={themed.modalList} showsVerticalScrollIndicator={false}>
+              {HOURS.map((h) => {
+                const time = timeFor(h);
+                const selected = settings?.[pickerKey!].time === time;
+                return (
+                  <Pressable key={h} style={[themed.modalOption, selected && themed.modalOptionSelected]} onPress={() => setTime(pickerKey!, time)}>
+                    <Text style={[themed.modalOptionText, selected && themed.modalOptionSelectedText]}>{time}</Text>
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
+            <Pressable style={themed.modalClose} onPress={() => setPickerKey(null)}>
+              <Text style={themed.modalCloseText}>Done</Text>
+            </Pressable>
+          </View>
+        </Pressable>
+      </Modal>
+    </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  content: { paddingBottom: 40 },
-});

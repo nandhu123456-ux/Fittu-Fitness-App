@@ -84,7 +84,7 @@ return (
           ) : (
             <>
               {pageLogs.map((log) => (
-                <View key={log.id} style={themed.row}>
+                <View key={`${log.type}-${log.id}`} style={themed.row}>
                   <View style={{ flex: 1 }}>
                     <Text style={themed.rowTitle}>
                       {log.type === 'food' ? log.name : log.type === 'water' ? 'Water Intake' : 'Sleep Record'}

@@ -55,13 +55,50 @@ export default function SignUpScreen({ navigation }: Props) {
     button: { backgroundColor: theme.colors.accentAlt, borderRadius: 8, paddingVertical: 14, alignItems: 'center', marginTop: 4 },
     buttonText: { color: theme.colors.accentText, fontSize: 16, fontWeight: '600' },
     link: { color: theme.colors.accentAlt, textAlign: 'center', fontSize: 14 },
-    termsRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginTop: 10 },
-    checkbox: { width: 20, height: 20, borderRadius: 4, borderWidth: 1.5, borderColor: theme.colors.muted, justifyContent: 'center', alignItems: 'center', marginTop: 1 },
-    checkboxChecked: { backgroundColor: theme.colors.accentAlt, borderColor: theme.colors.accentAlt },
-    checkboxMark: { color: theme.colors.accentText, fontSize: 14, fontWeight: '700', textAlign: 'center', lineHeight: 20 },
-    termsText: { color: theme.colors.textSecondary, fontSize: 13, lineHeight: 20 },
-    termsLink: { color: theme.colors.accentAlt, fontWeight: '600', textDecorationLine: 'underline' },
+
+    // ── Terms row ─────────────────────────────────────────────
+    termsRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+      marginTop: 10,
+    },
+    checkbox: {
+      width: 22,
+      height: 22,
+      borderRadius: 6,
+      borderWidth: 1.5,
+      borderColor: theme.colors.muted,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    checkboxChecked: {
+      backgroundColor: theme.colors.accentAlt,
+      borderColor: theme.colors.accentAlt,
+    },
+    checkboxMark: {
+      color: theme.colors.accentText,
+      fontSize: 13,
+      fontWeight: '700',
+      lineHeight: 16,
+      includeFontPadding: false, // prevents Android extra glyph padding
+      textAlign: 'center',
+    },
+    termsText: {
+      flex: 1,
+      color: theme.colors.textSecondary,
+      fontSize: 13,
+      lineHeight: 20,
+    },
+    // Link inherits fontSize + lineHeight from parent Text — same visual size,
+    // same baseline. Only colour/weight/underline are overridden.
+    termsLink: {
+      color: theme.colors.accentAlt,
+      fontWeight: '600',
+      textDecorationLine: 'underline',
+    },
   }), [theme]);
+
   return (
     <KeyboardAvoidingView style={themedStyles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <Text style={themedStyles.heading}>Sign Up</Text>
@@ -90,24 +127,40 @@ export default function SignUpScreen({ navigation }: Props) {
         onChangeText={setPassword}
       />
       {error !== null && <Text style={themedStyles.error}>{error}</Text>}
-      <Pressable
-        style={themedStyles.termsRow}
-        onPress={() => setTermsAccepted((prev) => !prev)}
-      >
-        <View style={[themedStyles.checkbox, termsAccepted && themedStyles.checkboxChecked]}>
-          {termsAccepted && <Text style={themedStyles.checkboxMark}>✓</Text>}
-        </View>
+
+      <View style={themedStyles.termsRow}>
+        <Pressable
+          onPress={() => setTermsAccepted((prev) => !prev)}
+          hitSlop={10}
+          accessibilityRole="checkbox"
+          accessibilityState={{ checked: termsAccepted }}
+          accessibilityLabel="Accept Terms of Service and Privacy Policy"
+        >
+          <View style={[themedStyles.checkbox, termsAccepted && themedStyles.checkboxChecked]}>
+            {termsAccepted && <Text style={themedStyles.checkboxMark}>✓</Text>}
+          </View>
+        </Pressable>
+
         <Text style={themedStyles.termsText}>
           I agree to the{' '}
-          <Pressable onPress={() => (navigation as any).navigate('TermsOfService')}>
-            <Text style={themedStyles.termsLink}>Terms of Service</Text>
-          </Pressable>{' '}
-          and{' '}
-          <Pressable onPress={() => (navigation as any).navigate('PrivacyPolicy')}>
-            <Text style={themedStyles.termsLink}>Privacy Policy</Text>
-          </Pressable>
+          <Text
+            style={themedStyles.termsLink}
+            onPress={() => (navigation as any).navigate('TermsOfService')}
+            suppressHighlighting={false}
+          >
+            Terms of Service
+          </Text>
+          {' '}and{' '}
+          <Text
+            style={themedStyles.termsLink}
+            onPress={() => (navigation as any).navigate('PrivacyPolicy')}
+            suppressHighlighting={false}
+          >
+            Privacy Policy
+          </Text>
         </Text>
-      </Pressable>
+      </View>
+
       <Pressable style={themedStyles.button} onPress={handleSubmit} disabled={submitting || !termsAccepted}>
         {submitting ? (
           <ActivityIndicator color={theme.colors.text} />
@@ -121,4 +174,3 @@ export default function SignUpScreen({ navigation }: Props) {
     </KeyboardAvoidingView>
   );
 }
-

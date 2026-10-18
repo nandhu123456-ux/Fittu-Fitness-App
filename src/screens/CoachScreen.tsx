@@ -10,6 +10,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 
 import { ChatBubble } from '../components/ChatBubble';
@@ -30,7 +31,9 @@ interface Props {
 
 export default function CoachScreen({ onClose }: Props) {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const { user } = useAuthStore();
+  
   const [messages, setMessages] = useState<CoachMessage[]>([]);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
@@ -108,15 +111,38 @@ export default function CoachScreen({ onClose }: Props) {
     signIn: { color: theme.colors.muted, fontSize: 15 },
     title: { color: theme.colors.text, fontSize: 22, fontWeight: '600' },
     subtitle: { color: theme.colors.muted, fontSize: 13, marginTop: 2 },
-    avatar: { alignItems: 'center', backgroundColor: theme.colors.surfaceHi, borderRadius: 18, height: 36, justifyContent: 'center', width: 36 },
-    emptyCard: { alignItems: 'center', backgroundColor: theme.colors.surfaceHi, borderRadius: 20, gap: 10, maxWidth: 320, padding: 28 },
-    emptyTitle: { color: theme.colors.text, fontSize: 17, fontWeight: '700', marginTop: 6 },
-    emptySubtitle: { color: theme.colors.muted, fontSize: 13, lineHeight: 19, textAlign: 'center' },
-    inputBar: { alignItems: 'center', backgroundColor: theme.colors.surface, borderTopColor: theme.colors.border, borderTopWidth: 1, flexDirection: 'row', gap: 8, padding: 12 },
-    input: { backgroundColor: theme.colors.surfaceHi, borderRadius: 20, color: theme.colors.text, flex: 1, fontSize: 15, maxHeight: 100, paddingHorizontal: 16, paddingVertical: 12 },
-    send: { alignItems: 'center', backgroundColor: theme.colors.accent, borderRadius: 22, height: 44, justifyContent: 'center', width: 44 },
+    avatar: { alignItems: 'center', backgroundColor: theme.colors.surfaceHi, borderRadius: 20, height: 40, justifyContent: 'center', width: 40 },
+    
+    // Increased padding and gap for empty state
+    emptyCard: { alignItems: 'center', backgroundColor: theme.colors.surfaceHi, borderRadius: 24, gap: 14, maxWidth: 320, padding: 32 },
+    emptyTitle: { color: theme.colors.text, fontSize: 18, fontWeight: '700', marginTop: 8 },
+    emptySubtitle: { color: theme.colors.muted, fontSize: 14, lineHeight: 22, textAlign: 'center' },
+    
+    // Increased input bar padding and safe area handling
+    inputBar: { 
+      alignItems: 'center', 
+      backgroundColor: theme.colors.surface, 
+      borderTopColor: theme.colors.border, 
+      borderTopWidth: 1, 
+      flexDirection: 'row', 
+      gap: 12, 
+      paddingHorizontal: 16, 
+      paddingTop: 12,
+      paddingBottom: Math.max(insets.bottom, 16), 
+    },
+    input: { 
+      backgroundColor: theme.colors.surfaceHi, 
+      borderRadius: 24, 
+      color: theme.colors.text, 
+      flex: 1, 
+      fontSize: 16, 
+      maxHeight: 120, 
+      paddingHorizontal: 20, 
+      paddingVertical: 14 
+    },
+    send: { alignItems: 'center', backgroundColor: theme.colors.accent, borderRadius: 24, height: 48, justifyContent: 'center', width: 48 },
     sendDisabled: { backgroundColor: theme.colors.muted },
-  }), [theme]);
+  }), [theme, insets.bottom]);
 
   if (!user) {
     return (
@@ -130,12 +156,13 @@ export default function CoachScreen({ onClose }: Props) {
     <KeyboardAvoidingView
       style={themedStyles.fill}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
     >
-      <View style={styles.header}>
+      {/* Increased header padding */}
+      <View style={[styles.header, { paddingTop: Math.max(insets.top, 16) + 12 }]}>
         {onClose ? (
           <Pressable hitSlop={8} onPress={onClose} style={styles.close}>
-            <Ionicons color={theme.colors.text} name="close" size={22} />
+            <Ionicons color={theme.colors.text} name="close" size={24} />
           </Pressable>
         ) : null}
         <View style={styles.headerText}>
@@ -154,7 +181,7 @@ export default function CoachScreen({ onClose }: Props) {
       ) : messages.length === 0 ? (
         <View style={[themedStyles.fill, styles.center, styles.padded]}>
           <View style={themedStyles.emptyCard}>
-            <Ionicons color={theme.colors.accent} name="sparkles" size={40} />
+            <Ionicons color={theme.colors.accent} name="sparkles" size={44} />
             <Text style={themedStyles.emptyTitle}>Say hi to your coach</Text>
             <Text style={themedStyles.emptySubtitle}>Ask anything about your goals, meals, or progress.</Text>
           </View>
@@ -189,11 +216,12 @@ export default function CoachScreen({ onClose }: Props) {
           onPress={() => void handleSend()}
           style={[themedStyles.send, (!input.trim() || sending) && themedStyles.sendDisabled]}
         >
-          <Ionicons color={theme.colors.bg} name="arrow-up" size={22} />
-</Pressable>
+          <Ionicons color={theme.colors.bg} name="arrow-up" size={24} />
+        </Pressable>
       </View>
+      
       {error ? (
-        <Pressable onPress={retryLast} style={styles.errorRow}>
+        <Pressable onPress={retryLast} style={[styles.errorRow, { paddingBottom: Math.max(insets.bottom, 12) }]}>
           <Ionicons color={theme.colors.danger} name="alert-circle" size={16} />
           <Text style={[styles.errorText, { color: theme.colors.danger }]}>{error}</Text>
           <Text style={[styles.retryText, { color: theme.colors.accent }]}>Retry</Text>
@@ -206,7 +234,7 @@ export default function CoachScreen({ onClose }: Props) {
 function LoadingBubble() {
   const theme = useTheme();
   const themedStyles = useMemo(() => StyleSheet.create({
-    loadingBubble: { backgroundColor: theme.colors.surfaceHi, borderRadius: 18, paddingHorizontal: 14, paddingVertical: 10 },
+    loadingBubble: { backgroundColor: theme.colors.surfaceHi, borderRadius: 18, paddingHorizontal: 16, paddingVertical: 12 },
     loadingDots: { color: theme.colors.muted, fontSize: 15, letterSpacing: 2 },
   }), [theme]);
   return (
@@ -222,12 +250,13 @@ const styles = StyleSheet.create({
   center: { alignItems: 'center', justifyContent: 'center' },
   close: { padding: 4 },
   padded: { paddingHorizontal: 32 },
-  header: { alignItems: 'center', flexDirection: 'row', gap: 8, paddingHorizontal: 20, paddingTop: 16, paddingBottom: 12 },
+  // Increased horizontal and bottom padding
+  header: { alignItems: 'center', flexDirection: 'row', gap: 12, paddingHorizontal: 20, paddingBottom: 16 },
   headerText: { flex: 1 },
-  list: { paddingHorizontal: 16, paddingVertical: 12 },
-  loadingRow: { alignItems: 'flex-start', marginVertical: 4 },
-  errorRow: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 16, paddingVertical: 8 },
+  // Increased list padding so bubbles don't touch the edges
+  list: { paddingHorizontal: 20, paddingVertical: 16 },
+  loadingRow: { alignItems: 'flex-start', marginVertical: 6 },
+  errorRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 20, paddingVertical: 12 },
   errorText: { flex: 1, fontSize: 13 },
   retryText: { fontSize: 13, fontWeight: '600' },
 });
-

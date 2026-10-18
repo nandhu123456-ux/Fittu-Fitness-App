@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
 import { 
-  Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View, ActivityIndicator 
+  Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View, ActivityIndicator, useWindowDimensions 
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { useNavigation } from '@react-navigation/native';
@@ -27,6 +28,7 @@ type Tab = 'weight' | 'calories' | 'macros' | 'activity';
 export default function ProgressScreen() {
   const theme = useTheme();
   const navigation = useNavigation();
+  const { width } = useWindowDimensions();
   const { user, profile } = useAuthStore();
   const uid = user?.uid;
 
@@ -42,9 +44,6 @@ export default function ProgressScreen() {
   const { days: rawFoodDays } = useFoodHistory(uid);
   const { days: rawActivityDays } = useActivityHistory(uid);
 
-  // Keep the profile subscription alive in this screen so Goals-screen edits
-  // (height, target weight, gender, age) instantly flow through the auth store
-  // and recalculate BMI, body fat, and muscle mass here.
   useUserDoc(uid);
 
   const safeWeights = rawWeights || [];
@@ -53,29 +52,25 @@ export default function ProgressScreen() {
 
   const cutoffDate = shiftDate(todayLocalISO(), -rangeDays);
   
-  // Filter for the chart based on the selected days
   const filteredWeights = safeWeights.filter((w) => w.date >= cutoffDate);
   
   // --- 1. FIND THE LATEST WEIGHT BY TIMESTAMP ---
   const sortedAllWeights = useMemo(() => {
     return [...safeWeights].sort((a, b) => {
-      // First try sorting by createdAt timestamp (newest first)
       const aTime = a.createdAt || 0;
       const bTime = b.createdAt || 0;
       if (aTime !== bTime) return bTime - aTime;
-      // Fallback to ID if timestamps are missing (for old logs)
       return b.id.localeCompare(a.id);
     });
   }, [safeWeights]);
 
-  const latestWeight = safeWeights[0]?.weight ?? profile?.profile?.weightKg ?? 0;
+  const latestWeight = sortedAllWeights[0]?.weight ?? profile?.profile?.weightKg ?? 0;
   
-  // Sort remaining data oldest -> newest for the Graph line
   const displayWeights = useMemo(() => {
     const sorted = [...filteredWeights].sort((a, b) => {
       const aTime = a.createdAt || 0;
       const bTime = b.createdAt || 0;
-      if (aTime !== bTime) return aTime - bTime; // oldest first
+      if (aTime !== bTime) return aTime - bTime;
       return a.id.localeCompare(b.id);
     });
     if (sorted.length === 1 && profile?.profile?.weightKg) {
@@ -95,27 +90,30 @@ export default function ProgressScreen() {
   const targetWeight = profile?.goal?.targetWeightKg || 0;
   const kgToGoal = Math.abs(latestWeight - targetWeight);
   
-  let inRedZone = false;
-  let redZoneMessage = '';
-  let greenMessage = '';
+  // --- MOTIVATION LOGIC (No more Red Zone) ---
+  let motivationMessage = '';
+  let motivationColor = theme.colors.success;
 
   if (displayWeights.length >= 2) {
     if (goalType === 'lose') {
-      inRedZone = weightDelta > 0;
-      redZoneMessage = `You gained ${weightDelta.toFixed(1)}kg this period. You need to lose ${kgToGoal.toFixed(1)}kg to reach your goal of ${targetWeight}kg.`;
-      greenMessage = `You lost ${Math.abs(weightDelta).toFixed(1)}kg this period. ${kgToGoal.toFixed(1)}kg left to reach ${targetWeight}kg!`;
+      if (weightDelta > 0) {
+        motivationColor = theme.colors.warn;
+        motivationMessage = `You gained ${weightDelta.toFixed(1)}kg this period. Don't stress, focus on today. ${kgToGoal.toFixed(1)}kg left to goal.`;
+      } else {
+        motivationMessage = `You lost ${Math.abs(weightDelta).toFixed(1)}kg this period. ${kgToGoal.toFixed(1)}kg left to reach ${targetWeight}kg!`;
+      }
     } else if (goalType === 'gain') {
-      inRedZone = weightDelta < 0;
-      redZoneMessage = `You lost ${Math.abs(weightDelta).toFixed(1)}kg this period. You need to gain ${kgToGoal.toFixed(1)}kg to reach your goal of ${targetWeight}kg.`;
-      greenMessage = `You gained ${weightDelta.toFixed(1)}kg this period. ${kgToGoal.toFixed(1)}kg left to reach ${targetWeight}kg!`;
+      if (weightDelta < 0) {
+        motivationColor = theme.colors.warn;
+        motivationMessage = `You lost ${Math.abs(weightDelta).toFixed(1)}kg this period. Try to eat a bit more. ${kgToGoal.toFixed(1)}kg left to goal.`;
+      } else {
+        motivationMessage = `You gained ${weightDelta.toFixed(1)}kg this period. ${kgToGoal.toFixed(1)}kg left to reach ${targetWeight}kg!`;
+      }
     } else {
-      inRedZone = Math.abs(weightDelta) > 1.5;
-      redZoneMessage = `Your weight is fluctuating. Try to stay near ${targetWeight}kg.`;
-      greenMessage = `You're maintaining steadily. Great job!`;
+      motivationMessage = `You're maintaining steadily. Great job!`;
     }
   }
 
-  // --- 2. DYNAMIC BODY STATS (Uses latestWeight) ---
   const stats = calculateBodyStats({
     weightKg: latestWeight, 
     heightCm: profile?.profile?.heightCm ?? 0,
@@ -148,7 +146,7 @@ export default function ProgressScreen() {
 
   const hasFoodLogs = filteredFood.some((d) => d.cal > 0 || d.protein > 0 || d.carbs > 0 || d.fat > 0);
 
-  const chartWidth = 320;
+  const chartWidth = width - 64; 
   const chartHeight = 140;
   const weightLine = useMemo(() => {
     if (displayWeights.length < 2) return '';
@@ -175,7 +173,7 @@ export default function ProgressScreen() {
       d += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`;
     }
     return d;
-  }, [displayWeights]);
+  }, [displayWeights, chartWidth]);
 
   const saveWeight = async () => {
     const val = Number(newWeight);
@@ -197,53 +195,51 @@ export default function ProgressScreen() {
 
   const themed = useMemo(() => StyleSheet.create({
     screen: { flex: 1, backgroundColor: theme.colors.bg },
-    content: { padding: 20, paddingBottom: 100 },
-    header: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
-    backBtn: { marginRight: 12 },
+    content: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 100 },
+    header: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
+    backBtn: { marginRight: 12, padding: 4 },
     title: { fontSize: 22, fontWeight: '700', color: theme.colors.text },
-    heroCard: { backgroundColor: theme.colors.surface, borderRadius: 20, padding: 20, marginBottom: 16 },
+    
+    heroCard: { backgroundColor: theme.colors.surface, borderRadius: 20, padding: 16, marginBottom: 16 },
     heroLabel: { fontSize: 11, fontWeight: '600', color: theme.colors.muted, textTransform: 'uppercase' },
-    heroRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 },
+    heroRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 6 },
     heroValue: { fontSize: 32, fontWeight: '700', color: theme.colors.text },
     deltaPill: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12, backgroundColor: theme.colors.surfaceHi },
     deltaText: { fontSize: 14, fontWeight: '600' },
     
-    statsRow: { flexDirection: 'row', gap: 12, marginBottom: 20 },
-    statCard: { flex: 1, backgroundColor: theme.colors.surface, borderRadius: 16, padding: 16 },
+    statsRow: { flexDirection: 'row', gap: 10, marginBottom: 16 },
+    statCard: { flex: 1, backgroundColor: theme.colors.surface, borderRadius: 16, padding: 14 },
     statLabelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
     statLabel: { fontSize: 11, fontWeight: '600', color: theme.colors.muted, textTransform: 'uppercase' },
     estimatedTag: { fontSize: 9, color: theme.colors.muted, fontStyle: 'italic', backgroundColor: theme.colors.surfaceHi, paddingHorizontal: 4, paddingVertical: 2, borderRadius: 4 },
-    statValue: { fontSize: 24, fontWeight: '700', color: theme.colors.text, marginTop: 6 },
+    statValue: { fontSize: 22, fontWeight: '700', color: theme.colors.text, marginTop: 6 },
     statSuggestion: { fontSize: 11, fontWeight: '600', marginTop: 4 },
     
-    redZoneCard: { backgroundColor: theme.colors.danger + '15', borderColor: theme.colors.danger, borderWidth: 1, borderRadius: 16, padding: 16, marginBottom: 20, flexDirection: 'row', alignItems: 'center', gap: 12 },
-    redZoneText: { flex: 1, color: theme.colors.danger, fontSize: 13, fontWeight: '600', lineHeight: 18 },
-
-    rangeRow: { flexDirection: 'row', gap: 8, marginBottom: 16 },
+    rangeRow: { flexDirection: 'row', gap: 8, marginBottom: 12 },
     rangeBtn: { flex: 1, paddingVertical: 8, borderRadius: 10, alignItems: 'center', backgroundColor: theme.colors.surface },
     rangeBtnActive: { backgroundColor: theme.colors.accent },
     rangeText: { fontSize: 13, fontWeight: '600', color: theme.colors.text },
     rangeTextActive: { color: theme.colors.bg },
     
-    tabsRow: { flexDirection: 'row', gap: 8, marginBottom: 20 },
+    tabsRow: { flexDirection: 'row', gap: 8, marginBottom: 16 },
     tab: { flex: 1, paddingVertical: 10, alignItems: 'center', backgroundColor: theme.colors.surface, borderRadius: 12 },
     tabActive: { backgroundColor: theme.colors.accent },
     tabText: { fontSize: 13, fontWeight: '600', color: theme.colors.text },
     tabTextActive: { color: theme.colors.bg },
     
-    chartCard: { backgroundColor: theme.colors.surface, borderRadius: 20, padding: 16, marginBottom: 16 },
+    chartCard: { backgroundColor: theme.colors.surface, borderRadius: 20, padding: 16, marginBottom: 16, overflow: 'hidden' },
     chartLabel: { fontSize: 12, fontWeight: '600', color: theme.colors.muted, marginBottom: 16 },
     emptyChart: { height: 120, alignItems: 'center', justifyContent: 'center' },
     emptyText: { color: theme.colors.muted, fontSize: 13 },
     motivationBox: { padding: 12, borderRadius: 12, marginTop: 16, alignItems: 'center' },
     motivationText: { fontSize: 13, fontWeight: '600', textAlign: 'center' },
     
-    historyTitle: { fontSize: 16, fontWeight: '700', color: theme.colors.text, marginBottom: 12, marginTop: 8 },
-    historyRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: theme.colors.surface, padding: 16, borderRadius: 12, marginBottom: 8 },
+    historyTitle: { fontSize: 16, fontWeight: '700', color: theme.colors.text, marginBottom: 12, marginTop: 4 },
+    historyRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: theme.colors.surface, padding: 14, borderRadius: 12, marginBottom: 8 },
     historyWeight: { fontSize: 16, fontWeight: '700', color: theme.colors.text },
     historyDate: { fontSize: 13, color: theme.colors.muted, marginTop: 2 },
     
-    fab: { position: 'absolute', bottom: 24, right: 20, width: 60, height: 60, borderRadius: 30, backgroundColor: theme.colors.accent, alignItems: 'center', justifyContent: 'center', elevation: 6 },
+    fab: { position: 'absolute', bottom: 24, right: 20, width: 56, height: 56, borderRadius: 28, backgroundColor: theme.colors.accent, alignItems: 'center', justifyContent: 'center', elevation: 6 },
     modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
     modalContent: { backgroundColor: theme.colors.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 40 },
     modalTitle: { fontSize: 20, fontWeight: '700', color: theme.colors.text, marginBottom: 16 },
@@ -253,8 +249,8 @@ export default function ProgressScreen() {
   }), [theme]);
 
   return (
-    <View style={themed.screen}>
-      <ScrollView contentContainerStyle={themed.content}>
+    <SafeAreaView style={themed.screen} edges={['top']}>
+      <ScrollView contentContainerStyle={themed.content} showsVerticalScrollIndicator={false}>
         <View style={themed.header}>
           <Pressable onPress={() => navigation.goBack()} style={themed.backBtn}>
             <Ionicons name="chevron-back" size={24} color={theme.colors.text} />
@@ -276,16 +272,6 @@ export default function ProgressScreen() {
             vs last {rangeDays === 7 ? 'week' : rangeDays === 14 ? '2 weeks' : rangeDays === 30 ? 'month' : '2 months'}
           </Text>
         </View>
-
-        {inRedZone && (
-          <View style={themed.redZoneCard}>
-            <Ionicons name="warning" size={28} color={theme.colors.danger} />
-            <Text style={themed.redZoneText}>
-              <Text style={{ fontWeight: '800' }}>RED ZONE! </Text>
-              {redZoneMessage}
-            </Text>
-          </View>
-        )}
 
         {stats && (
           <View style={themed.statsRow}>
@@ -345,13 +331,11 @@ export default function ProgressScreen() {
                     <Path d={weightLine} fill="none" stroke="url(#wGrad)" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" />
                   </Svg>
 
-                  {!inRedZone && (
-                    <View style={[themed.motivationBox, { backgroundColor: theme.colors.success + '15' }]}>
-                      <Text style={[themed.motivationText, { color: theme.colors.success }]}>
-                        {greenMessage}
-                      </Text>
-                    </View>
-                  )}
+                  <View style={[themed.motivationBox, { backgroundColor: motivationColor + '15' }]}>
+                    <Text style={[themed.motivationText, { color: motivationColor }]}>
+                      {motivationMessage}
+                    </Text>
+                  </View>
                 </>
               ) : (
                 <View style={themed.emptyChart}><Text style={themed.emptyText}>Log your weight to see the trend</Text></View>
@@ -417,6 +401,6 @@ export default function ProgressScreen() {
           </View>
         </KeyboardAvoidingView>
       </Modal>
-    </View>
+    </SafeAreaView>
   );
 }

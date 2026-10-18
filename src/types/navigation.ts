@@ -11,6 +11,7 @@ export type RootTabParamList = {
   Settings: undefined;
   Preferences: undefined;
   Reminders: undefined;
+  Notifications: undefined;
   Goals: undefined;
   Progress: undefined;
   Coach: undefined;

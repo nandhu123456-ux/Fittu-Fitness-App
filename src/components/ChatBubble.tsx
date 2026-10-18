@@ -18,9 +18,9 @@ export function ChatBubble({ message }: Props) {
   const theme = useTheme();
   const isUser = message.role === 'user';
   const themedStyles = useMemo(() => StyleSheet.create({
-    bubbleUser: { backgroundColor: theme.colors.accent },
-    bubbleAssistant: { backgroundColor: theme.colors.surfaceHi },
-    contentUser: { color: theme.colors.bg },
+    bubbleUser: { backgroundColor: theme.colors.protein + '33' },
+    bubbleAssistant: { backgroundColor: theme.colors.carbs + '33' },
+    contentUser: { color: '#FFFFFF' },
     contentAssistant: { color: theme.colors.text },
     timeUser: { color: theme.colors.muted, textAlign: 'right' },
     timeAssistant: { color: theme.colors.muted, textAlign: 'left' },
