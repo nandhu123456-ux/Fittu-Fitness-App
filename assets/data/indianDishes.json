@@ -1,1 +1,2950 @@
-[{"id":"dish_payasam_semiya","name":"Semiya Payasam","aliases":["payasam","semiya payasam","vermicelli kheer","semiya paramannam","శెమియా పాయసం","shēmiyā pāyasaṁ"],"serving":"1 bowl (150g)","cal":210,"protein":4,"carbs":38,"fat":5},{"id":"dish_payasam_sabudana","name":"Sabudana Kheer","aliases":["sabudana payasam","satto kheer","sabu da kheer","సాబుడానా పాయసం"],"serving":"1 bowl (150g)","cal":240,"protein":5,"carbs":42,"fat":8},{"id":"dish_payasam_rice","name":"Rice Kheer","aliases":["payasam","rice kheer","chawal payasam","పాయసం","చాల పాయసం"],"serving":"1 bowl (150g)","cal":220,"protein":5,"carbs":44,"fat":7},{"id":"dish_payasam_paramannam","name":"Arisi Payasam (Paramannam)","aliases":["paramannam","arsi payasam","rice payasam","పర్మన్నం","అడుగు పాయసం"],"serving":"1 bowl (150g)","cal":200,"protein":5,"carbs":42,"fat":6},{"id":"dish_payasam_ksheera","name":"Ksheera (Milk Payasam)","aliases":["ksheera","milk payasam","payasam","పాయసం","పాయసము"],"serving":"1 bowl (150g)","cal":180,"protein":6,"carbs":24,"fat":8},{"id":"dish_payasam_carrot_halwa","name":"Carrot Halwa","aliases":["carrot halwa","gajar ka halwa","carrot payasam","కార్ర హల్వా"],"serving":"1 plate (120g)","cal":260,"protein":5,"carbs":24,"fat":14},{"id":"dish_payasam_rava_kesari","name":"Rava Kesari","aliases":["rava kesari","rava payasam","rabba kesari","రావలె కేసరి"],"serving":"1 plate (120g)","cal":230,"protein":6,"carbs":40,"fat":7},{"id":"dish_payasam_pal","name":"Pal Payasam","aliases":["pal payasam","పాల పాయసం"],"serving":"1 bowl (150g)","cal":190,"protein":6,"carbs":26,"fat":7},{"id":"dish_payasam_sarkarara","name":"Sarkkarai Payasam (Jackfruit)","aliases":["sarkaraya payasam","jackfruit payasam","సార్క్కరై పాయసం"],"serving":"1 bowl (150g)","cal":250,"protein":4,"carbs":50,"fat":2},{"id":"dish_payasam_sago","name":"Sago Payasam","aliases":["sagoo payasam","sago kheer","సాగు పాయసం"],"serving":"1 bowl (150g)","cal":210,"protein":4,"carbs":38,"fat":5},{"id":"dish_payasam_rajgira","name":"Rajgira Payasam","aliases":["rajgira payasam","amaranth payasam","రాజ్గిర పాయసం"],"serving":"1 bowl (150g)","cal":240,"protein":8,"carbs":32,"fat":6},{"id":"dish_payasam_vermicelli_rose","name":"Vermicelli Rose Payasam","aliases":["vermicelli rose payasam","వర్మీసెల్లి రోజ్ పాయసం"],"serving":"1 bowl (150g)","cal":215,"protein":4,"carbs":39,"fat":5},{"id":"dish_dosa_plain","name":"Plain Dosa","aliases":["dosa","plain dosa","veg dosa","డోస"],"serving":"1 dosa (45g)","cal":180,"protein":4,"carbs":26,"fat":4},{"id":"dish_dosa_masala","name":"Masala Dosa","aliases":["masala dosa","మసాలా డోస"],"serving":"1 dosa (60g)","cal":320,"protein":8,"carbs":40,"fat":8},{"id":"dish_dosa_onion","name":"Onion Dosa","aliases":["onion dosa","పిండపు డోస"],"serving":"1 dosa (55g)","cal":260,"protein":6,"carbs":32,"fat":7},{"id":"dish_dosa_rava","name":"Rava Dosa","aliases":["rava dosa","set dosa","రవలు డోస"],"serving":"1 dosa (65g)","cal":340,"protein":8,"carbs":48,"fat":6},{"id":"dish_dosa_set","name":"Set Dosa","aliases":["set dosa","సెట్ డోస"],"serving":"2 dosas (80g)","cal":300,"protein":7,"carbs":42,"fat":5},{"id":"dish_pesarattu","name":"Pesarattu","aliases":["pesarattu","పెసరట్టు"],"serving":"1 pesarattu (70g)","cal":290,"protein":10,"carbs":44,"fat":4},{"id":"dish_uthappam","name":"Uthappam","aliases":["utthapam","ఉత్తప్పం"],"serving":"1 utthapam (90g)","cal":250,"protein":5,"carbs":38,"fat":4},{"id":"dish_dosa_neer","name":"Neer Dosa","aliases":["neer dosa","నీర్ డోస"],"serving":"1 dosa (40g)","cal":200,"protein":5,"carbs":30,"fat":4},{"id":"dish_dosa_ragi","name":"Ragi Dosa","aliases":["ragi dosa","ragi mudde","రాగి డోస"],"serving":"1 dosa (50g)","cal":210,"protein":5,"carbs":32,"fat":4},{"id":"dish_dosa_egg","name":"Egg Dosa","aliases":["egg dosa","ఎగ్గు డోస"],"serving":"1 dosa (60g)","cal":240,"protein":9,"carbs":26,"fat":7},{"id":"dish_uthappam_pudina","name":"Uthappam With Pudina","aliases":["utthapam pudina","ముంబై ఉత్తప్పం"],"serving":"1 utthapam (90g)","cal":240,"protein":5,"carbs":36,"fat":4},{"id":"dish_dosa_with_sambar","name":"Dosa With Sambar","aliases":["dosa curry","డోసతో సాంబార్"],"serving":"1 dosa + sambar (120g)","cal":340,"protein":8,"carbs":46,"fat":4},{"id":"dish_dosa_masala_chutney","name":"Dosa With Chutney","aliases":["dosa chutney","మసాలా డోస"],"serving":"1 dosa (60g)","cal":330,"protein":8,"carbs":44,"fat":7},{"id":"dish_idli","name":"Idli","aliases":["idli","ఇడ్లి"],"serving":"4 idlis (200g)","cal":140,"protein":7,"carbs":24,"fat":2},{"id":"dish_idli_rava","name":"Rava Idli","aliases":["rava idli","రవలు ఇడ్లి"],"serving":"4 idlis (180g)","cal":130,"protein":5,"carbs":24,"fat":2},{"id":"dish_idli_sambar","name":"Idli With Sambar","aliases":["sambar idli","సాంబార్ ఇడ్లి"],"serving":"4 idlis + sambar (200g)","cal":200,"protein":8,"carbs":30,"fat":3},{"id":"dish_medu_vada","name":"Medu Vada","aliases":["medu vada","మెడు వడ"],"serving":"2 vadas (100g)","cal":160,"protein":6,"carbs":14,"fat":9},{"id":"dish_vada_sambar","name":"Vada With Sambar","aliases":["vada sambar","వడ సాంబార్"],"serving":"2 vadas + sambar (200g)","cal":220,"protein":8,"carbs":28,"fat":5},{"id":"dish_punugulu_appadalu","name":"Punugulu (Appadalu)","aliases":["punugulu","appadalu","పునుగులు"],"serving":"10 punugulu (60g)","cal":150,"protein":4,"carbs":20,"fat":6},{"id":"dish_mysore_vada","name":"Mysore Vada","aliases":["mysore vada","మైసూర్ వడ"],"serving":"2 vadas (120g)","cal":170,"protein":5,"carbs":16,"fat":9},{"id":"dish_idli_sundal","name":"Idli With Sundal","aliases":["idli sundal","ఇడ్లి సుండల్"],"serving":"4 idlis + sundal (150g)","cal":210,"protein":8,"carbs":26,"fat":5},{"id":"dish_biryani_hyderabadi_chicken","name":"Hyderabadi Chicken Biryani","aliases":["hyderabadi chicken biryani","bir yani","chicken biryani","hyderabadi biryani","హైదరాబాద్ చీస్ బిర్యానీ"],"serving":"1 plate (250g)","cal":380,"protein":12,"carbs":34,"fat":14},{"id":"dish_biryani_hyderabadi_mutton","name":"Hyderabadi Mutton Biryani","aliases":["hyderabadi mutton biryani","mutton biryani","కాయ బిర్యానీ"],"serving":"1 plate (250g)","cal":420,"protein":14,"carbs":28,"fat":22},{"id":"dish_biryani_veg","name":"Veg Biryani","aliases":["veg biryani","వెజ్ బిర్యానీ"],"serving":"1 plate (250g)","cal":300,"protein":7,"carbs":46,"fat":7},{"id":"dish_biryani_egg","name":"Egg Biryani","aliases":["egg biryani","వండ్ల బిర్యానీ"],"serving":"1 plate (250g)","cal":280,"protein":12,"carbs":26,"fat":12},{"id":"dish_biryani_prawn","name":"Prawn Biryani","aliases":["prawn biryani","ప్రాచీన బిర్యానీ"],"serving":"1 plate (250g)","cal":340,"protein":10,"carbs":28,"fat":16},{"id":"dish_biryani_chicken_dum","name":"Chicken Dum Biryani","aliases":["chicken dum biryani","డం బిర్యానీ"],"serving":"1 plate (250g)","cal":360,"protein":12,"carbs":32,"fat":14},{"id":"dish_pulao_bagara","name":"Bagara Rice","aliases":["bagara rice","బాగరా రైస్"],"serving":"1 plate (250g)","cal":320,"protein":8,"carbs":44,"fat":10},{"id":"dish_pulao_veg","name":"Veg Pulao","aliases":["veg pulao","పులావ్"],"serving":"1 plate (250g)","cal":280,"protein":6,"carbs":44,"fat":6},{"id":"dish_biryani_chicken_lemon","name":"Chicken Lemon Biryani","aliases":["lemon biryani","పువ్వి బిర్యానీ"],"serving":"1 plate (250g)","cal":350,"protein":10,"carbs":30,"fat":14},{"id":"dish_biryani_besan","name":"Besan Egg Biryani","aliases":["besan biryani","బెసాన్ బిర్యానీ"],"serving":"1 plate (250g)","cal":290,"protein":14,"carbs":28,"fat":12},{"id":"dish_rice_pulihora","name":"Pulihora","aliases":["pulihora","lemon rice","నెల్లు పచ్చడి","పులిహోరా"],"serving":"1 bowl (150g)","cal":160,"protein":3,"carbs":32,"fat":3},{"id":"dish_rice_curd","name":"Curd Rice","aliases":["curd rice","తల్లు రైస్","yoghurt rice"],"serving":"1 bowl (150g)","cal":150,"protein":4,"carbs":18,"fat":5},{"id":"dish_rice_lemon","name":"Lemon Rice","aliases":["lemon rice","నెల్లు రైస్"],"serving":"1 bowl (150g)","cal":170,"protein":3,"carbs":34,"fat":4},{"id":"dish_rice_tomato","name":"Tomato Rice","aliases":["tomato rice","టమెటో రైస్"],"serving":"1 bowl (150g)","cal":170,"protein":3,"carbs":34,"fat":4},{"id":"dish_rice_gongura","name":"Gongura Rice","aliases":["gongura rice","గొంగురా రైస్"],"serving":"1 bowl (150g)","cal":160,"protein":3,"carbs":30,"fat":4},{"id":"dish_rice_coconut","name":"Coconut Rice","aliases":["coconut rice","కోస్తం రైస్"],"serving":"1 bowl (150g)","cal":180,"protein":3,"carbs":36,"fat":5},{"id":"dish_rice_jeera","name":"Jeera Rice","aliases":["jeera rice","జీరా రైస్"],"serving":"1 bowl (150g)","cal":170,"protein":3,"carbs":34,"fat":3},{"id":"dish_rice_bisi_bel","name":"Bisi Bele Bath","aliases":["bisi bele bath","బిసిబెలె బత్"],"serving":"1 bowl (150g)","cal":220,"protein":6,"carbs":36,"fat":6},{"id":"dish_rice_vangi","name":"Vangi Bath","aliases":["vangi bath","వంగి బత్"],"serving":"1 bowl (150g)","cal":200,"protein":4,"carbs":32,"fat":6},{"id":"dish_rice_mango","name":"Mango Rice","aliases":["mango rice","కాయప పుంగు"],"serving":"1 bowl (150g)","cal":150,"protein":3,"carbs":30,"fat":3},{"id":"dish_rice_gongura_pulihora","name":"Gongura Pulihora","aliases":["gongura pulihora","గొంగురా పులిహోరా"],"serving":"1 bowl (150g)","cal":165,"protein":3,"carbs":32,"fat":3},{"id":"dish_gongura_pachadi","name":"Gongura Pachadi","aliases":["gongura pachadi","gongura","గొంగురా పచ్చడి"],"serving":"1 small bowl (80g)","cal":90,"protein":2,"carbs":12,"fat":4},{"id":"dish_gongura_chicken","name":"Gongura Chicken","aliases":["gongura chicken","గొంగురా కక్కరకోసం"],"serving":"1 plate (150g)","cal":220,"protein":12,"carbs":8,"fat":12},{"id":"dish_avakaya","name":"Avakaya","aliases":["avakaya","అవకాయ"],"serving":"1 avocado (60g)","cal":120,"protein":3,"carbs":6,"fat":8},{"id":"dish_tomato_pachadi","name":"Tomato Pachadi","aliases":["tomato pachadi","టమెటో పచ్చడి"],"serving":"1 small bowl (80g)","cal":70,"protein":2,"carbs":12,"fat":2},{"id":"dish_pulusu","name":"Pulusu (Tender Coconut)","aliases":["pulusu","పులుసు"],"serving":"1 bowl (150g)","cal":90,"protein":1,"carbs":16,"fat":2},{"id":"dish_koora_veg","name":"Veg Koora","aliases":["veg koora","వెజ్ కోర"],"serving":"1 bowl (150g)","cal":110,"protein":4,"carbs":16,"fat":4},{"id":"dish_pesarapappu","name":"Pesarapappu","aliases":["pesarapappu","పెసరపప్పు"],"serving":"1 bowl (150g)","cal":90,"protein":6,"carbs":14,"fat":1},{"id":"dish_ulavacharu","name":"Ulavacharu","aliases":["ulavacharu","ఉలవాచరు"],"serving":"1 bowl (120g)","cal":100,"protein":2,"carbs":12,"fat":5},{"id":"dish_natu_kodi_pulusu","name":"Natu Kodi Pulusu","aliases":["natu kodi pulusu","నాతు కొద్ది పులుసు"],"serving":"1 bowl (150g)","cal":140,"protein":7,"carbs":16,"fat":3},{"id":"dish_chepala_pulusu","name":"Chepala Pulusu","aliases":["chepala pulusu","చెపల పులుసు"],"serving":"1 bowl (150g)","cal":120,"protein":4,"carbs":18,"fat":2},{"id":"dish_royala_iguru","name":"Royala Iguru","aliases":["royala iguru","రాయోలా ఇగురు"],"serving":"1 bowl (150g)","cal":130,"protein":4,"carbs":18,"fat":4},{"id":"dish_motsari_pulusu","name":"Motsari Pulusu","aliases":["motsari pulusu","మోట్సారి పులుసు"],"serving":"1 bowl (150g)","cal":110,"protein":5,"carbs":18,"fat":2},{"id":"dish_papupulu_kura","name":"Papupulu Kura","aliases":["papupulu kura","పపుపులు కూర"],"serving":"1 bowl (150g)","cal":100,"protein":4,"carbs":16,"fat":2},{"id":"dish_gongura_chicken_peanuts","name":"Gongura Chicken With Peanuts","aliases":["gongura chicken peanut","గొంగురా కక్కరకోసం"],"serving":"1 plate (150g)","cal":220,"protein":14,"carbs":8,"fat":12},{"id":"dish_chepala_pulusu_methi","name":"Chepala Pulusu (Methi)","aliases":["chepala pulusu methi","పసల పులుసు"],"serving":"1 bowl (150g)","cal":120,"protein":4,"carbs":18,"fat":2},{"id":"dish_gongura_pachadi_tomato","name":"Gongura Pachadi With Tomato","aliases":["gongura pachadi tomato","గొంగురా పచ్చడి టమెటో"],"serving":"1 small bowl (80g)","cal":80,"protein":3,"carbs":12,"fat":3},{"id":"dish_upma","name":"Upma","aliases":["upma","ఉప్మా"],"serving":"1 plate (200g)","cal":200,"protein":5,"carbs":32,"fat":5},{"id":"dish_upma_rava","name":"Rava Upma","aliases":["rava upma","రవలు ఉప్మా"],"serving":"1 plate (200g)","cal":210,"protein":5,"carbs":34,"fat":5},{"id":"dish_upma_atukula","name":"Athula Upma (Ragi)","aliases":["atukula upma","ragi upma","అటుకు ఉప్మా"],"serving":"1 plate (200g)","cal":200,"protein":5,"carbs":32,"fat":4},{"id":"dish_upma_pesara","name":"Pesara Upma (Lentil)","aliases":["pesara upma","పెసర ఉప్మా"],"serving":"1 plate (200g)","cal":210,"protein":6,"carbs":32,"fat":5},{"id":"dish_puri","name":"Puri","aliases":["poori","పూరి"],"serving":"3 pooris (90g)","cal":220,"protein":5,"carbs":26,"fat":10},{"id":"dish_chapati","name":"Chapati","aliases":["chapati","roti","phulka","చపాతి"],"serving":"1 chapati (40g)","cal":120,"protein":3,"carbs":24,"fat":2},{"id":"dish_idli_vada","name":"Idli Vada","aliases":["idli vada","ఇడ్లి వడ"],"serving":"4 idlis + 2 vadas (300g)","cal":260,"protein":9,"carbs":32,"fat":7},{"id":"dish_meal_idli","name":"Meal With Idli","aliases":["idli meal","ఇడ్లి మీల్"],"serving":"4 idlis + sambar (250g)","cal":250,"protein":8,"carbs":34,"fat":4},{"id":"dish_upma_vermicelli","name":"Vermicelli Upma","aliases":["vermicelli upma","sevi upma","వర్మీసెల్లి ఉప్మా"],"serving":"1 plate (200g)","cal":220,"protein":5,"carbs":34,"fat":4},{"id":"dish_roti","name":"Roti","aliases":["roti","రొట్టీ"],"serving":"1 roti (40g)","cal":110,"protein":3,"carbs":22,"fat":2},{"id":"dish_phulka","name":"Phulka","aliases":["phulka","ఫుల్కా"],"serving":"1 phulka (40g)","cal":110,"protein":3,"carbs":22,"fat":2},{"id":"dish_paratha_aloo","name":"Aloo Paratha","aliases":["paratha","aloo paratha","పారాత్థ"],"serving":"1 paratha (60g)","cal":220,"protein":5,"carbs":32,"fat":8},{"id":"dish_naan","name":"Naan","aliases":["naan","నాన్"],"serving":"1 naan (70g)","cal":240,"protein":7,"carbs":40,"fat":6},{"id":"dish_kulcha","name":"Kulcha","aliases":["kulcha","కుల్చా"],"serving":"1 kulcha (50g)","cal":200,"protein":6,"carbs":30,"fat":5},{"id":"dish_appam","name":"Appam","aliases":["appam","అప్పం"],"serving":"4 appams (150g)","cal":190,"protein":4,"carbs":32,"fat":5},{"id":"dish_porotta","name":"Porotta","aliases":["porotta","పొరట్ట"],"serving":"1 porotta (60g)","cal":210,"protein":4,"carbs":34,"fat":4},{"id":"dish_paratha_ghee","name":"Paratha With Ghee","aliases":["paratha with ghee","పారాత్థ తెలుగు"],"serving":"1 paratha (60g)","cal":240,"protein":5,"carbs":32,"fat":10},{"id":"dish_samosa","name":"Samosa","aliases":["samosa","సామోసా"],"serving":"1 samosa (80g)","cal":210,"protein":4,"carbs":26,"fat":10},{"id":"dish_bajji","name":"Bajji (Food Fritter)","aliases":["bajji","బజ్జి"],"serving":"2 bajjis (100g)","cal":200,"protein":4,"carbs":20,"fat":10},{"id":"dish_punugulu_spicy","name":"Punugulu (Spicy)","aliases":["punugulu","పునుగులు","అప్పడ్లు"],"serving":"10 punugulu (60g)","cal":150,"protein":4,"carbs":20,"fat":6},{"id":"dish_mysore_pak","name":"Mysore Pak","aliases":["mysore pak","మైసూర్ పాక్"],"serving":"1 piece (40g)","cal":420,"protein":6,"carbs":34,"fat":26},{"id":"dish_laddu","name":"Laddu (Besan)","aliases":["laddu","లడ్డు"],"serving":"1 laddu (30g)","cal":380,"protein":8,"carbs":34,"fat":20},{"id":"dish_boondi","name":"Boondi Namkeen","aliases":["boondi","boondi namkeen","బూండి"],"serving":"1 plate (50g)","cal":180,"protein":4,"carbs":20,"fat":8},{"id":"dish_jalebi","name":"Jalebi","aliases":["jalebi","జెలీబీ"],"serving":"1 piece (60g)","cal":340,"protein":5,"carbs":62,"fat":6},{"id":"dish_boondi_bath","name":"Boondi Bath","aliases":["boondi bath","బూండి బత్"],"serving":"1 bowl (150g)","cal":190,"protein":4,"carbs":24,"fat":5},{"id":"dish_maggies_bajji","name":"Maggies Bajji","aliases":["maggies bajji","బజ్జి"],"serving":"2 bajjis (100g)","cal":220,"protein":5,"carbs":22,"fat":10},{"id":"dish_paneer_butter_masala","name":"Paneer Butter Masala","aliases":["paneer butter masala","పానీర్ బర్తర్ మాసాలా"],"serving":"1 plate (200g)","cal":240,"protein":12,"carbs":16,"fat":12},{"id":"dish_palak_paneer","name":"Palak Paneer","aliases":["palak paneer","పాలక్ పానీర్"],"serving":"1 plate (180g)","cal":190,"protein":9,"carbs":14,"fat":9},{"id":"dish_dal_makhani","name":"Dal Makhani","aliases":["dal makhani","దల్ మఖనీ"],"serving":"1 bowl (200g)","cal":220,"protein":12,"carbs":30,"fat":3},{"id":"dish_rajma","name":"Rajma","aliases":["rajma","రాజ్మా"],"serving":"1 bowl (200g)","cal":200,"protein":10,"carbs":30,"fat":2},{"id":"dish_chole","name":"Chole","aliases":["chole","చొలె"],"serving":"1 bowl (200g)","cal":210,"protein":10,"carbs":32,"fat":2},{"id":"dish_alu_gobi","name":"Aloo Gobi","aliases":["aloo gobi","ఆలు గోబి"],"serving":"1 plate (180g)","cal":190,"protein":5,"carbs":28,"fat":7},{"id":"dish_butter_chicken","name":"Butter Chicken","aliases":["butter chicken","బటర్ చికెన్"],"serving":"1 plate (200g)","cal":320,"protein":14,"carbs":10,"fat":22},{"id":"dish_chicken_curry","name":"Chicken Curry","aliases":["chicken curry","చీస్ కర్ర"],"serving":"1 bowl (200g)","cal":240,"protein":12,"carbs":14,"fat":12},{"id":"dish_egg_curry","name":"Egg Curry","aliases":["egg curry","వండ్ల కర్ర"],"serving":"1 bowl (200g)","cal":190,"protein":12,"carbs":10,"fat":9},{"id":"dish_dal_tadka","name":"Dal Tadka","aliases":["dal tadka","దల్ తాడ్కా"],"serving":"1 bowl (200g)","cal":170,"protein":10,"carbs":22,"fat":3},{"id":"dish_veg_kurma","name":"Veg Kurma","aliases":["veg kurma","వెజ్ కుర్మా"],"serving":"1 bowl (200g)","cal":180,"protein":7,"carbs":24,"fat":6},{"id":"dish_malai_kofta","name":"Malai Kofta","aliases":["malai kofta","మలై కోఫ్టా"],"serving":"1 plate (200g)","cal":230,"protein":10,"carbs":18,"fat":10},{"id":"dish_chana_masala","name":"Chana Masala","aliases":["chana masala","చనా మాసాలా"],"serving":"1 bowl (200g)","cal":210,"protein":12,"carbs":30,"fat":2},{"id":"dish_pav_bhaji","name":"Pav Bhaji","aliases":["pav bhaji","పవ్ భజీ"],"serving":"1 plate (300g)","cal":260,"protein":8,"carbs":40,"fat":8},{"id":"dish_chole_pav","name":"Chole Pav","aliases":["chole pav","చొలె పవ్"],"serving":"1 plate (300g)","cal":300,"protein":12,"carbs":40,"fat":6},{"id":"dish_paneer_tikka","name":"Paneer Tikka","aliases":["paneer tikka","పానీర్ టిక్కా"],"serving":"1 plate (200g)","cal":230,"protein":12,"carbs":10,"fat":12},{"id":"dish_naan_butter","name":"Naan With Butter","aliases":["naan butter","నాన్ తెలుగు"],"serving":"1 naan (70g)","cal":260,"protein":7,"carbs":40,"fat":8},{"id":"dish_gulab_jamun","name":"Gulab Jamun","aliases":["gulab jamun","గులాబ్ జామున్"],"serving":"4 pieces (120g)","cal":350,"protein":6,"carbs":40,"fat":16},{"id":"dish_rasgulla","name":"Rasgulla","aliases":["rasgulla","రస్గూలా"],"serving":"4 pieces (120g)","cal":220,"protein":4,"carbs":44,"fat":2},{"id":"dish_jalebi2","name":"Jalebi","aliases":["jalebi","జెలీబీ"],"serving":"2 jalebis (60g)","cal":340,"protein":5,"carbs":62,"fat":6},{"id":"dish_mysore_pak2","name":"Mysore Pak","aliases":["mysore pak","మైసూర్ పాక్"],"serving":"1 piece (40g)","cal":420,"protein":6,"carbs":34,"fat":26},{"id":"dish_laddu2","name":"Laddu (Besan)","aliases":["laddu","లడ్డు"],"serving":"1 laddu (30g)","cal":380,"protein":8,"carbs":34,"fat":20},{"id":"dish_barfi","name":"Barfi","aliases":["barfi","బార్ఫీ"],"serving":"1 piece (40g)","cal":360,"protein":6,"carbs":44,"fat":22},{"id":"dish_halwa","name":"Halwa (Sooji)","aliases":["halwa","హల్వా"],"serving":"1 piece (40g)","cal":300,"protein":4,"carbs":46,"fat":18},{"id":"dish_kaju_katli","name":"Kaju Katli","aliases":["kaju katli","కాజు కత్లీ"],"serving":"2 pieces (40g)","cal":340,"protein":6,"carbs":38,"fat":20},{"id":"dish_rajgira_payasam","name":"Rajgira Payasam","aliases":["rajgira payasam","రాజ్గిర పాయసం"],"serving":"1 bowl (150g)","cal":260,"protein":8,"carbs":36,"fat":6},{"id":"dish_kalakand","name":"Kalakand","aliases":["kalakand","కలకాండ్"],"serving":"1 piece (60g)","cal":280,"protein":5,"carbs":40,"fat":16},{"id":"dish_chai_masala","name":"Masala Chai","aliases":["masala chai","మసాలా చయ్"],"serving":"1 cup (200ml)","cal":150,"protein":4,"carbs":16,"fat":6},{"id":"dish_coffee_filter","name":"Filter Coffee","aliases":["filter coffee","ఫిల్టర్ కాఫీ"],"serving":"1 cup (150ml)","cal":80,"protein":2,"carbs":6,"fat":4},{"id":"dish_lassi","name":"Lassi","aliases":["lassi","లస్సీ"],"serving":"1 glass (200ml)","cal":120,"protein":6,"carbs":14,"fat":4},{"id":"dish_buttermilk","name":"Buttermilk (Chaas)","aliases":["buttermilk","chaas","చాస్"],"serving":"1 glass (200ml)","cal":40,"protein":1,"carbs":4,"fat":2},{"id":"dish_badam_milk","name":"Badam Milk","aliases":["badam milk","బాదం పాలు"],"serving":"1 glass (200ml)","cal":160,"protein":4,"carbs":16,"fat":7},{"id":"dish_rose_milk","name":"Rose Milk","aliases":["rose milk","వాలు పాలు"],"serving":"1 glass (200ml)","cal":130,"protein":2,"carbs":16,"fat":5},{"id":"dish_gongura_pachadi2","name":"Gongura Pachadi","aliases":["gongura pachadi","gongura","గొంగురా పచ్చడి"],"serving":"1 small bowl (80g)","cal":90,"protein":2,"carbs":12,"fat":4},{"id":"dish_gongura_chicken2","name":"Gongura Chicken","aliases":["gongura chicken","గొంగురా కక్కరకోసం"],"serving":"1 plate (150g)","cal":220,"protein":12,"carbs":8,"fat":12},{"id":"dish_avakaya2","name":"Avakaya","aliases":["avakaya","అవకాయ"],"serving":"1 avocado (60g)","cal":120,"protein":3,"carbs":6,"fat":8},{"id":"dish_tomato_pachadi2","name":"Tomato Pachadi","aliases":["tomato pachadi","టమెటో పచ్చడి"],"serving":"1 small bowl (80g)","cal":70,"protein":2,"carbs":12,"fat":2},{"id":"dish_pulusu2","name":"Pulusu (Tender Coconut)","aliases":["pulusu","పులుసు"],"serving":"1 bowl (150g)","cal":90,"protein":1,"carbs":16,"fat":2},{"id":"dish_koora_veg2","name":"Veg Koora","aliases":["veg koora","వెజ్ కోర"],"serving":"1 bowl (150g)","cal":110,"protein":4,"carbs":16,"fat":4},{"id":"dish_pesarapappu3","name":"Pesarapappu","aliases":["pesarapappu","పెసరపప్పు"],"serving":"1 bowl (150g)","cal":90,"protein":6,"carbs":14,"fat":1},{"id":"dish_ulavacharu3","name":"Ulavacharu","aliases":["ulavacharu","ఉలవాచరు"],"serving":"1 bowl (120g)","cal":100,"protein":2,"carbs":12,"fat":5},{"id":"dish_natu_kodi_pulusu3","name":"Natu Kodi Pulusu","aliases":["natu kodi pulusu","నాతు కొద్ది పులుసు"],"serving":"1 bowl (150g)","cal":140,"protein":7,"carbs":16,"fat":3},{"id":"dish_chepala_pulusu3","name":"Chepala Pulusu","aliases":["chepala pulusu","చెపల పులుసు"],"serving":"1 bowl (150g)","cal":120,"protein":4,"carbs":18,"fat":2},{"id":"dish_royala_iguru3","name":"Royala Iguru","aliases":["royala iguru","రాయోలా ఇగురు"],"serving":"1 bowl (150g)","cal":130,"protein":4,"carbs":18,"fat":4},{"id":"dish_motsari_pulusu3","name":"Motsari Pulusu","aliases":["motsari pulusu","మోట్సారి పులుసు"],"serving":"1 bowl (150g)","cal":110,"protein":5,"carbs":18,"fat":2},{"id":"dish_papupulu_kura3","name":"Papupulu Kura","aliases":["papupulu kura","పపుపులు కూర"],"serving":"1 bowl (150g)","cal":100,"protein":4,"carbs":16,"fat":2},{"id":"dish_gongura_chicken_peanuts2","name":"Gongura Chicken With Peanuts","aliases":["gongura chicken peanut","గొంగురా కక్కరకోసం"],"serving":"1 plate (150g)","cal":220,"protein":14,"carbs":8,"fat":12},{"id":"dish_gongura_katti_chicken","name":"Gongura Katti Chicken","aliases":["gongura katti chicken","గొంగురా కట్టి కక్కరకోసం"],"serving":"1 plate (150g)","cal":230,"protein":14,"carbs":8,"fat":12},{"id":"dish_gongura_mixture","name":"Gongura Mixture","aliases":["gongura mixture","గొంగురా మిక్సచరు"],"serving":"1 plate (150g)","cal":180,"protein":10,"carbs":10,"fat":10},{"id":"dish_dosa_neer2","name":"Neer Dosa","aliases":["neer dosa","నీర్ డోస"],"serving":"1 dosa (40g)","cal":200,"protein":5,"carbs":30,"fat":4},{"id":"dish_dosa_egg2","name":"Egg Dosa","aliases":["egg dosa","ఎగ్గు డోస"],"serving":"1 dosa (60g)","cal":240,"protein":9,"carbs":26,"fat":7},{"id":"dish_dosa_ragi2","name":"Ragi Dosa","aliases":["ragi dosa","రాగి డోస"],"serving":"1 dosa (50g)","cal":210,"protein":5,"carbs":32,"fat":4},{"id":"dish_dosa_pesarattu2","name":"Pesarattu (With Ginger Chutney)","aliases":["pesarattu","పెసరట్టు"],"serving":"1 pesarattu (70g)","cal":290,"protein":10,"carbs":44,"fat":4},{"id":"dish_dosa_set2","name":"Set Dosa","aliases":["set dosa","సెట్ డోస"],"serving":"2 dosas (80g)","cal":300,"protein":7,"carbs":42,"fat":5},{"id":"dish_dosa_rava2","name":"Rava Dosa","aliases":["rava dosa","రవలు డోస"],"serving":"1 dosa (65g)","cal":340,"protein":8,"carbs":48,"fat":6},{"id":"dish_dosa_masala2","name":"Masala Dosa","aliases":["masala dosa","మసాలా డోస"],"serving":"1 dosa (60g)","cal":320,"protein":8,"carbs":40,"fat":8},{"id":"dish_dosa_plain2","name":"Plain Dosa","aliases":["dosa","plain dosa","veg dosa","డోస"],"serving":"1 dosa (45g)","cal":180,"protein":4,"carbs":26,"fat":4},{"id":"dish_idli2","name":"Idli","aliases":["idli","ఇడ్లి"],"serving":"4 idlis (200g)","cal":140,"protein":7,"carbs":24,"fat":2},{"id":"dish_idli_rava2","name":"Rava Idli","aliases":["rava idli","రవలు ఇడ్లి"],"serving":"4 idlis (180g)","cal":130,"protein":5,"carbs":24,"fat":2},{"id":"dish_idli_sambar2","name":"Idli With Sambar","aliases":["sambar idli","సాంబార్ ఇడ్లి"],"serving":"4 idlis + sambar (200g)","cal":200,"protein":8,"carbs":30,"fat":3},{"id":"dish_medu_vada2","name":"Medu Vada","aliases":["medu vada","మెడు వడ"],"serving":"2 vadas (100g)","cal":160,"protein":6,"carbs":14,"fat":9},{"id":"dish_vada_sambar2","name":"Vada With Sambar","aliases":["vada sambar","వడ సాంబార్"],"serving":"2 vadas + sambar (200g)","cal":220,"protein":8,"carbs":28,"fat":5},{"id":"dish_punugulu2","name":"Punugulu (Appadalu)","aliases":["punugulu","appadalu","పునుగులు"],"serving":"10 punugulu (60g)","cal":150,"protein":4,"carbs":20,"fat":6},{"id":"dish_mysore_vada2","name":"Mysore Vada","aliases":["mysore vada","మైసూర్ వడ"],"serving":"2 vadas (120g)","cal":170,"protein":5,"carbs":16,"fat":9},{"id":"dish_idli_sundal2","name":"Idli With Sundal","aliases":["idli sundal","ఇడ్లి సుండల్"],"serving":"4 idlis + sundal (150g)","cal":210,"protein":8,"carbs":26,"fat":5},{"id":"dish_biryani_hyderabadi_chicken2","name":"Hyderabadi Chicken Biryani","aliases":["hyderabadi chicken biryani","bir yani","chicken biryani","హైదరాబాద్ చీస్ బిర్యానీ"],"serving":"1 plate (250g)","cal":380,"protein":12,"carbs":34,"fat":14},{"id":"dish_biryani_hyderabadi_mutton2","name":"Hyderabadi Mutton Biryani","aliases":["hyderabadi mutton biryani","కాయ బిర్యానీ"],"serving":"1 plate (250g)","cal":420,"protein":14,"carbs":28,"fat":22},{"id":"dish_biryani_veg2","name":"Veg Biryani","aliases":["veg biryani","వెజ్ బిర్యానీ"],"serving":"1 plate (250g)","cal":300,"protein":7,"carbs":46,"fat":7},{"id":"dish_biryani_egg2","name":"Egg Biryani","aliases":["egg biryani","వండ్ల బిర్యానీ"],"serving":"1 plate (250g)","cal":280,"protein":12,"carbs":26,"fat":12},{"id":"dish_biryani_prawn2","name":"Prawn Biryani","aliases":["prawn biryani","ప్రాచీన బిర్యానీ"],"serving":"1 plate (250g)","cal":340,"protein":10,"carbs":28,"fat":16},{"id":"dish_biryani_chicken_dum2","name":"Chicken Dum Biryani","aliases":["chicken dum biryani","డం బిర్యానీ"],"serving":"1 plate (250g)","cal":360,"protein":12,"carbs":32,"fat":14},{"id":"dish_pulao_bagara2","name":"Bagara Rice","aliases":["bagara rice","బాగరా రైస్"],"serving":"1 plate (250g)","cal":320,"protein":8,"carbs":44,"fat":10},{"id":"dish_pulao_veg2","name":"Veg Pulao","aliases":["veg pulao","పులావ్"],"serving":"1 plate (250g)","cal":280,"protein":6,"carbs":44,"fat":6},{"id":"dish_biryani_chicken_lemon2","name":"Chicken Lemon Biryani","aliases":["lemon biryani","పువ్వి బిర్యానీ"],"serving":"1 plate (250g)","cal":350,"protein":10,"carbs":30,"fat":14},{"id":"dish_biryani_besan2","name":"Besan Egg Biryani","aliases":["besan biryani","బెసాన్ బిర్యానీ"],"serving":"1 plate (250g)","cal":290,"protein":14,"carbs":28,"fat":12},{"id":"dish_rice_pulihora2","name":"Pulihora","aliases":["pulihora","lemon rice","నెల్లు పచ్చడి","పులిహోరా"],"serving":"1 bowl (150g)","cal":160,"protein":3,"carbs":32,"fat":3},{"id":"dish_rice_curd2","name":"Curd Rice","aliases":["curd rice","తల్లు రైస్","yoghurt rice"],"serving":"1 bowl (150g)","cal":150,"protein":4,"carbs":18,"fat":5},{"id":"dish_rice_lemon2","name":"Lemon Rice","aliases":["lemon rice","నెల్లు రైస్"],"serving":"1 bowl (150g)","cal":170,"protein":3,"carbs":34,"fat":4},{"id":"dish_rice_tomato2","name":"Tomato Rice","aliases":["tomato rice","టమెటో రైస్"],"serving":"1 bowl (150g)","cal":170,"protein":3,"carbs":34,"fat":4},{"id":"dish_rice_gongura2","name":"Gongura Rice","aliases":["gongura rice","గొంగురా రైస్"],"serving":"1 bowl (150g)","cal":160,"protein":3,"carbs":30,"fat":4},{"id":"dish_rice_coconut2","name":"Coconut Rice","aliases":["coconut rice","కోస్తం రైస్"],"serving":"1 bowl (150g)","cal":180,"protein":3,"carbs":36,"fat":5},{"id":"dish_rice_jeera2","name":"Jeera Rice","aliases":["jeera rice","జీరా రైస్"],"serving":"1 bowl (150g)","cal":170,"protein":3,"carbs":34,"fat":3},{"id":"dish_rice_bisi_bel2","name":"Bisi Bele Bath","aliases":["bisi bele bath","బిసిబెలె బత్"],"serving":"1 bowl (150g)","cal":220,"protein":6,"carbs":36,"fat":6},{"id":"dish_rice_vangi2","name":"Vangi Bath","aliases":["vangi bath","వంగి బత్"],"serving":"1 bowl (150g)","cal":200,"protein":4,"carbs":32,"fat":6},{"id":"dish_rice_mango2","name":"Mango Rice","aliases":["mango rice","కాయప పుంగు"],"serving":"1 bowl (150g)","cal":150,"protein":3,"carbs":30,"fat":3},{"id":"dish_rice_gongura_pulihora2","name":"Gongura Pulihora","aliases":["gongura pulihora","గొంగురా పులిహోరా"],"serving":"1 bowl (150g)","cal":165,"protein":3,"carbs":32,"fat":3},{"id":"dish_rice_coconut_lemon","name":"Coconut Lemon Rice","aliases":["coconut lemon rice","కోస్తం నెల్లు రైస్"],"serving":"1 bowl (150g)","cal":170,"protein":3,"carbs":34,"fat":4},{"id":"dish_roti2","name":"Roti","aliases":["roti","రొట్టీ"],"serving":"1 roti (40g)","cal":110,"protein":3,"carbs":22,"fat":2},{"id":"dish_phulka2","name":"Phulka","aliases":["phulka","ఫుల్కా"],"serving":"1 phulka (40g)","cal":110,"protein":3,"carbs":22,"fat":2},{"id":"dish_paratha_aloo2","name":"Aloo Paratha","aliases":["paratha","aloo paratha","పారాత్థ"],"serving":"1 paratha (60g)","cal":220,"protein":5,"carbs":32,"fat":8},{"id":"dish_naan2","name":"Naan","aliases":["naan","నాన్"],"serving":"1 naan (70g)","cal":240,"protein":7,"carbs":40,"fat":6},{"id":"dish_kulcha2","name":"Kulcha","aliases":["kulcha","కుల్చా"],"serving":"1 kulcha (50g)","cal":200,"protein":6,"carbs":30,"fat":5},{"id":"dish_puri2","name":"Puri","aliases":["poori","పూరి"],"serving":"3 pooris (90g)","cal":220,"protein":5,"carbs":26,"fat":10},{"id":"dish_appam2","name":"Appam","aliases":["appam","అప్పం"],"serving":"4 appams (150g)","cal":190,"protein":4,"carbs":32,"fat":5},{"id":"dish_porotta2","name":"Porotta","aliases":["porotta","పొరట్ట"],"serving":"1 porotta (60g)","cal":210,"protein":4,"carbs":34,"fat":4},{"id":"dish_paratha_ghee2","name":"Paratha With Ghee","aliases":["paratha with ghee","పారాత్థ తెలుగు"],"serving":"1 paratha (60g)","cal":240,"protein":5,"carbs":32,"fat":10},{"id":"dish_samosa2","name":"Samosa","aliases":["samosa","సామోసా"],"serving":"1 samosa (80g)","cal":210,"protein":4,"carbs":26,"fat":10},{"id":"dish_bajji2","name":"Bajji (Food Fritter)","aliases":["bajji","బజ్జి"],"serving":"2 bajjis (100g)","cal":200,"protein":4,"carbs":20,"fat":10},{"id":"dish_punugulu3","name":"Punugulu (Spicy)","aliases":["punugulu","పునుగులు","అప్పడ్లు"],"serving":"10 punugulu (60g)","cal":150,"protein":4,"carbs":20,"fat":6},{"id":"dish_mysore_pak3","name":"Mysore Pak","aliases":["mysore pak","మైసూర్ పాక్"],"serving":"1 piece (40g)","cal":420,"protein":6,"carbs":34,"fat":26},{"id":"dish_laddu3","name":"Laddu (Besan)","aliases":["laddu","లడ్డు"],"serving":"1 laddu (30g)","cal":380,"protein":8,"carbs":34,"fat":20},{"id":"dish_boondi2","name":"Boondi Namkeen","aliases":["boondi","boondi namkeen","బూండి"],"serving":"1 plate (50g)","cal":180,"protein":4,"carbs":20,"fat":8},{"id":"dish_jalebi3","name":"Jalebi","aliases":["jalebi","జెలీబీ"],"serving":"2 jalebis (60g)","cal":340,"protein":5,"carbs":62,"fat":6},{"id":"dish_boondi_bath2","name":"Boondi Bath","aliases":["boondi bath","బూండి బత్"],"serving":"1 bowl (150g)","cal":190,"protein":4,"carbs":24,"fat":5},{"id":"dish_maggies_bajji2","name":"Maggies Bajji","aliases":["maggies bajji","బజ్జి"],"serving":"2 bajjis (100g)","cal":220,"protein":5,"carbs":22,"fat":10},{"id":"dish_paneer_butter_masala2","name":"Paneer Butter Masala","aliases":["paneer butter masala","పానీర్ బర్తర్ మాసాలా"],"serving":"1 plate (200g)","cal":240,"protein":12,"carbs":16,"fat":12},{"id":"dish_palak_paneer2","name":"Palak Paneer","aliases":["palak paneer","పాలక్ పానీర్"],"serving":"1 plate (180g)","cal":190,"protein":9,"carbs":14,"fat":9},{"id":"dish_dal_makhani2","name":"Dal Makhani","aliases":["dal makhani","దల్ మఖనీ"],"serving":"1 bowl (200g)","cal":220,"protein":12,"carbs":30,"fat":3},{"id":"dish_rajma2","name":"Rajma","aliases":["rajma","రాజ్మా"],"serving":"1 bowl (200g)","cal":200,"protein":10,"carbs":30,"fat":2},{"id":"dish_chole2","name":"Chole","aliases":["chole","చొలె"],"serving":"1 bowl (200g)","cal":210,"protein":10,"carbs":32,"fat":2},{"id":"dish_alu_gobi2","name":"Aloo Gobi","aliases":["aloo gobi","ఆలు గోబి"],"serving":"1 plate (180g)","cal":190,"protein":5,"carbs":28,"fat":7},{"id":"dish_butter_chicken2","name":"Butter Chicken","aliases":["butter chicken","బటర్ చికెన్"],"serving":"1 plate (200g)","cal":320,"protein":14,"carbs":10,"fat":22},{"id":"dish_chicken_curry2","name":"Chicken Curry","aliases":["chicken curry","చీస్ కర్ర"],"serving":"1 bowl (200g)","cal":240,"protein":12,"carbs":14,"fat":12},{"id":"dish_egg_curry2","name":"Egg Curry","aliases":["egg curry","వండ్ల కర్ర"],"serving":"1 bowl (200g)","cal":190,"protein":12,"carbs":10,"fat":9},{"id":"dish_dal_tadka2","name":"Dal Tadka","aliases":["dal tadka","దల్ తాడ్కా"],"serving":"1 bowl (200g)","cal":170,"protein":10,"carbs":22,"fat":3},{"id":"dish_veg_kurma2","name":"Veg Kurma","aliases":["veg kurma","వెజ్ కుర్మా"],"serving":"1 bowl (200g)","cal":180,"protein":7,"carbs":24,"fat":6},{"id":"dish_malai_kofta2","name":"Malai Kofta","aliases":["malai kofta","మలై కోఫ్టా"],"serving":"1 plate (200g)","cal":230,"protein":10,"carbs":18,"fat":10},{"id":"dish_chana_masala2","name":"Chana Masala","aliases":["chana masala","చనా మాసాలా"],"serving":"1 bowl (200g)","cal":210,"protein":12,"carbs":30,"fat":2},{"id":"dish_pav_bhaji2","name":"Pav Bhaji","aliases":["pav bhaji","పవ్ భజీ"],"serving":"1 plate (300g)","cal":260,"protein":8,"carbs":40,"fat":8},{"id":"dish_chole_pav2","name":"Chole Pav","aliases":["chole pav","చొలె పవ్"],"serving":"1 plate (300g)","cal":300,"protein":12,"carbs":40,"fat":6},{"id":"dish_paneer_tikka2","name":"Paneer Tikka","aliases":["paneer tikka","పానీర్ టిక్కా"],"serving":"1 plate (200g)","cal":230,"protein":12,"carbs":10,"fat":12},{"id":"dish_naan_butter2","name":"Naan With Butter","aliases":["naan butter","నాన్ తెలుగు"],"serving":"1 naan (70g)","cal":260,"protein":7,"carbs":40,"fat":8},{"id":"dish_gulab_jamun2","name":"Gulab Jamun","aliases":["gulab jamun","గులాబ్ జామున్"],"serving":"4 pieces (120g)","cal":350,"protein":6,"carbs":40,"fat":16},{"id":"dish_rasgulla2","name":"Rasgulla","aliases":["rasgulla","రస్గూలా"],"serving":"4 pieces (120g)","cal":220,"protein":4,"carbs":44,"fat":2},{"id":"dish_jalebi4","name":"Jalebi","aliases":["jalebi","జెలీబీ"],"serving":"2 jalebis (60g)","cal":340,"protein":5,"carbs":62,"fat":6},{"id":"dish_mysore_pak4","name":"Mysore Pak","aliases":["mysore pak","మైసూర్ పాక్"],"serving":"1 piece (40g)","cal":420,"protein":6,"carbs":34,"fat":26},{"id":"dish_laddu4","name":"Laddu (Besan)","aliases":["laddu","లడ్డు"],"serving":"1 laddu (30g)","cal":380,"protein":8,"carbs":34,"fat":20},{"id":"dish_barfi2","name":"Barfi","aliases":["barfi","బార్ఫీ"],"serving":"1 piece (40g)","cal":360,"protein":6,"carbs":44,"fat":22},{"id":"dish_halwa2","name":"Halwa (Sooji)","aliases":["halwa","హల్వా"],"serving":"1 piece (40g)","cal":300,"protein":4,"carbs":46,"fat":18},{"id":"dish_kaju_katli2","name":"Kaju Katli","aliases":["kaju katli","కాజు కత్లీ"],"serving":"2 pieces (40g)","cal":340,"protein":6,"carbs":38,"fat":20},{"id":"dish_rajgira_payasam2","name":"Rajgira Payasam","aliases":["rajgira payasam","రాజ్గిర పాయసం"],"serving":"1 bowl (150g)","cal":260,"protein":8,"carbs":36,"fat":6},{"id":"dish_kalakand2","name":"Kalakand","aliases":["kalakand","కలకాండ్"],"serving":"1 piece (60g)","cal":280,"protein":5,"carbs":40,"fat":16},{"id":"dish_chai_masala2","name":"Masala Chai","aliases":["masala chai","మసాలా చయ్"],"serving":"1 cup (200ml)","cal":150,"protein":4,"carbs":16,"fat":6},{"id":"dish_coffee_filter2","name":"Filter Coffee","aliases":["filter coffee","ఫిల్టర్ కాఫీ"],"serving":"1 cup (150ml)","cal":80,"protein":2,"carbs":6,"fat":4},{"id":"dish_lassi2","name":"Lassi","aliases":["lassi","లస్సీ"],"serving":"1 glass (200ml)","cal":120,"protein":6,"carbs":14,"fat":4},{"id":"dish_buttermilk2","name":"Buttermilk (Chaas)","aliases":["buttermilk","chaas","చాస్"],"serving":"1 glass (200ml)","cal":40,"protein":1,"carbs":4,"fat":2},{"id":"dish_badam_milk2","name":"Badam Milk","aliases":["badam milk","బాదం పాలు"],"serving":"1 glass (200ml)","cal":160,"protein":4,"carbs":16,"fat":7},{"id":"dish_rose_milk2","name":"Rose Milk","aliases":["rose milk","వాలు పాలు"],"serving":"1 glass (200ml)","cal":130,"protein":2,"carbs":16,"fat":5},{"id":"dish_gongura_pachadi3","name":"Gongura Pachadi","aliases":["gongura pachadi","gongura","గొంగురా పచ్చడి"],"serving":"1 small bowl (80g)","cal":90,"protein":2,"carbs":12,"fat":4},{"id":"dish_gongura_chicken3","name":"Gongura Chicken","aliases":["gongura chicken","గొంగురా కక్కరకోసం"],"serving":"1 plate (150g)","cal":220,"protein":12,"carbs":8,"fat":12},{"id":"dish_avakaya3","name":"Avakaya","aliases":["avakaya","అవకాయ"],"serving":"1 avocado (60g)","cal":120,"protein":3,"carbs":6,"fat":8},{"id":"dish_pulusu3","name":"Pulusu (Tender Coconut)","aliases":["pulusu","పులుసు"],"serving":"1 bowl (150g)","cal":90,"protein":1,"carbs":16,"fat":2},{"id":"dish_pesarapappu4","name":"Pesarapappu","aliases":["pesarapappu","పెసరపప్పు"],"serving":"1 bowl (150g)","cal":90,"protein":6,"carbs":14,"fat":1},{"id":"dish_ulavacharu4","name":"Ulavacharu","aliases":["ulavacharu","ఉలవాచరు"],"serving":"1 bowl (120g)","cal":100,"protein":2,"carbs":12,"fat":5},{"id":"dish_natu_kodi_pulusu4","name":"Natu Kodi Pulusu","aliases":["natu kodi pulusu","నాతు కొద్ది పులుసు"],"serving":"1 bowl (150g)","cal":140,"protein":7,"carbs":16,"fat":3},{"id":"dish_chepala_pulusu4","name":"Chepala Pulusu","aliases":["chepala pulusu","చెపల పులుసు"],"serving":"1 bowl (150g)","cal":120,"protein":4,"carbs":18,"fat":2},{"id":"dish_royala_iguru4","name":"Royala Iguru","aliases":["royala iguru","రాయోలా ఇగురు"],"serving":"1 bowl (150g)","cal":130,"protein":4,"carbs":18,"fat":4},{"id":"dish_papupulu_kura4","name":"Papupulu Kura","aliases":["papupulu kura","పపుపులు కూర"],"serving":"1 bowl (150g)","cal":100,"protein":4,"carbs":16,"fat":2},{"id":"dish_punugulu4","name":"Punugulu (Spicy)","aliases":["punugulu","పునుగులు"],"serving":"10 punugulu (60g)","cal":150,"protein":4,"carbs":20,"fat":6},{"id":"dish_laddu5","name":"Laddu (Groundnut)","aliases":["laddu groundnut","సొగుడు లడ్డు"],"serving":"1 laddu (30g)","cal":320,"protein":8,"carbs":30,"fat":18},{"id":"dish_paneer_butter_masala3","name":"Paneer Butter Masala","aliases":["paneer butter masala","పానీర్ బర్తర్ మాసాలా"],"serving":"1 plate (200g)","cal":240,"protein":12,"carbs":16,"fat":12},{"id":"dish_palak_paneer3","name":"Palak Paneer","aliases":["palak paneer","పాలక్ పానీర్"],"serving":"1 plate (180g)","cal":190,"protein":9,"carbs":14,"fat":9},{"id":"dish_dal_makhani3","name":"Dal Makhani","aliases":["dal makhani","దల్ మఖనీ"],"serving":"1 bowl (200g)","cal":220,"protein":12,"carbs":30,"fat":3},{"id":"dish_rajma3","name":"Rajma","aliases":["rajma","రాజ్మా"],"serving":"1 bowl (200g)","cal":200,"protein":10,"carbs":30,"fat":2},{"id":"dish_chole3","name":"Chole","aliases":["chole","చొలె"],"serving":"1 bowl (200g)","cal":210,"protein":10,"carbs":32,"fat":2},{"id":"dish_alu_gobi3","name":"Aloo Gobi","aliases":["aloo gobi","ఆలు గోబి"],"serving":"1 plate (180g)","cal":190,"protein":5,"carbs":28,"fat":7},{"id":"dish_butter_chicken3","name":"Butter Chicken","aliases":["butter chicken","బటర్ చికెన్"],"serving":"1 plate (200g)","cal":320,"protein":14,"carbs":10,"fat":22},{"id":"dish_chicken_curry3","name":"Chicken Curry","aliases":["chicken curry","చీస్ కర్ర"],"serving":"1 bowl (200g)","cal":240,"protein":12,"carbs":14,"fat":12},{"id":"dish_egg_curry3","name":"Egg Curry","aliases":["egg curry","వండ్ల కర్ర"],"serving":"1 bowl (200g)","cal":190,"protein":12,"carbs":10,"fat":9},{"id":"dish_dal_tadka3","name":"Dal Tadka","aliases":["dal tadka","దల్ తాడ్కా"],"serving":"1 bowl (200g)","cal":170,"protein":10,"carbs":22,"fat":3},{"id":"dish_veg_kurma3","name":"Veg Kurma","aliases":["veg kurma","వెజ్ కుర్మా"],"serving":"1 bowl (200g)","cal":180,"protein":7,"carbs":24,"fat":6},{"id":"dish_malai_kofta3","name":"Malai Kofta","aliases":["malai kofta","మలై కోఫ్టా"],"serving":"1 plate (200g)","cal":230,"protein":10,"carbs":18,"fat":10},{"id":"dish_gulab_jamun3","name":"Gulab Jamun","aliases":["gulab jamun","గులాబ్ జామున్"],"serving":"4 pieces (120g)","cal":350,"protein":6,"carbs":40,"fat":16},{"id":"dish_rasgulla3","name":"Rasgulla","aliases":["rasgulla","రస్గూలా"],"serving":"4 pieces (120g)","cal":220,"protein":4,"carbs":44,"fat":2},{"id":"dish_jalebi6","name":"Jalebi","aliases":["jalebi","జెలీబీ"],"serving":"2 jalebis (60g)","cal":340,"protein":5,"carbs":62,"fat":6},{"id":"dish_mysore_pak6","name":"Mysore Pak","aliases":["mysore pak","మైసూర్ పాక్"],"serving":"1 piece (40g)","cal":420,"protein":6,"carbs":34,"fat":26},{"id":"dish_laddu6","name":"Laddu (Besan)","aliases":["laddu","లడ్డు"],"serving":"1 laddu (30g)","cal":380,"protein":8,"carbs":34,"fat":20},{"id":"dish_barfi3","name":"Barfi","aliases":["barfi","బార్ఫీ"],"serving":"1 piece (40g)","cal":360,"protein":6,"carbs":44,"fat":22},{"id":"dish_coffee_filter3","name":"Filter Coffee","aliases":["filter coffee","ఫిల్టర్ కాఫీ"],"serving":"1 cup (150ml)","cal":80,"protein":2,"carbs":6,"fat":4},{"id":"dish_lassi3","name":"Lassi","aliases":["lassi","లస్సీ"],"serving":"1 glass (200ml)","cal":120,"protein":6,"carbs":14,"fat":4},{"id":"dish_buttermilk3","name":"Buttermilk (Chaas)","aliases":["buttermilk","chaas","చాస్"],"serving":"1 glass (200ml)","cal":40,"protein":1,"carbs":4,"fat":2},{"id":"dish_badam_milk3","name":"Badam Milk","aliases":["badam milk","బాదం పాలు"],"serving":"1 glass (200ml)","cal":160,"protein":4,"carbs":16,"fat":7},{"id":"dish_rose_milk3","name":"Rose Milk","aliases":["rose milk","వాలు పాలు"],"serving":"1 glass (200ml)","cal":130,"protein":2,"carbs":16,"fat":5},{"id":"dish_mysore_pak7","name":"Mysore Pak","aliases":["mysore pak","మైసూర్ పాక్"],"serving":"1 piece (40g)","cal":420,"protein":6,"carbs":34,"fat":26},{"id":"dish_laddu7","name":"Laddu (Besan)","aliases":["laddu","లడ్డు"],"serving":"1 laddu (30g)","cal":380,"protein":8,"carbs":34,"fat":20},{"id":"dish_gulab_jamun4","name":"Gulab Jamun","aliases":["gulab jamun","గులాబ్ జామున్"],"serving":"4 pieces (120g)","cal":350,"protein":6,"carbs":40,"fat":16},{"id":"dish_rasgulla4","name":"Rasgulla","aliases":["rasgulla","రస్గూలా"],"serving":"4 pieces (120g)","cal":220,"protein":4,"carbs":44,"fat":2}]
+[
+  {
+    "id": "dish_payasam_semiya",
+    "name": "Semiya Payasam",
+    "aliases": [
+      "payasam",
+      "semiya payasam",
+      "vermicelli kheer",
+      "semiya paramannam",
+      "శెమియా పాయసం",
+      "shēmiyā pāyasaṁ"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 210,
+    "protein": 4,
+    "carbs": 38,
+    "fat": 5
+  },
+  {
+    "id": "dish_payasam_sabudana",
+    "name": "Sabudana Kheer",
+    "aliases": [
+      "sabudana payasam",
+      "satto kheer",
+      "sabu da kheer",
+      "సాబుడానా పాయసం"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 240,
+    "protein": 5,
+    "carbs": 42,
+    "fat": 8
+  },
+  {
+    "id": "dish_payasam_rice",
+    "name": "Rice Kheer",
+    "aliases": [
+      "payasam",
+      "rice kheer",
+      "chawal payasam",
+      "పాయసం",
+      "చాల పాయసం"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 220,
+    "protein": 5,
+    "carbs": 44,
+    "fat": 7
+  },
+  {
+    "id": "dish_payasam_paramannam",
+    "name": "Arisi Payasam (Paramannam)",
+    "aliases": [
+      "paramannam",
+      "arsi payasam",
+      "rice payasam",
+      "పర్మన్నం",
+      "అడుగు పాయసం"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 200,
+    "protein": 5,
+    "carbs": 42,
+    "fat": 6
+  },
+  {
+    "id": "dish_payasam_ksheera",
+    "name": "Ksheera (Milk Payasam)",
+    "aliases": [
+      "ksheera",
+      "milk payasam",
+      "payasam",
+      "పాయసం",
+      "పాయసము"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 180,
+    "protein": 6,
+    "carbs": 24,
+    "fat": 8
+  },
+  {
+    "id": "dish_payasam_carrot_halwa",
+    "name": "Carrot Halwa",
+    "aliases": [
+      "carrot halwa",
+      "gajar ka halwa",
+      "carrot payasam",
+      "కార్ర హల్వా"
+    ],
+    "serving": "1 plate (120g)",
+    "cal": 260,
+    "protein": 5,
+    "carbs": 24,
+    "fat": 14
+  },
+  {
+    "id": "dish_payasam_rava_kesari",
+    "name": "Rava Kesari",
+    "aliases": [
+      "rava kesari",
+      "rava payasam",
+      "rabba kesari",
+      "రావలె కేసరి"
+    ],
+    "serving": "1 plate (120g)",
+    "cal": 230,
+    "protein": 6,
+    "carbs": 40,
+    "fat": 7
+  },
+  {
+    "id": "dish_payasam_pal",
+    "name": "Pal Payasam",
+    "aliases": [
+      "pal payasam",
+      "పాల పాయసం"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 190,
+    "protein": 6,
+    "carbs": 26,
+    "fat": 7
+  },
+  {
+    "id": "dish_payasam_sarkarara",
+    "name": "Sarkkarai Payasam (Jackfruit)",
+    "aliases": [
+      "sarkaraya payasam",
+      "jackfruit payasam",
+      "సార్క్కరై పాయసం"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 250,
+    "protein": 4,
+    "carbs": 50,
+    "fat": 2
+  },
+  {
+    "id": "dish_payasam_sago",
+    "name": "Sago Payasam",
+    "aliases": [
+      "sagoo payasam",
+      "sago kheer",
+      "సాగు పాయసం"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 210,
+    "protein": 4,
+    "carbs": 38,
+    "fat": 5
+  },
+  {
+    "id": "dish_payasam_rajgira",
+    "name": "Rajgira Payasam",
+    "aliases": [
+      "rajgira payasam",
+      "amaranth payasam",
+      "రాజ్గిర పాయసం"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 240,
+    "protein": 8,
+    "carbs": 32,
+    "fat": 6
+  },
+  {
+    "id": "dish_payasam_vermicelli_rose",
+    "name": "Vermicelli Rose Payasam",
+    "aliases": [
+      "vermicelli rose payasam",
+      "వర్మీసెల్లి రోజ్ పాయసం"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 215,
+    "protein": 4,
+    "carbs": 39,
+    "fat": 5
+  },
+  {
+    "id": "dish_dosa_plain",
+    "name": "Plain Dosa",
+    "aliases": [
+      "dosa",
+      "plain dosa",
+      "veg dosa",
+      "డోస"
+    ],
+    "serving": "1 dosa (45g)",
+    "cal": 180,
+    "protein": 4,
+    "carbs": 26,
+    "fat": 4
+  },
+  {
+    "id": "dish_dosa_masala",
+    "name": "Masala Dosa",
+    "aliases": [
+      "masala dosa",
+      "మసాలా డోస"
+    ],
+    "serving": "1 dosa (60g)",
+    "cal": 320,
+    "protein": 8,
+    "carbs": 40,
+    "fat": 8
+  },
+  {
+    "id": "dish_dosa_onion",
+    "name": "Onion Dosa",
+    "aliases": [
+      "onion dosa",
+      "పిండపు డోస"
+    ],
+    "serving": "1 dosa (55g)",
+    "cal": 260,
+    "protein": 6,
+    "carbs": 32,
+    "fat": 7
+  },
+  {
+    "id": "dish_dosa_rava",
+    "name": "Rava Dosa",
+    "aliases": [
+      "rava dosa",
+      "రవలు డోస"
+    ],
+    "serving": "1 dosa (65g)",
+    "cal": 340,
+    "protein": 8,
+    "carbs": 48,
+    "fat": 6
+  },
+  {
+    "id": "dish_dosa_set",
+    "name": "Set Dosa",
+    "aliases": [
+      "set dosa",
+      "సెట్ డోస"
+    ],
+    "serving": "1 dosa (40g)",
+    "cal": 150.0,
+    "protein": 3.5,
+    "carbs": 21.0,
+    "fat": 2.5
+  },
+  {
+    "id": "dish_pesarattu",
+    "name": "Pesarattu",
+    "aliases": [
+      "pesarattu",
+      "పెసరట్టు",
+      "Mini Pesrattu with onion, jeera,green chilly & coriander",
+      "Pesarattu (With Ginger Chutney)"
+    ],
+    "serving": "1 pesarattu (70g)",
+    "cal": 290,
+    "protein": 10,
+    "carbs": 44,
+    "fat": 4
+  },
+  {
+    "id": "dish_uthappam",
+    "name": "Uthappam",
+    "aliases": [
+      "utthapam",
+      "ఉత్తప్పం"
+    ],
+    "serving": "1 utthapam (90g)",
+    "cal": 250,
+    "protein": 5,
+    "carbs": 38,
+    "fat": 4
+  },
+  {
+    "id": "dish_dosa_neer",
+    "name": "Neer Dosa",
+    "aliases": [
+      "neer dosa",
+      "నీర్ డోస"
+    ],
+    "serving": "1 dosa (40g)",
+    "cal": 200,
+    "protein": 5,
+    "carbs": 30,
+    "fat": 4
+  },
+  {
+    "id": "dish_dosa_ragi",
+    "name": "Ragi Dosa",
+    "aliases": [
+      "ragi dosa",
+      "ragi mudde",
+      "రాగి డోస"
+    ],
+    "serving": "1 dosa (50g)",
+    "cal": 210,
+    "protein": 5,
+    "carbs": 32,
+    "fat": 4
+  },
+  {
+    "id": "dish_dosa_egg",
+    "name": "Egg Dosa",
+    "aliases": [
+      "egg dosa",
+      "ఎగ్గు డోస"
+    ],
+    "serving": "1 dosa (60g)",
+    "cal": 240,
+    "protein": 9,
+    "carbs": 26,
+    "fat": 7
+  },
+  {
+    "id": "dish_uthappam_pudina",
+    "name": "Uthappam With Pudina",
+    "aliases": [
+      "utthapam pudina",
+      "ముంబై ఉత్తప్పం"
+    ],
+    "serving": "1 utthapam (90g)",
+    "cal": 240,
+    "protein": 5,
+    "carbs": 36,
+    "fat": 4
+  },
+  {
+    "id": "dish_dosa_with_sambar",
+    "name": "Dosa With Sambar",
+    "aliases": [
+      "dosa curry",
+      "డోసతో సాంబార్"
+    ],
+    "serving": "1 dosa + sambar (120g)",
+    "cal": 340,
+    "protein": 8,
+    "carbs": 46,
+    "fat": 4
+  },
+  {
+    "id": "dish_dosa_masala_chutney",
+    "name": "Dosa With Chutney",
+    "aliases": [
+      "dosa chutney",
+      "మసాలా డోస",
+      "Dosa/Bombay Chutney"
+    ],
+    "serving": "1 dosa (60g)",
+    "cal": 330,
+    "protein": 8,
+    "carbs": 44,
+    "fat": 7
+  },
+  {
+    "id": "dish_idli",
+    "name": "Idli",
+    "aliases": [
+      "idli",
+      "ఇడ్లి",
+      "Plain Idly"
+    ],
+    "serving": "1 idli (50g)",
+    "cal": 35.0,
+    "protein": 1.75,
+    "carbs": 6.0,
+    "fat": 0.5
+  },
+  {
+    "id": "dish_idli_rava",
+    "name": "Rava Idli",
+    "aliases": [
+      "rava idli",
+      "రవలు ఇడ్లి"
+    ],
+    "serving": "1 rava idli (45g)",
+    "cal": 32.5,
+    "protein": 1.25,
+    "carbs": 6.0,
+    "fat": 0.5
+  },
+  {
+    "id": "dish_idli_sambar",
+    "name": "Idli With Sambar",
+    "aliases": [
+      "sambar idli",
+      "సాంబార్ ఇడ్లి"
+    ],
+    "serving": "1 idli with sambar (50g)",
+    "cal": 50.0,
+    "protein": 2.0,
+    "carbs": 7.5,
+    "fat": 0.75
+  },
+  {
+    "id": "dish_medu_vada",
+    "name": "Medu Vada",
+    "aliases": [
+      "medu vada",
+      "మెడు వడ",
+      "Medu Wada"
+    ],
+    "serving": "1 medu vada (50g)",
+    "cal": 80.0,
+    "protein": 3.0,
+    "carbs": 7.0,
+    "fat": 4.5
+  },
+  {
+    "id": "dish_vada_sambar",
+    "name": "Vada With Sambar",
+    "aliases": [
+      "vada sambar",
+      "వడ సాంబార్"
+    ],
+    "serving": "1 vada with sambar (100g)",
+    "cal": 110.0,
+    "protein": 4.0,
+    "carbs": 14.0,
+    "fat": 2.5
+  },
+  {
+    "id": "dish_punugulu",
+    "name": "Punugulu",
+    "aliases": [
+      "punugulu",
+      "appadalu",
+      "పునుగులు",
+      "punugulu (appadalu)",
+      "punugulu (spicy)",
+      "spicy punugulu"
+    ],
+    "serving": "1 punugulu (6g)",
+    "cal": 15.0,
+    "protein": 0.4,
+    "carbs": 2.0,
+    "fat": 0.6
+  },
+  {
+    "id": "dish_mysore_vada",
+    "name": "Mysore Vada",
+    "aliases": [
+      "mysore vada",
+      "మైసూర్ వడ"
+    ],
+    "serving": "1 mysore vada (60g)",
+    "cal": 85.0,
+    "protein": 2.5,
+    "carbs": 8.0,
+    "fat": 4.5
+  },
+  {
+    "id": "dish_idli_sundal",
+    "name": "Idli With Sundal",
+    "aliases": [
+      "idli sundal",
+      "ఇడ్లి సుండల్"
+    ],
+    "serving": "1 idli with sundal (38g)",
+    "cal": 52.5,
+    "protein": 2.0,
+    "carbs": 6.5,
+    "fat": 1.25
+  },
+  {
+    "id": "dish_biryani_hyderabadi_chicken",
+    "name": "Hyderabadi Chicken Biryani",
+    "aliases": [
+      "hyderabadi chicken biryani",
+      "bir yani",
+      "chicken biryani",
+      "hyderabadi biryani",
+      "హైదరాబాద్ చీస్ బిర్యానీ"
+    ],
+    "serving": "1 plate (250g)",
+    "cal": 380,
+    "protein": 12,
+    "carbs": 34,
+    "fat": 14
+  },
+  {
+    "id": "dish_biryani_hyderabadi_mutton",
+    "name": "Hyderabadi Mutton Biryani",
+    "aliases": [
+      "hyderabadi mutton biryani",
+      "mutton biryani",
+      "కాయ బిర్యానీ"
+    ],
+    "serving": "1 plate (250g)",
+    "cal": 420,
+    "protein": 14,
+    "carbs": 28,
+    "fat": 22
+  },
+  {
+    "id": "dish_biryani_veg",
+    "name": "Veg Biryani",
+    "aliases": [
+      "veg biryani",
+      "వెజ్ బిర్యానీ"
+    ],
+    "serving": "1 plate (250g)",
+    "cal": 300,
+    "protein": 7,
+    "carbs": 46,
+    "fat": 7
+  },
+  {
+    "id": "dish_biryani_egg",
+    "name": "Egg Biryani",
+    "aliases": [
+      "egg biryani",
+      "వండ్ల బిర్యానీ"
+    ],
+    "serving": "1 plate (250g)",
+    "cal": 280,
+    "protein": 12,
+    "carbs": 26,
+    "fat": 12
+  },
+  {
+    "id": "dish_biryani_prawn",
+    "name": "Prawn Biryani",
+    "aliases": [
+      "prawn biryani",
+      "ప్రాచీన బిర్యానీ"
+    ],
+    "serving": "1 plate (250g)",
+    "cal": 340,
+    "protein": 10,
+    "carbs": 28,
+    "fat": 16
+  },
+  {
+    "id": "dish_biryani_chicken_dum",
+    "name": "Chicken Dum Biryani",
+    "aliases": [
+      "chicken dum biryani",
+      "డం బిర్యానీ",
+      "CHICKEN DUM BIRYANI WITH BASMATI RICE"
+    ],
+    "serving": "1 plate (250g)",
+    "cal": 360,
+    "protein": 12,
+    "carbs": 32,
+    "fat": 14
+  },
+  {
+    "id": "dish_pulao_bagara",
+    "name": "Bagara Rice",
+    "aliases": [
+      "bagara rice",
+      "బాగరా రైస్"
+    ],
+    "serving": "1 plate (250g)",
+    "cal": 320,
+    "protein": 8,
+    "carbs": 44,
+    "fat": 10
+  },
+  {
+    "id": "dish_pulao_veg",
+    "name": "Veg Pulao",
+    "aliases": [
+      "veg pulao",
+      "పులావ్",
+      "Vegetable pulao"
+    ],
+    "serving": "1 plate (250g)",
+    "cal": 280,
+    "protein": 6,
+    "carbs": 44,
+    "fat": 6
+  },
+  {
+    "id": "dish_biryani_chicken_lemon",
+    "name": "Chicken Lemon Biryani",
+    "aliases": [
+      "lemon biryani",
+      "పువ్వి బిర్యానీ"
+    ],
+    "serving": "1 plate (250g)",
+    "cal": 350,
+    "protein": 10,
+    "carbs": 30,
+    "fat": 14
+  },
+  {
+    "id": "dish_biryani_besan",
+    "name": "Besan Egg Biryani",
+    "aliases": [
+      "besan biryani",
+      "బెసాన్ బిర్యానీ"
+    ],
+    "serving": "1 plate (250g)",
+    "cal": 290,
+    "protein": 14,
+    "carbs": 28,
+    "fat": 12
+  },
+  {
+    "id": "dish_rice_pulihora",
+    "name": "Pulihora",
+    "aliases": [
+      "pulihora",
+      "నెల్లు పచ్చడి",
+      "పులిహోరా"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 160,
+    "protein": 3,
+    "carbs": 32,
+    "fat": 3
+  },
+  {
+    "id": "dish_rice_curd",
+    "name": "Curd Rice",
+    "aliases": [
+      "curd rice",
+      "తల్లు రైస్",
+      "yoghurt rice"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 150,
+    "protein": 4,
+    "carbs": 18,
+    "fat": 5
+  },
+  {
+    "id": "dish_rice_lemon",
+    "name": "Lemon Rice",
+    "aliases": [
+      "lemon rice",
+      "నెల్లు రైస్"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 170,
+    "protein": 3,
+    "carbs": 34,
+    "fat": 4
+  },
+  {
+    "id": "dish_rice_tomato",
+    "name": "Tomato Rice",
+    "aliases": [
+      "tomato rice",
+      "టమెటో రైస్"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 170,
+    "protein": 3,
+    "carbs": 34,
+    "fat": 4
+  },
+  {
+    "id": "dish_rice_gongura",
+    "name": "Gongura Rice",
+    "aliases": [
+      "gongura rice",
+      "గొంగురా రైస్"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 160,
+    "protein": 3,
+    "carbs": 30,
+    "fat": 4
+  },
+  {
+    "id": "dish_rice_coconut",
+    "name": "Coconut Rice",
+    "aliases": [
+      "coconut rice",
+      "కోస్తం రైస్"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 180,
+    "protein": 3,
+    "carbs": 36,
+    "fat": 5
+  },
+  {
+    "id": "dish_rice_jeera",
+    "name": "Jeera Rice",
+    "aliases": [
+      "jeera rice",
+      "జీరా రైస్",
+      "Jeera Pualo"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 170,
+    "protein": 3,
+    "carbs": 34,
+    "fat": 3
+  },
+  {
+    "id": "dish_rice_bisi_bel",
+    "name": "Bisi Bele Bath",
+    "aliases": [
+      "bisi bele bath",
+      "బిసిబెలె బత్",
+      "Bisibella Bath with Kaara Boondi"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 220,
+    "protein": 6,
+    "carbs": 36,
+    "fat": 6
+  },
+  {
+    "id": "dish_rice_vangi",
+    "name": "Vangi Bath",
+    "aliases": [
+      "vangi bath",
+      "వంగి బత్"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 200,
+    "protein": 4,
+    "carbs": 32,
+    "fat": 6
+  },
+  {
+    "id": "dish_rice_mango",
+    "name": "Mango Rice",
+    "aliases": [
+      "mango rice",
+      "కాయప పుంగు"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 150,
+    "protein": 3,
+    "carbs": 30,
+    "fat": 3
+  },
+  {
+    "id": "dish_rice_gongura_pulihora",
+    "name": "Gongura Pulihora",
+    "aliases": [
+      "gongura pulihora",
+      "గొంగురా పులిహోరా"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 165,
+    "protein": 3,
+    "carbs": 32,
+    "fat": 3
+  },
+  {
+    "id": "dish_gongura_pachadi",
+    "name": "Gongura Pachadi",
+    "aliases": [
+      "gongura pachadi",
+      "gongura",
+      "గొంగురా పచ్చడి"
+    ],
+    "serving": "1 small bowl (80g)",
+    "cal": 90,
+    "protein": 2,
+    "carbs": 12,
+    "fat": 4
+  },
+  {
+    "id": "dish_gongura_chicken",
+    "name": "Gongura Chicken",
+    "aliases": [
+      "gongura chicken",
+      "గొంగురా కక్కరకోసం"
+    ],
+    "serving": "1 plate (150g)",
+    "cal": 220,
+    "protein": 12,
+    "carbs": 8,
+    "fat": 12
+  },
+  {
+    "id": "dish_avakaya",
+    "name": "Avakaya (Mango Pickle)",
+    "aliases": [
+      "avakaya",
+      "అవకాయ",
+      "mango pickle",
+      "mango achar",
+      "avakaya pickle"
+    ],
+    "serving": "1 tbsp (15g)",
+    "cal": 45,
+    "protein": 0.5,
+    "carbs": 3,
+    "fat": 3.5
+  },
+  {
+    "id": "dish_tomato_pachadi",
+    "name": "Tomato Pachadi",
+    "aliases": [
+      "tomato pachadi",
+      "టమెటో పచ్చడి",
+      "Tomato Pachadi (Spicy)"
+    ],
+    "serving": "1 small bowl (80g)",
+    "cal": 70,
+    "protein": 2,
+    "carbs": 12,
+    "fat": 2
+  },
+  {
+    "id": "dish_pulusu",
+    "name": "Pulusu (Tender Coconut)",
+    "aliases": [
+      "pulusu",
+      "పులుసు"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 90,
+    "protein": 1,
+    "carbs": 16,
+    "fat": 2
+  },
+  {
+    "id": "dish_koora_veg",
+    "name": "Veg Koora",
+    "aliases": [
+      "veg koora",
+      "వెజ్ కోర"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 110,
+    "protein": 4,
+    "carbs": 16,
+    "fat": 4
+  },
+  {
+    "id": "dish_pesarapappu",
+    "name": "Pesarapappu",
+    "aliases": [
+      "pesarapappu",
+      "పెసరపప్పు"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 90,
+    "protein": 6,
+    "carbs": 14,
+    "fat": 1
+  },
+  {
+    "id": "dish_ulavacharu",
+    "name": "Ulavacharu",
+    "aliases": [
+      "ulavacharu",
+      "ఉలవాచరు"
+    ],
+    "serving": "1 bowl (120g)",
+    "cal": 100,
+    "protein": 2,
+    "carbs": 12,
+    "fat": 5
+  },
+  {
+    "id": "dish_natu_kodi_pulusu",
+    "name": "Natu Kodi Pulusu",
+    "aliases": [
+      "natu kodi pulusu",
+      "నాతు కొద్ది పులుసు"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 140,
+    "protein": 7,
+    "carbs": 16,
+    "fat": 3
+  },
+  {
+    "id": "dish_chepala_pulusu",
+    "name": "Chepala Pulusu",
+    "aliases": [
+      "chepala pulusu",
+      "చెపల పులుసు"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 120,
+    "protein": 4,
+    "carbs": 18,
+    "fat": 2
+  },
+  {
+    "id": "dish_royala_iguru",
+    "name": "Royala Iguru",
+    "aliases": [
+      "royala iguru",
+      "రాయోలా ఇగురు"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 130,
+    "protein": 4,
+    "carbs": 18,
+    "fat": 4
+  },
+  {
+    "id": "dish_motsari_pulusu",
+    "name": "Motsari Pulusu",
+    "aliases": [
+      "motsari pulusu",
+      "మోట్సారి పులుసు"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 110,
+    "protein": 5,
+    "carbs": 18,
+    "fat": 2
+  },
+  {
+    "id": "dish_papupulu_kura",
+    "name": "Papupulu Kura",
+    "aliases": [
+      "papupulu kura",
+      "పపుపులు కూర"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 100,
+    "protein": 4,
+    "carbs": 16,
+    "fat": 2
+  },
+  {
+    "id": "dish_gongura_chicken_peanuts",
+    "name": "Gongura Chicken With Peanuts",
+    "aliases": [
+      "gongura chicken peanut",
+      "గొంగురా కక్కరకోసం"
+    ],
+    "serving": "1 plate (150g)",
+    "cal": 220,
+    "protein": 14,
+    "carbs": 8,
+    "fat": 12
+  },
+  {
+    "id": "dish_chepala_pulusu_methi",
+    "name": "Chepala Pulusu (Methi)",
+    "aliases": [
+      "chepala pulusu methi",
+      "పసల పులుసు"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 120,
+    "protein": 4,
+    "carbs": 18,
+    "fat": 2
+  },
+  {
+    "id": "dish_gongura_pachadi_tomato",
+    "name": "Gongura Pachadi With Tomato",
+    "aliases": [
+      "gongura pachadi tomato",
+      "గొంగురా పచ్చడి టమెటో"
+    ],
+    "serving": "1 small bowl (80g)",
+    "cal": 80,
+    "protein": 3,
+    "carbs": 12,
+    "fat": 3
+  },
+  {
+    "id": "dish_upma",
+    "name": "Upma",
+    "aliases": [
+      "upma",
+      "ఉప్మా"
+    ],
+    "serving": "1 plate (200g)",
+    "cal": 200,
+    "protein": 5,
+    "carbs": 32,
+    "fat": 5
+  },
+  {
+    "id": "dish_upma_rava",
+    "name": "Rava Upma",
+    "aliases": [
+      "rava upma",
+      "రవలు ఉప్మా",
+      "Ravva Upma"
+    ],
+    "serving": "1 plate (200g)",
+    "cal": 210,
+    "protein": 5,
+    "carbs": 34,
+    "fat": 5
+  },
+  {
+    "id": "dish_upma_atukula",
+    "name": "Athula Upma (Ragi)",
+    "aliases": [
+      "atukula upma",
+      "ragi upma",
+      "అటుకు ఉప్మా"
+    ],
+    "serving": "1 plate (200g)",
+    "cal": 200,
+    "protein": 5,
+    "carbs": 32,
+    "fat": 4
+  },
+  {
+    "id": "dish_upma_pesara",
+    "name": "Pesara Upma (Lentil)",
+    "aliases": [
+      "pesara upma",
+      "పెసర ఉప్మా"
+    ],
+    "serving": "1 plate (200g)",
+    "cal": 210,
+    "protein": 6,
+    "carbs": 32,
+    "fat": 5
+  },
+  {
+    "id": "dish_puri",
+    "name": "Puri",
+    "aliases": [
+      "poori",
+      "పూరి"
+    ],
+    "serving": "1 puri (30g)",
+    "cal": 73.33,
+    "protein": 1.67,
+    "carbs": 8.67,
+    "fat": 3.33
+  },
+  {
+    "id": "dish_chapati",
+    "name": "Chapati",
+    "aliases": [
+      "chapati",
+      "roti",
+      "phulka",
+      "చపాతి",
+      "chapathi",
+      "plain roti",
+      "plain chapati"
+    ],
+    "serving": "1 chapati (40g)",
+    "cal": 120,
+    "protein": 3,
+    "carbs": 24,
+    "fat": 2
+  },
+  {
+    "id": "dish_idli_vada",
+    "name": "Idli Vada",
+    "aliases": [
+      "idli vada",
+      "ఇడ్లి వడ"
+    ],
+    "serving": "1 idli (75g)",
+    "cal": 65.0,
+    "protein": 2.25,
+    "carbs": 8.0,
+    "fat": 1.75
+  },
+  {
+    "id": "dish_meal_idli",
+    "name": "Meal With Idli",
+    "aliases": [
+      "idli meal",
+      "ఇడ్లి మీల్"
+    ],
+    "serving": "1 idli (62g)",
+    "cal": 62.5,
+    "protein": 2.0,
+    "carbs": 8.5,
+    "fat": 1.0
+  },
+  {
+    "id": "dish_upma_vermicelli",
+    "name": "Vermicelli Upma",
+    "aliases": [
+      "vermicelli upma",
+      "sevi upma",
+      "వర్మీసెల్లి ఉప్మా",
+      "Semiya upma"
+    ],
+    "serving": "1 plate (200g)",
+    "cal": 220,
+    "protein": 5,
+    "carbs": 34,
+    "fat": 4
+  },
+  {
+    "id": "dish_paratha_aloo",
+    "name": "Aloo Paratha",
+    "aliases": [
+      "paratha",
+      "aloo paratha",
+      "పారాత్థ"
+    ],
+    "serving": "1 paratha (60g)",
+    "cal": 220,
+    "protein": 5,
+    "carbs": 32,
+    "fat": 8
+  },
+  {
+    "id": "dish_naan",
+    "name": "Naan",
+    "aliases": [
+      "naan",
+      "నాన్"
+    ],
+    "serving": "1 naan (70g)",
+    "cal": 240,
+    "protein": 7,
+    "carbs": 40,
+    "fat": 6
+  },
+  {
+    "id": "dish_kulcha",
+    "name": "Kulcha",
+    "aliases": [
+      "kulcha",
+      "కుల్చా"
+    ],
+    "serving": "1 kulcha (50g)",
+    "cal": 200,
+    "protein": 6,
+    "carbs": 30,
+    "fat": 5
+  },
+  {
+    "id": "dish_appam",
+    "name": "Appam",
+    "aliases": [
+      "appam",
+      "అప్పం"
+    ],
+    "serving": "1 appam (38g)",
+    "cal": 47.5,
+    "protein": 1.0,
+    "carbs": 8.0,
+    "fat": 1.25
+  },
+  {
+    "id": "dish_porotta",
+    "name": "Porotta",
+    "aliases": [
+      "porotta",
+      "పొరట్ట"
+    ],
+    "serving": "1 porotta (60g)",
+    "cal": 210,
+    "protein": 4,
+    "carbs": 34,
+    "fat": 4
+  },
+  {
+    "id": "dish_paratha_ghee",
+    "name": "Paratha With Ghee",
+    "aliases": [
+      "paratha with ghee",
+      "పారాత్థ తెలుగు"
+    ],
+    "serving": "1 paratha (60g)",
+    "cal": 240,
+    "protein": 5,
+    "carbs": 32,
+    "fat": 10
+  },
+  {
+    "id": "dish_samosa",
+    "name": "Samosa",
+    "aliases": [
+      "samosa",
+      "సామోసా"
+    ],
+    "serving": "1 samosa (80g)",
+    "cal": 210,
+    "protein": 4,
+    "carbs": 26,
+    "fat": 10
+  },
+  {
+    "id": "dish_bajji",
+    "name": "Bajji (Food Fritter)",
+    "aliases": [
+      "bajji",
+      "బజ్జి"
+    ],
+    "serving": "1 bajjis (50g)",
+    "cal": 100.0,
+    "protein": 2.0,
+    "carbs": 10.0,
+    "fat": 5.0
+  },
+  {
+    "id": "dish_mysore_pak",
+    "name": "Mysore Pak",
+    "aliases": [
+      "mysore pak",
+      "మైసూర్ పాక్"
+    ],
+    "serving": "1 piece (40g)",
+    "cal": 420,
+    "protein": 6,
+    "carbs": 34,
+    "fat": 26
+  },
+  {
+    "id": "dish_laddu",
+    "name": "Laddu (Besan)",
+    "aliases": [
+      "laddu",
+      "లడ్డు"
+    ],
+    "serving": "1 laddu (30g)",
+    "cal": 380,
+    "protein": 8,
+    "carbs": 34,
+    "fat": 20
+  },
+  {
+    "id": "dish_boondi",
+    "name": "Boondi Namkeen",
+    "aliases": [
+      "boondi",
+      "boondi namkeen",
+      "బూండి"
+    ],
+    "serving": "1 plate (50g)",
+    "cal": 180,
+    "protein": 4,
+    "carbs": 20,
+    "fat": 8
+  },
+  {
+    "id": "dish_jalebi",
+    "name": "Jalebi",
+    "aliases": [
+      "jalebi",
+      "జెలీబీ",
+      "1 jalebi",
+      "jalebi (single piece)"
+    ],
+    "serving": "1 jalebi (30g)",
+    "cal": 170,
+    "protein": 2.5,
+    "carbs": 31,
+    "fat": 3
+  },
+  {
+    "id": "dish_boondi_bath",
+    "name": "Boondi Bath",
+    "aliases": [
+      "boondi bath",
+      "బూండి బత్"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 190,
+    "protein": 4,
+    "carbs": 24,
+    "fat": 5
+  },
+  {
+    "id": "dish_maggies_bajji",
+    "name": "Maggies Bajji",
+    "aliases": [
+      "maggies bajji",
+      "బజ్జి"
+    ],
+    "serving": "1 bajjis (50g)",
+    "cal": 110.0,
+    "protein": 2.5,
+    "carbs": 11.0,
+    "fat": 5.0
+  },
+  {
+    "id": "dish_paneer_butter_masala",
+    "name": "Paneer Butter Masala",
+    "aliases": [
+      "paneer butter masala",
+      "పానీర్ బర్తర్ మాసాలా"
+    ],
+    "serving": "1 plate (200g)",
+    "cal": 240,
+    "protein": 12,
+    "carbs": 16,
+    "fat": 12
+  },
+  {
+    "id": "dish_palak_paneer",
+    "name": "Palak Paneer",
+    "aliases": [
+      "palak paneer",
+      "పాలక్ పానీర్"
+    ],
+    "serving": "1 plate (180g)",
+    "cal": 190,
+    "protein": 9,
+    "carbs": 14,
+    "fat": 9
+  },
+  {
+    "id": "dish_dal_makhani",
+    "name": "Dal Makhani",
+    "aliases": [
+      "dal makhani",
+      "దల్ మఖనీ"
+    ],
+    "serving": "1 bowl (200g)",
+    "cal": 220,
+    "protein": 12,
+    "carbs": 30,
+    "fat": 3
+  },
+  {
+    "id": "dish_rajma",
+    "name": "Rajma",
+    "aliases": [
+      "rajma",
+      "రాజ్మా",
+      "Rajma Masala"
+    ],
+    "serving": "1 bowl (200g)",
+    "cal": 200,
+    "protein": 10,
+    "carbs": 30,
+    "fat": 2
+  },
+  {
+    "id": "dish_chole",
+    "name": "Chole",
+    "aliases": [
+      "chole",
+      "చొలె"
+    ],
+    "serving": "1 bowl (200g)",
+    "cal": 210,
+    "protein": 10,
+    "carbs": 32,
+    "fat": 2
+  },
+  {
+    "id": "dish_alu_gobi",
+    "name": "Aloo Gobi",
+    "aliases": [
+      "aloo gobi",
+      "ఆలు గోబి"
+    ],
+    "serving": "1 plate (180g)",
+    "cal": 190,
+    "protein": 5,
+    "carbs": 28,
+    "fat": 7
+  },
+  {
+    "id": "dish_butter_chicken",
+    "name": "Butter Chicken",
+    "aliases": [
+      "butter chicken",
+      "బటర్ చికెన్"
+    ],
+    "serving": "1 plate (200g)",
+    "cal": 320,
+    "protein": 14,
+    "carbs": 10,
+    "fat": 22
+  },
+  {
+    "id": "dish_chicken_curry",
+    "name": "Chicken Curry",
+    "aliases": [
+      "chicken curry",
+      "చీస్ కర్ర"
+    ],
+    "serving": "1 bowl (200g)",
+    "cal": 240,
+    "protein": 12,
+    "carbs": 14,
+    "fat": 12
+  },
+  {
+    "id": "dish_egg_curry",
+    "name": "Egg Curry",
+    "aliases": [
+      "egg curry",
+      "వండ్ల కర్ర"
+    ],
+    "serving": "1 bowl (200g)",
+    "cal": 190,
+    "protein": 12,
+    "carbs": 10,
+    "fat": 9
+  },
+  {
+    "id": "dish_dal_tadka",
+    "name": "Dal Tadka",
+    "aliases": [
+      "dal tadka",
+      "దల్ తాడ్కా",
+      "Yellow dal tadka"
+    ],
+    "serving": "1 bowl (200g)",
+    "cal": 170,
+    "protein": 10,
+    "carbs": 22,
+    "fat": 3
+  },
+  {
+    "id": "dish_veg_kurma",
+    "name": "Veg Kurma",
+    "aliases": [
+      "veg kurma",
+      "వెజ్ కుర్మా"
+    ],
+    "serving": "1 bowl (200g)",
+    "cal": 180,
+    "protein": 7,
+    "carbs": 24,
+    "fat": 6
+  },
+  {
+    "id": "dish_malai_kofta",
+    "name": "Malai Kofta",
+    "aliases": [
+      "malai kofta",
+      "మలై కోఫ్టా"
+    ],
+    "serving": "1 plate (200g)",
+    "cal": 230,
+    "protein": 10,
+    "carbs": 18,
+    "fat": 10
+  },
+  {
+    "id": "dish_chana_masala",
+    "name": "Chana Masala",
+    "aliases": [
+      "chana masala",
+      "చనా మాసాలా",
+      "Kabuli Channa Masala"
+    ],
+    "serving": "1 bowl (200g)",
+    "cal": 210,
+    "protein": 12,
+    "carbs": 30,
+    "fat": 2
+  },
+  {
+    "id": "dish_pav_bhaji",
+    "name": "Pav Bhaji",
+    "aliases": [
+      "pav bhaji",
+      "పవ్ భజీ"
+    ],
+    "serving": "1 plate (300g)",
+    "cal": 260,
+    "protein": 8,
+    "carbs": 40,
+    "fat": 8
+  },
+  {
+    "id": "dish_chole_pav",
+    "name": "Chole Pav",
+    "aliases": [
+      "chole pav",
+      "చొలె పవ్"
+    ],
+    "serving": "1 plate (300g)",
+    "cal": 300,
+    "protein": 12,
+    "carbs": 40,
+    "fat": 6
+  },
+  {
+    "id": "dish_paneer_tikka",
+    "name": "Paneer Tikka",
+    "aliases": [
+      "paneer tikka",
+      "పానీర్ టిక్కా"
+    ],
+    "serving": "1 plate (200g)",
+    "cal": 230,
+    "protein": 12,
+    "carbs": 10,
+    "fat": 12
+  },
+  {
+    "id": "dish_naan_butter",
+    "name": "Naan With Butter",
+    "aliases": [
+      "naan butter",
+      "నాన్ తెలుగు"
+    ],
+    "serving": "1 naan (70g)",
+    "cal": 260,
+    "protein": 7,
+    "carbs": 40,
+    "fat": 8
+  },
+  {
+    "id": "dish_gulab_jamun",
+    "name": "Gulab Jamun",
+    "aliases": [
+      "gulab jamun",
+      "గులాబ్ జామున్",
+      "Gulab Jamun - 02 Piece Per person"
+    ],
+    "serving": "1 gulab jamun (30g)",
+    "cal": 87.5,
+    "protein": 1.5,
+    "carbs": 10.0,
+    "fat": 4.0
+  },
+  {
+    "id": "dish_rasgulla",
+    "name": "Rasgulla",
+    "aliases": [
+      "rasgulla",
+      "రస్గూలా"
+    ],
+    "serving": "1 rasgulla (30g)",
+    "cal": 55.0,
+    "protein": 1.0,
+    "carbs": 11.0,
+    "fat": 0.5
+  },
+  {
+    "id": "dish_barfi",
+    "name": "Barfi",
+    "aliases": [
+      "barfi",
+      "బార్ఫీ"
+    ],
+    "serving": "1 piece (40g)",
+    "cal": 360,
+    "protein": 6,
+    "carbs": 44,
+    "fat": 22
+  },
+  {
+    "id": "dish_halwa",
+    "name": "Halwa (Sooji)",
+    "aliases": [
+      "halwa",
+      "హల్వా"
+    ],
+    "serving": "1 piece (40g)",
+    "cal": 300,
+    "protein": 4,
+    "carbs": 46,
+    "fat": 18
+  },
+  {
+    "id": "dish_kaju_katli",
+    "name": "Kaju Katli",
+    "aliases": [
+      "kaju katli",
+      "కాజు కత్లీ"
+    ],
+    "serving": "1 piece (20g)",
+    "cal": 170.0,
+    "protein": 3.0,
+    "carbs": 19.0,
+    "fat": 10.0
+  },
+  {
+    "id": "dish_kalakand",
+    "name": "Kalakand",
+    "aliases": [
+      "kalakand",
+      "కలకాండ్"
+    ],
+    "serving": "1 piece (60g)",
+    "cal": 280,
+    "protein": 5,
+    "carbs": 40,
+    "fat": 16
+  },
+  {
+    "id": "dish_chai_masala",
+    "name": "Masala Chai",
+    "aliases": [
+      "masala chai",
+      "మసాలా చయ్"
+    ],
+    "serving": "1 cup (200ml)",
+    "cal": 150,
+    "protein": 4,
+    "carbs": 16,
+    "fat": 6
+  },
+  {
+    "id": "dish_coffee_filter",
+    "name": "Filter Coffee",
+    "aliases": [
+      "filter coffee",
+      "ఫిల్టర్ కాఫీ",
+      "Tea and Coffee",
+      "Milk,Tea,Coffee & Boost"
+    ],
+    "serving": "1 cup (150ml)",
+    "cal": 80,
+    "protein": 2,
+    "carbs": 6,
+    "fat": 4
+  },
+  {
+    "id": "dish_lassi",
+    "name": "Lassi",
+    "aliases": [
+      "lassi",
+      "లస్సీ"
+    ],
+    "serving": "1 glass (200ml)",
+    "cal": 120,
+    "protein": 6,
+    "carbs": 14,
+    "fat": 4
+  },
+  {
+    "id": "dish_buttermilk",
+    "name": "Buttermilk (Chaas)",
+    "aliases": [
+      "buttermilk",
+      "chaas",
+      "చాస్"
+    ],
+    "serving": "1 glass (200ml)",
+    "cal": 40,
+    "protein": 1,
+    "carbs": 4,
+    "fat": 2
+  },
+  {
+    "id": "dish_badam_milk",
+    "name": "Badam Milk",
+    "aliases": [
+      "badam milk",
+      "బాదం పాలు"
+    ],
+    "serving": "1 glass (200ml)",
+    "cal": 160,
+    "protein": 4,
+    "carbs": 16,
+    "fat": 7
+  },
+  {
+    "id": "dish_rose_milk",
+    "name": "Rose Milk",
+    "aliases": [
+      "rose milk",
+      "వాలు పాలు"
+    ],
+    "serving": "1 glass (200ml)",
+    "cal": 130,
+    "protein": 2,
+    "carbs": 16,
+    "fat": 5
+  },
+  {
+    "id": "dish_gongura_katti_chicken",
+    "name": "Gongura Katti Chicken",
+    "aliases": [
+      "gongura katti chicken",
+      "గొంగురా కట్టి కక్కరకోసం"
+    ],
+    "serving": "1 plate (150g)",
+    "cal": 230,
+    "protein": 14,
+    "carbs": 8,
+    "fat": 12
+  },
+  {
+    "id": "dish_gongura_mixture",
+    "name": "Gongura Mixture",
+    "aliases": [
+      "gongura mixture",
+      "గొంగురా మిక్సచరు"
+    ],
+    "serving": "1 plate (150g)",
+    "cal": 180,
+    "protein": 10,
+    "carbs": 10,
+    "fat": 10
+  },
+  {
+    "id": "dish_rice_coconut_lemon",
+    "name": "Coconut Lemon Rice",
+    "aliases": [
+      "coconut lemon rice",
+      "కోస్తం నెల్లు రైస్"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 170,
+    "protein": 3,
+    "carbs": 34,
+    "fat": 4
+  },
+  {
+    "id": "dish_laddu5",
+    "name": "Laddu (Groundnut)",
+    "aliases": [
+      "laddu groundnut",
+      "సొగుడు లడ్డు"
+    ],
+    "serving": "1 laddu (30g)",
+    "cal": 320,
+    "protein": 8,
+    "carbs": 30,
+    "fat": 18
+  },
+  {
+    "id": "dish_gitam_pongal",
+    "name": "Pongal",
+    "aliases": [
+      "ven pongal",
+      "rice pongal"
+    ],
+    "serving": "1 bowl (200g)",
+    "cal": 250,
+    "protein": 6,
+    "carbs": 43,
+    "fat": 7
+  },
+  {
+    "id": "dish_gitam_mysore_bonda",
+    "name": "Mysore Bonda",
+    "aliases": [
+      "mysore bajji"
+    ],
+    "serving": "1 bonda (50g)",
+    "cal": 150,
+    "protein": 3,
+    "carbs": 17,
+    "fat": 8
+  },
+  {
+    "id": "dish_gitam_ugni_with_mirchi_bajji",
+    "name": "Ugni with Mirchi Bajji",
+    "aliases": [
+      "ugni",
+      "ugni with chilli bajji",
+      "upma with mirchi bajji"
+    ],
+    "serving": "1 serving (200g)",
+    "cal": 300,
+    "protein": 7,
+    "carbs": 42,
+    "fat": 11
+  },
+  {
+    "id": "dish_gitam_mirchi_bajji",
+    "name": "Mirchi Bajji",
+    "aliases": [
+      "chilli bajji",
+      "mirapakaya bajji"
+    ],
+    "serving": "1 bajji (50g)",
+    "cal": 140,
+    "protein": 2,
+    "carbs": 20,
+    "fat": 6
+  },
+  {
+    "id": "dish_gitam_broken_wheat_upma",
+    "name": "Broken Wheat Upma",
+    "aliases": [
+      "godhuma rava upma",
+      "broken wheat uppittu"
+    ],
+    "serving": "1 bowl (200g)",
+    "cal": 190,
+    "protein": 6,
+    "carbs": 35,
+    "fat": 4
+  },
+  {
+    "id": "dish_gitam_ragi_idli",
+    "name": "Ragi Idli",
+    "aliases": [
+      "ragi idly",
+      "finger millet idli"
+    ],
+    "serving": "1 idli (40g)",
+    "cal": 45,
+    "protein": 1.5,
+    "carbs": 9,
+    "fat": 0.5
+  },
+  {
+    "id": "dish_gitam_aloo_channa_curry",
+    "name": "Aloo Channa Curry",
+    "aliases": [
+      "aloo chana curry",
+      "potato chickpea curry",
+      "Aloo Channa Curry/Peanut Chutney"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 220,
+    "protein": 8,
+    "carbs": 32,
+    "fat": 6
+  },
+  {
+    "id": "dish_gitam_peanut_chutney",
+    "name": "Peanut Chutney",
+    "aliases": [
+      "groundnut chutney",
+      "palli chutney",
+      "Aloo Channa Curry/Peanut Chutney",
+      "Peanut Chutney/Sambar"
+    ],
+    "serving": "1 tbsp (20g)",
+    "cal": 90,
+    "protein": 3,
+    "carbs": 3,
+    "fat": 8
+  },
+  {
+    "id": "dish_gitam_sambar",
+    "name": "Sambar",
+    "aliases": [
+      "sambhar",
+      "south indian sambar",
+      "Peanut Chutney/Sambar"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 100,
+    "protein": 4,
+    "carbs": 14,
+    "fat": 3
+  },
+  {
+    "id": "dish_gitam_oat_malt",
+    "name": "Oat Malt",
+    "aliases": [
+      "oats malt",
+      "oatmeal malt"
+    ],
+    "serving": "1 cup (200ml)",
+    "cal": 140,
+    "protein": 5,
+    "carbs": 25,
+    "fat": 3
+  },
+  {
+    "id": "dish_gitam_ragi_malt",
+    "name": "Ragi Malt",
+    "aliases": [
+      "ragi java",
+      "finger millet malt"
+    ],
+    "serving": "1 cup (200ml)",
+    "cal": 130,
+    "protein": 4,
+    "carbs": 24,
+    "fat": 2
+  },
+  {
+    "id": "dish_gitam_boiled_egg",
+    "name": "Boiled Egg",
+    "aliases": [
+      "egg boiled",
+      "one egg",
+      "Boiled Egg - 02 Pcs Per Serving",
+      "Boiled Egg - 02 Pcs Per Person"
+    ],
+    "serving": "1 egg (50g)",
+    "cal": 78,
+    "protein": 6.3,
+    "carbs": 0.6,
+    "fat": 5.3
+  },
+  {
+    "id": "dish_gitam_banana",
+    "name": "Banana",
+    "aliases": [
+      "banana fruit",
+      "one banana",
+      "Banana - 01 Pc Per Serving"
+    ],
+    "serving": "1 medium banana (118g)",
+    "cal": 105,
+    "protein": 1.3,
+    "carbs": 27,
+    "fat": 0.4
+  },
+  {
+    "id": "dish_gitam_boiled_sweet_potato",
+    "name": "Boiled Sweet Potato",
+    "aliases": [
+      "sweet potato boiled",
+      "boiled shakarkandi"
+    ],
+    "serving": "1 piece (130g)",
+    "cal": 112,
+    "protein": 2,
+    "carbs": 26,
+    "fat": 0.2
+  },
+  {
+    "id": "dish_gitam_bread_with_jam_and_butter",
+    "name": "Bread with Jam and Butter",
+    "aliases": [
+      "bread / jam & butter",
+      "bread with butter and jam"
+    ],
+    "serving": "1 slice (35g)",
+    "cal": 150,
+    "protein": 4,
+    "carbs": 24,
+    "fat": 5
+  },
+  {
+    "id": "dish_gitam_corn_flakes",
+    "name": "Corn Flakes",
+    "aliases": [
+      "cornflakes"
+    ],
+    "serving": "1 bowl dry cereal (30g)",
+    "cal": 110,
+    "protein": 2,
+    "carbs": 25,
+    "fat": 0.3
+  },
+  {
+    "id": "dish_gitam_wheat_flakes",
+    "name": "Wheat Flakes",
+    "aliases": [
+      "wheatflakes"
+    ],
+    "serving": "1 bowl dry cereal (30g)",
+    "cal": 108,
+    "protein": 3,
+    "carbs": 22,
+    "fat": 1
+  },
+  {
+    "id": "dish_gitam_chocolate_flakes",
+    "name": "Chocolate Flakes",
+    "aliases": [
+      "choco flakes",
+      "chocolate corn flakes",
+      "Choco Flakes - (In Bowl)"
+    ],
+    "serving": "1 bowl dry cereal (30g)",
+    "cal": 115,
+    "protein": 2,
+    "carbs": 25,
+    "fat": 1.5
+  },
+  {
+    "id": "dish_gitam_boost",
+    "name": "Boost",
+    "aliases": [
+      "boost drink",
+      "milk boost",
+      "Milk,Tea,Coffee & Boost"
+    ],
+    "serving": "1 cup prepared with milk (200ml)",
+    "cal": 160,
+    "protein": 5,
+    "carbs": 25,
+    "fat": 4
+  },
+  {
+    "id": "dish_gitam_milk",
+    "name": "Milk",
+    "aliases": [
+      "plain milk",
+      "cow milk",
+      "Milk,Tea,Coffee & Boost"
+    ],
+    "serving": "1 cup (200ml)",
+    "cal": 122,
+    "protein": 6.4,
+    "carbs": 9.6,
+    "fat": 6.4
+  },
+  {
+    "id": "dish_gitam_tea",
+    "name": "Tea",
+    "aliases": [
+      "milk tea",
+      "chai",
+      "tea with milk and sugar",
+      "Tea and Coffee",
+      "Milk,Tea,Coffee & Boost"
+    ],
+    "serving": "1 cup with milk and sugar (200ml)",
+    "cal": 70,
+    "protein": 2,
+    "carbs": 10,
+    "fat": 2.5
+  },
+  {
+    "id": "dish_gitam_bread_with_jam",
+    "name": "Bread with Jam",
+    "aliases": [
+      "jam bread"
+    ],
+    "serving": "1 slice (30g)",
+    "cal": 110,
+    "protein": 3,
+    "carbs": 22,
+    "fat": 2
+  },
+  {
+    "id": "dish_gitam_rusk",
+    "name": "Rusk",
+    "aliases": [
+      "tea rusk",
+      "toast rusk"
+    ],
+    "serving": "1 piece (10g)",
+    "cal": 40,
+    "protein": 1,
+    "carbs": 7,
+    "fat": 1
+  },
+  {
+    "id": "dish_gitam_salad_beetroot_and_cucumber",
+    "name": "Salad (Beetroot and Cucumber)",
+    "aliases": [
+      "beetroot cucumber salad",
+      "salad beetroot cucumber"
+    ],
+    "serving": "1 small bowl (100g)",
+    "cal": 25,
+    "protein": 1,
+    "carbs": 5,
+    "fat": 0.2
+  },
+  {
+    "id": "dish_gitam_salad_carrot_and_cucumber",
+    "name": "Salad (Carrot and Cucumber)",
+    "aliases": [
+      "carrot cucumber salad",
+      "salad carrot cucumber"
+    ],
+    "serving": "1 small bowl (100g)",
+    "cal": 35,
+    "protein": 1,
+    "carbs": 7,
+    "fat": 0.2
+  },
+  {
+    "id": "dish_gitam_onion_salad",
+    "name": "Onion Salad",
+    "aliases": [
+      "lacha onion",
+      "sliced onion salad"
+    ],
+    "serving": "1 small bowl (50g)",
+    "cal": 20,
+    "protein": 0.5,
+    "carbs": 4,
+    "fat": 0.1
+  },
+  {
+    "id": "dish_gitam_plain_curd",
+    "name": "Plain Curd",
+    "aliases": [
+      "curd",
+      "dahi",
+      "plain yogurt"
+    ],
+    "serving": "1 bowl (100g)",
+    "cal": 60,
+    "protein": 3.5,
+    "carbs": 4,
+    "fat": 3
+  },
+  {
+    "id": "dish_gitam_mixed_vegetable_raita",
+    "name": "Mixed Vegetable Raita",
+    "aliases": [
+      "mixed veg raita",
+      "raitha",
+      "raita"
+    ],
+    "serving": "1 bowl (100g)",
+    "cal": 90,
+    "protein": 3,
+    "carbs": 8,
+    "fat": 5
+  },
+  {
+    "id": "dish_gitam_south_indian_papad",
+    "name": "South Indian Papad",
+    "aliases": [
+      "papad",
+      "appalam"
+    ],
+    "serving": "1 papad (10g)",
+    "cal": 35,
+    "protein": 1,
+    "carbs": 5,
+    "fat": 1
+  },
+  {
+    "id": "dish_gitam_fryums",
+    "name": "Fryums",
+    "aliases": [
+      "fryums triangle",
+      "triangle fryums",
+      "FRYUMS (triangle shape)"
+    ],
+    "serving": "1 serving (15g)",
+    "cal": 70,
+    "protein": 1,
+    "carbs": 10,
+    "fat": 3
+  },
+  {
+    "id": "dish_gitam_beerakaya_pachadi",
+    "name": "Beerakaya Pachadi",
+    "aliases": [
+      "ridge gourd chutney",
+      "beerakaya pachadi spicy"
+    ],
+    "serving": "1 small bowl (80g)",
+    "cal": 70,
+    "protein": 2,
+    "carbs": 8,
+    "fat": 3
+  },
+  {
+    "id": "dish_gitam_gongura_pickle",
+    "name": "Gongura Pickle",
+    "aliases": [
+      "gongura avakaya",
+      "sorrel leaves pickle"
+    ],
+    "serving": "1 tbsp (15g)",
+    "cal": 50,
+    "protein": 1,
+    "carbs": 3,
+    "fat": 4
+  },
+  {
+    "id": "dish_gitam_tomato_pickle",
+    "name": "Tomato Pickle",
+    "aliases": [
+      "tomato achar"
+    ],
+    "serving": "1 tbsp (15g)",
+    "cal": 45,
+    "protein": 1,
+    "carbs": 4,
+    "fat": 3
+  },
+  {
+    "id": "dish_gitam_vankaya_pachadi",
+    "name": "Vankaya Pachadi",
+    "aliases": [
+      "brinjal chutney"
+    ],
+    "serving": "1 small bowl (80g)",
+    "cal": 90,
+    "protein": 2,
+    "carbs": 8,
+    "fat": 6
+  },
+  {
+    "id": "dish_gitam_lemon_pickle",
+    "name": "Lemon Pickle",
+    "aliases": [
+      "nimmakaya pickle",
+      "lemon achar"
+    ],
+    "serving": "1 tbsp (15g)",
+    "cal": 40,
+    "protein": 0.5,
+    "carbs": 3,
+    "fat": 3
+  },
+  {
+    "id": "dish_gitam_mixed_pickle",
+    "name": "Mixed Pickle",
+    "aliases": [
+      "pickle",
+      "mixed achar",
+      "indian pickle"
+    ],
+    "serving": "1 tbsp (15g)",
+    "cal": 45,
+    "protein": 0.5,
+    "carbs": 3,
+    "fat": 3.5
+  },
+  {
+    "id": "dish_gitam_vankai_batani_tomato_kura",
+    "name": "Vankai Batani Tomato Kura",
+    "aliases": [
+      "brinjal peas tomato curry",
+      "vankaya batani tomato kura"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 160,
+    "protein": 5,
+    "carbs": 18,
+    "fat": 7
+  },
+  {
+    "id": "dish_gitam_subz_diwani_handi",
+    "name": "Subz Diwani Handi",
+    "aliases": [
+      "subz deewani handi",
+      "mixed vegetable handi"
+    ],
+    "serving": "1 bowl (200g)",
+    "cal": 190,
+    "protein": 7,
+    "carbs": 18,
+    "fat": 10
+  },
+  {
+    "id": "dish_gitam_lobiya_masala",
+    "name": "Lobiya Masala",
+    "aliases": [
+      "lobia masala",
+      "black eyed pea curry",
+      "cowpea curry"
+    ],
+    "serving": "1 bowl (200g)",
+    "cal": 220,
+    "protein": 11,
+    "carbs": 29,
+    "fat": 5
+  },
+  {
+    "id": "dish_gitam_veg_kolhapuri",
+    "name": "Veg Kolhapuri",
+    "aliases": [
+      "vegetable kolhapuri",
+      "Veg Kolapuri"
+    ],
+    "serving": "1 bowl (200g)",
+    "cal": 190,
+    "protein": 5,
+    "carbs": 20,
+    "fat": 10
+  },
+  {
+    "id": "dish_gitam_mirchi_ka_salan",
+    "name": "Mirchi Ka Salan",
+    "aliases": [
+      "chilli salan"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 220,
+    "protein": 5,
+    "carbs": 12,
+    "fat": 18
+  },
+  {
+    "id": "dish_gitam_lauki_channa_dal_curry",
+    "name": "Lauki Channa Dal Curry",
+    "aliases": [
+      "lauki chana dal curry",
+      "bottle gourd chana dal"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 140,
+    "protein": 6,
+    "carbs": 20,
+    "fat": 4
+  },
+  {
+    "id": "dish_gitam_meal_maker_makhani",
+    "name": "Meal Maker Makhani",
+    "aliases": [
+      "soya chunks makhani",
+      "meal maker curry"
+    ],
+    "serving": "1 bowl (200g)",
+    "cal": 240,
+    "protein": 18,
+    "carbs": 18,
+    "fat": 10
+  },
+  {
+    "id": "dish_gitam_cluster_beans_moong_dal_poriyal",
+    "name": "Cluster Beans Moong Dal Poriyal",
+    "aliases": [
+      "cluster beans poriyal",
+      "gawar moong dal poriyal"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 130,
+    "protein": 5,
+    "carbs": 14,
+    "fat": 6
+  },
+  {
+    "id": "dish_gitam_bitter_gourd_masala_dry",
+    "name": "Bitter Gourd Masala (Dry)",
+    "aliases": [
+      "bitter gourd dry curry",
+      "karela masala dry"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 130,
+    "protein": 3,
+    "carbs": 13,
+    "fat": 8
+  },
+  {
+    "id": "dish_gitam_raw_banana_pittu",
+    "name": "Raw Banana Pittu",
+    "aliases": [
+      "vazhakkai pittu",
+      "raw plantain pittu"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 160,
+    "protein": 2,
+    "carbs": 30,
+    "fat": 4
+  },
+  {
+    "id": "dish_gitam_dondakaya_pakodi",
+    "name": "Dondakaya Pakodi",
+    "aliases": [
+      "ivy gourd pakodi",
+      "tindora pakora"
+    ],
+    "serving": "1 serving (100g)",
+    "cal": 230,
+    "protein": 4,
+    "carbs": 25,
+    "fat": 13
+  },
+  {
+    "id": "dish_gitam_aloo_65",
+    "name": "Aloo 65",
+    "aliases": [
+      "potato 65",
+      "alu 65"
+    ],
+    "serving": "1 serving (150g)",
+    "cal": 260,
+    "protein": 4,
+    "carbs": 32,
+    "fat": 13
+  },
+  {
+    "id": "dish_gitam_raw_banana_poriyal",
+    "name": "Raw Banana Poriyal",
+    "aliases": [
+      "plantain poriyal"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 150,
+    "protein": 2,
+    "carbs": 28,
+    "fat": 4
+  },
+  {
+    "id": "dish_gitam_plain_steamed_rice",
+    "name": "Plain Steamed Rice",
+    "aliases": [
+      "steamed rice",
+      "plain rice",
+      "cooked white rice"
+    ],
+    "serving": "1 bowl (150g cooked)",
+    "cal": 195,
+    "protein": 4,
+    "carbs": 42,
+    "fat": 0.5
+  },
+  {
+    "id": "dish_gitam_podi_rice",
+    "name": "Podi Rice",
+    "aliases": [
+      "gunpowder rice",
+      "rice with podi"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 230,
+    "protein": 4,
+    "carbs": 38,
+    "fat": 7
+  },
+  {
+    "id": "dish_gitam_paneer_biryani",
+    "name": "Paneer Biryani",
+    "aliases": [
+      "paneer biryani with basmati rice",
+      "basmati paneer biryani"
+    ],
+    "serving": "1 plate (250g)",
+    "cal": 420,
+    "protein": 12,
+    "carbs": 55,
+    "fat": 14
+  },
+  {
+    "id": "dish_gitam_pudina_rice",
+    "name": "Pudina Rice",
+    "aliases": [
+      "mint rice",
+      "pudina pulao"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 190,
+    "protein": 4,
+    "carbs": 34,
+    "fat": 5
+  },
+  {
+    "id": "dish_gitam_beerakaya_pappu",
+    "name": "Beerakaya Pappu",
+    "aliases": [
+      "ridge gourd dal",
+      "beerakaya dal"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 150,
+    "protein": 7,
+    "carbs": 21,
+    "fat": 4
+  },
+  {
+    "id": "dish_gitam_paachi_pulusu",
+    "name": "Paachi Pulusu",
+    "aliases": [
+      "pachi pulusu",
+      "raw tamarind rasam"
+    ],
+    "serving": "1 bowl (150ml)",
+    "cal": 75,
+    "protein": 2,
+    "carbs": 12,
+    "fat": 2
+  },
+  {
+    "id": "dish_gitam_sweet_boondi",
+    "name": "Sweet Boondi",
+    "aliases": [
+      "boondi sweet",
+      "meethi boondi"
+    ],
+    "serving": "1 small bowl (50g)",
+    "cal": 200,
+    "protein": 3,
+    "carbs": 32,
+    "fat": 7
+  },
+  {
+    "id": "dish_gitam_ice_cream",
+    "name": "Ice Cream",
+    "aliases": [
+      "icecream",
+      "vanilla ice cream"
+    ],
+    "serving": "1 scoop (65g)",
+    "cal": 140,
+    "protein": 2.5,
+    "carbs": 17,
+    "fat": 7
+  },
+  {
+    "id": "dish_gitam_noodles",
+    "name": "Noodles",
+    "aliases": [
+      "vegetable noodles",
+      "noodles cooked"
+    ],
+    "serving": "1 bowl (200g cooked)",
+    "cal": 280,
+    "protein": 7,
+    "carbs": 44,
+    "fat": 9
+  },
+  {
+    "id": "dish_gitam_masala_popcorn",
+    "name": "Masala Popcorn",
+    "aliases": [
+      "spicy popcorn",
+      "popcorn masala"
+    ],
+    "serving": "1 bowl (25g)",
+    "cal": 130,
+    "protein": 3,
+    "carbs": 16,
+    "fat": 6
+  },
+  {
+    "id": "dish_gitam_pasta",
+    "name": "Pasta",
+    "aliases": [
+      "pasta cooked",
+      "masala pasta"
+    ],
+    "serving": "1 bowl (200g cooked)",
+    "cal": 300,
+    "protein": 9,
+    "carbs": 45,
+    "fat": 9
+  },
+  {
+    "id": "dish_gitam_boiled_peanut_masala",
+    "name": "Boiled Peanut Masala",
+    "aliases": [
+      "boiled peanuts",
+      "peanut sundal",
+      "palli guggillu"
+    ],
+    "serving": "1 bowl (100g)",
+    "cal": 260,
+    "protein": 13,
+    "carbs": 20,
+    "fat": 16
+  },
+  {
+    "id": "dish_gitam_black_channa_tallimpu",
+    "name": "Black Channa Tallimpu",
+    "aliases": [
+      "black chana talimpu",
+      "kala chana tempering"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 220,
+    "protein": 11,
+    "carbs": 32,
+    "fat": 5
+  },
+  {
+    "id": "dish_gitam_onion_pakoda",
+    "name": "Onion Pakoda",
+    "aliases": [
+      "onion pakora",
+      "onion pakodi"
+    ],
+    "serving": "1 piece (25g)",
+    "cal": 80,
+    "protein": 2,
+    "carbs": 9,
+    "fat": 4.5
+  },
+  {
+    "id": "dish_gitam_boti_recipe_unspecified",
+    "name": "Boti (recipe unspecified)",
+    "aliases": [
+      "boti",
+      "boti curry"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 220,
+    "protein": 20,
+    "carbs": 6,
+    "fat": 12
+  },
+  {
+    "id": "dish_gitam_cold_beverage_unspecified",
+    "name": "Cold Beverage (unspecified)",
+    "aliases": [
+      "cold beverage",
+      "cold drink"
+    ],
+    "serving": "1 glass (200ml)",
+    "cal": 90,
+    "protein": 0,
+    "carbs": 22,
+    "fat": 0
+  },
+  {
+    "id": "dish_gitam_seasonal_fruit",
+    "name": "Seasonal Fruit",
+    "aliases": [
+      "seasonal fruits",
+      "mixed fruit"
+    ],
+    "serving": "1 portion (150g)",
+    "cal": 80,
+    "protein": 1,
+    "carbs": 20,
+    "fat": 0.5
+  },
+  {
+    "id": "dish_gitam_tomato_kaju_masala",
+    "name": "Tomato Kaju Masala",
+    "aliases": [
+      "tomato cashew curry",
+      "tomato kaju curry"
+    ],
+    "serving": "1 bowl (200g)",
+    "cal": 250,
+    "protein": 7,
+    "carbs": 20,
+    "fat": 16
+  },
+  {
+    "id": "dish_gitam_egg_bhurji",
+    "name": "Egg Bhurji",
+    "aliases": [
+      "anda bhurji",
+      "scrambled masala eggs"
+    ],
+    "serving": "1 serving (150g)",
+    "cal": 220,
+    "protein": 14,
+    "carbs": 6,
+    "fat": 15
+  },
+  {
+    "id": "dish_gitam_chicken_vepudu",
+    "name": "Chicken Vepudu",
+    "aliases": [
+      "andhra chicken fry",
+      "chicken fry andhra style"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 260,
+    "protein": 24,
+    "carbs": 6,
+    "fat": 15
+  },
+  {
+    "id": "dish_gitam_dum_aloo_kashmiri",
+    "name": "Dum Aloo Kashmiri",
+    "aliases": [
+      "kashmiri dum aloo",
+      "dum aloo"
+    ],
+    "serving": "1 bowl (200g)",
+    "cal": 210,
+    "protein": 4,
+    "carbs": 28,
+    "fat": 9
+  },
+  {
+    "id": "dish_gitam_chicken_chettinad",
+    "name": "Chicken Chettinad",
+    "aliases": [
+      "chettinad chicken",
+      "chicken chettinad curry"
+    ],
+    "serving": "1 bowl (200g)",
+    "cal": 300,
+    "protein": 25,
+    "carbs": 8,
+    "fat": 18
+  },
+  {
+    "id": "dish_gitam_kadi_pakoda",
+    "name": "Kadi Pakoda",
+    "aliases": [
+      "kadhi pakora",
+      "kadhi pakoda"
+    ],
+    "serving": "1 bowl (200g)",
+    "cal": 230,
+    "protein": 7,
+    "carbs": 24,
+    "fat": 11
+  },
+  {
+    "id": "dish_gitam_chilly_paneer_dry",
+    "name": "Chilly Paneer Dry",
+    "aliases": [
+      "chilli paneer dry",
+      "dry chilli paneer"
+    ],
+    "serving": "1 serving (150g)",
+    "cal": 270,
+    "protein": 12,
+    "carbs": 20,
+    "fat": 16
+  },
+  {
+    "id": "dish_gitam_tawa_vegetable_dry",
+    "name": "Tawa Vegetable (Dry)",
+    "aliases": [
+      "tawa vegetables dry",
+      "dry tawa vegetables"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 150,
+    "protein": 4,
+    "carbs": 16,
+    "fat": 8
+  },
+  {
+    "id": "dish_gitam_paneer_chettinad",
+    "name": "Paneer Chettinad",
+    "aliases": [
+      "chettinad paneer",
+      "paneer chettinad curry"
+    ],
+    "serving": "1 bowl (200g)",
+    "cal": 280,
+    "protein": 13,
+    "carbs": 14,
+    "fat": 19
+  },
+  {
+    "id": "dish_gitam_bhindi_vepudu",
+    "name": "Bhindi Vepudu",
+    "aliases": [
+      "bhindi vepudu home style",
+      "okra fry andhra style"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 140,
+    "protein": 3,
+    "carbs": 12,
+    "fat": 9
+  },
+  {
+    "id": "dish_gitam_sorakaya_pappu",
+    "name": "Sorakaya Pappu",
+    "aliases": [
+      "bottle gourd dal",
+      "lauki pappu"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 130,
+    "protein": 7,
+    "carbs": 19,
+    "fat": 3
+  },
+  {
+    "id": "dish_gitam_tomato_pappu",
+    "name": "Tomato Pappu",
+    "aliases": [
+      "tomato dal"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 145,
+    "protein": 7,
+    "carbs": 20,
+    "fat": 4
+  },
+  {
+    "id": "dish_gitam_dosakaya_pappu",
+    "name": "Dosakaya Pappu",
+    "aliases": [
+      "yellow cucumber dal",
+      "dosakaya dal"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 135,
+    "protein": 7,
+    "carbs": 20,
+    "fat": 3
+  },
+  {
+    "id": "dish_gitam_khara_bath",
+    "name": "Khara Bath",
+    "aliases": [
+      "kharabath",
+      "uppittu khara bath"
+    ],
+    "serving": "1 bowl (200g)",
+    "cal": 220,
+    "protein": 5,
+    "carbs": 34,
+    "fat": 7
+  },
+  {
+    "id": "dish_gitam_malabar_paratha",
+    "name": "Malabar Paratha",
+    "aliases": [
+      "malabar parotta",
+      "kerala parotta"
+    ],
+    "serving": "1 paratha (70g)",
+    "cal": 260,
+    "protein": 5,
+    "carbs": 38,
+    "fat": 10
+  },
+  {
+    "id": "dish_gitam_vankaya_fry",
+    "name": "Vankaya Fry",
+    "aliases": [
+      "brinjal fry",
+      "eggplant fry"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 170,
+    "protein": 3,
+    "carbs": 14,
+    "fat": 11
+  },
+  {
+    "id": "dish_gitam_majjiga_charu",
+    "name": "Majjiga Charu",
+    "aliases": [
+      "buttermilk rasam"
+    ],
+    "serving": "1 bowl (200ml)",
+    "cal": 60,
+    "protein": 3,
+    "carbs": 5,
+    "fat": 3
+  },
+  {
+    "id": "dish_gitam_vamu_charu",
+    "name": "Vamu Charu",
+    "aliases": [
+      "ajwain rasam",
+      "vamu rasam"
+    ],
+    "serving": "1 bowl (150ml)",
+    "cal": 35,
+    "protein": 1,
+    "carbs": 6,
+    "fat": 1
+  },
+  {
+    "id": "dish_gitam_pappu_rasam",
+    "name": "Pappu Rasam",
+    "aliases": [
+      "dal rasam"
+    ],
+    "serving": "1 bowl (150ml)",
+    "cal": 60,
+    "protein": 3,
+    "carbs": 9,
+    "fat": 1.5
+  },
+  {
+    "id": "dish_gitam_rasam",
+    "name": "Rasam",
+    "aliases": [
+      "south indian rasam"
+    ],
+    "serving": "1 bowl (150ml)",
+    "cal": 45,
+    "protein": 1,
+    "carbs": 8,
+    "fat": 1
+  },
+  {
+    "id": "dish_gitam_tamarind_rasam",
+    "name": "Tamarind Rasam",
+    "aliases": [
+      "imli rasam",
+      "pulicha rasam"
+    ],
+    "serving": "1 bowl (150ml)",
+    "cal": 50,
+    "protein": 1,
+    "carbs": 10,
+    "fat": 1
+  },
+  {
+    "id": "dish_gitam_pepper_rasam",
+    "name": "Pepper Rasam",
+    "aliases": [
+      "milagu rasam"
+    ],
+    "serving": "1 bowl (150ml)",
+    "cal": 40,
+    "protein": 1,
+    "carbs": 7,
+    "fat": 1
+  },
+  {
+    "id": "dish_gitam_tomato_rasam",
+    "name": "Tomato Rasam",
+    "aliases": [
+      "tomato charu"
+    ],
+    "serving": "1 bowl (150ml)",
+    "cal": 45,
+    "protein": 1,
+    "carbs": 8,
+    "fat": 1
+  },
+  {
+    "id": "dish_gitam_moong_dal_payasam",
+    "name": "Moong Dal Payasam",
+    "aliases": [
+      "pesara pappu payasam",
+      "moong dal kheer"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 220,
+    "protein": 6,
+    "carbs": 36,
+    "fat": 6
+  },
+  {
+    "id": "dish_gitam_fruit_custard",
+    "name": "Fruit Custard",
+    "aliases": [
+      "custard with fruit",
+      "fruit custard dessert"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 210,
+    "protein": 4,
+    "carbs": 35,
+    "fat": 6
+  },
+  {
+    "id": "dish_gitam_beetroot_kheer",
+    "name": "Beetroot Kheer",
+    "aliases": [
+      "beetroot payasam",
+      "beet kheer"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 220,
+    "protein": 5,
+    "carbs": 38,
+    "fat": 6
+  },
+  {
+    "id": "dish_gitam_broken_wheat_sabudana_payasam",
+    "name": "Broken Wheat Sabudana Payasam",
+    "aliases": [
+      "broken wheat sabhudana payasam",
+      "broken wheat sago kheer"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 230,
+    "protein": 5,
+    "carbs": 42,
+    "fat": 6
+  },
+  {
+    "id": "dish_gitam_potato_chips",
+    "name": "Potato Chips",
+    "aliases": [
+      "aloo chips"
+    ],
+    "serving": "1 serving (30g)",
+    "cal": 160,
+    "protein": 2,
+    "carbs": 15,
+    "fat": 10
+  },
+  {
+    "id": "dish_gitam_akkukura_pappu",
+    "name": "Akkukura Pappu",
+    "aliases": [
+      "akukura pappu",
+      "amaranth greens dal"
+    ],
+    "serving": "1 bowl (150g)",
+    "cal": 150,
+    "protein": 7,
+    "carbs": 21,
+    "fat": 4
+  }
+]

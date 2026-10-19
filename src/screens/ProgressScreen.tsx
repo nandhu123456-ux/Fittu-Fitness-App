@@ -13,7 +13,7 @@ import { useTheme } from '../theme';
 import { useRecentWeights, useFoodHistory, useActivityHistory, useUserDoc } from '../hooks/useRealtime';
 import { calculateBodyStats } from '../utils/bodyStats';
 import { shiftDate, todayLocalISO } from '../utils/streak';
-import { RangeBarChart } from '../components/RangeBarChart';
+import { ProgressGraphCard } from '../components/ProgressGraphCard';
 import { addWeight, deleteWeight } from '../services/weightLogs';
 
 const RANGES = [
@@ -81,7 +81,6 @@ export default function ProgressScreen() {
 
   const filteredFood = safeFood.slice(-rangeDays);
   const filteredActivity = safeActivity.slice(-rangeDays);
-  const labels = filteredFood.map((d) => d.date.slice(5));
 
   const oldestWeight = displayWeights[0]?.weight ?? latestWeight;
   const weightDelta = latestWeight - oldestWeight;
@@ -90,7 +89,7 @@ export default function ProgressScreen() {
   const targetWeight = profile?.goal?.targetWeightKg || 0;
   const kgToGoal = Math.abs(latestWeight - targetWeight);
   
-  // --- MOTIVATION LOGIC (No more Red Zone) ---
+  // --- MOTIVATION LOGIC ---
   let motivationMessage = '';
   let motivationColor = theme.colors.success;
 
@@ -143,8 +142,6 @@ export default function ProgressScreen() {
       mmStatus = { text: `✅ Target reached`, color: theme.colors.success };
     }
   }
-
-  const hasFoodLogs = filteredFood.some((d) => d.cal > 0 || d.protein > 0 || d.carbs > 0 || d.fat > 0);
 
   const chartWidth = width - 64; 
   const chartHeight = 140;
@@ -362,25 +359,79 @@ export default function ProgressScreen() {
         )}
 
         {activeTab === 'calories' && (
-          <View style={themed.chartCard}>
-            <Text style={themed.chartLabel}>CALORIES ({rangeDays} DAYS)</Text>
-            {hasFoodLogs ? <RangeBarChart data={filteredFood.map(d => d.cal)} labels={labels} color={theme.colors.accent} height={150} /> : <View style={themed.emptyChart}><Text style={themed.emptyText}>No logs yet</Text></View>}
-          </View>
+          <>
+            <ProgressGraphCard 
+              title="Calories Eaten" 
+              icon="🍽️" 
+              data={filteredFood.map(d => ({ label: d.date.slice(5), value: d.cal || 0 }))} 
+              goal={profile?.targets?.calories ?? 2000} 
+              unit="kcal" 
+              color={theme.colors.accent} 
+            />
+            
+            {/* FIXED: Read totalKcal from Firestore instead of just activeKcal */}
+            <ProgressGraphCard 
+              title="Calories Burned" 
+              icon="🔥" 
+              data={filteredActivity.map(d => ({ label: d.date?.slice(5) || '', value: (d as any).totalKcal || (d as any).activeKcal || 0 }))} 
+              goal={2200} 
+              unit="kcal" 
+              color="#FF6B6B" 
+            />
+          </>
         )}
 
         {activeTab === 'macros' && (
           <>
-            <View style={themed.chartCard}><Text style={themed.chartLabel}>PROTEIN</Text><RangeBarChart data={filteredFood.map(d => d.protein)} labels={labels} color={theme.colors.protein} height={100} /></View>
-            <View style={themed.chartCard}><Text style={themed.chartLabel}>CARBS</Text><RangeBarChart data={filteredFood.map(d => d.carbs)} labels={labels} color={theme.colors.carbs} height={100} /></View>
-            <View style={themed.chartCard}><Text style={themed.chartLabel}>FAT</Text><RangeBarChart data={filteredFood.map(d => d.fat)} labels={labels} color={theme.colors.fat} height={100} /></View>
+            <ProgressGraphCard 
+              title="Protein" 
+              icon="🥩" 
+              data={filteredFood.map(d => ({ label: d.date.slice(5), value: d.protein || 0 }))} 
+              goal={profile?.targets?.protein ?? 150} 
+              unit="g" 
+              color={theme.colors.protein} 
+            />
+            <ProgressGraphCard 
+              title="Carbs" 
+              icon="🍞" 
+              data={filteredFood.map(d => ({ label: d.date.slice(5), value: d.carbs || 0 }))} 
+              goal={profile?.targets?.carbs ?? 200} 
+              unit="g" 
+              color={theme.colors.carbs} 
+            />
+            <ProgressGraphCard 
+              title="Fat" 
+              icon="🥑" 
+              data={filteredFood.map(d => ({ label: d.date.slice(5), value: d.fat || 0 }))} 
+              goal={profile?.targets?.fat ?? 60} 
+              unit="g" 
+              color={theme.colors.fat} 
+            />
           </>
         )}
 
         {activeTab === 'activity' && (
-          <View style={themed.chartCard}>
-            <Text style={themed.chartLabel}>STEPS ({rangeDays} DAYS)</Text>
-            <RangeBarChart data={filteredActivity.map(d => d.steps)} labels={filteredActivity.map(d => d.date?.slice(5) || '')} color={theme.colors.water} height={150} />
-          </View>
+          <>
+            <ProgressGraphCard 
+              title="Steps" 
+              icon="👟" 
+              data={filteredActivity.map(d => ({ label: d.date?.slice(5) || '', value: d.steps || 0 }))} 
+              goal={10000} 
+              unit="steps" 
+              color={theme.colors.water} 
+            />
+            <ProgressGraphCard 
+              title="Sleep" 
+              icon="🌙" 
+              data={filteredActivity.map(d => ({ 
+                label: d.date?.slice(5) || '', 
+                value: (d as any).sleepMin || 0 
+              }))} 
+              goal={480} 
+              unit="mins" 
+              color="#a855f7" 
+            />
+          </>
         )}
       </ScrollView>
 

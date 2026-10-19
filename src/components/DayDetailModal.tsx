@@ -14,16 +14,16 @@ interface Props {
 export function DayDetailModal({ visible, date, onClose }: Props) {
   const theme = useTheme();
   const user = useAuthStore((s) => s.user);
-const [logs, setLogs] = useState<DayLog[]>([]);
-const [loading, setLoading] = useState(false);
-const [page, setPage] = useState(0);
+  const [logs, setLogs] = useState<DayLog[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(0);
 
   const load = async () => {
     if (!user || !date) return;
     setLoading(true);
     const data = await getLogsForDate(user.uid, date);
     setLogs(data);
-setPage(0);
+    setPage(0);
     setLoading(false);
   };
 
@@ -59,11 +59,11 @@ setPage(0);
 
   const formattedDate = date ? new Date(date).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }) : '';
 
-const PAGE_SIZE = 5;
-const totalPages = Math.max(1, Math.ceil(logs.length / PAGE_SIZE));
-const pageLogs = logs.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+  const PAGE_SIZE = 5;
+  const totalPages = Math.max(1, Math.ceil(logs.length / PAGE_SIZE));
+  const pageLogs = logs.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
-return (
+  return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <Pressable style={themed.overlay} onPress={onClose}>
         <View style={themed.sheet}>

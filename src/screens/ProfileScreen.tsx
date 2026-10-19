@@ -8,7 +8,6 @@ import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { signOut } from '../services/auth';
 import {
   isHealthConnectAvailable,
-  initHealthConnect,
   requestHealthPermissions,
 } from '../services/healthConnect';
 import { useAuthStore } from '../store/authStore';
@@ -43,32 +42,31 @@ export default function ProfileScreen() {
       icon: 'heart-outline',
       title: 'Health Connect',
       subtitle: 'Sync your health data',
-        onPress: async () => {
-          const available = await isHealthConnectAvailable();
-          if (!available) {
-            Alert.alert(
-              'Health Connect not available',
-              'Install Health Connect from the Play Store to sync your health data.',
-              [{ text: 'OK' }]
-            );
-            return;
-          }
-          const inited = await initHealthConnect();
-          if (!inited) {
-            Alert.alert('Error', 'Could not initialise Health Connect.');
-            return;
-          }
-          const granted = await requestHealthPermissions();
-          if (granted) {
-            Alert.alert('Connected', 'Health Connect is syncing your steps, calories burned, and sleep.');
-          } else {
-            Alert.alert(
-              'Permission needed',
-              'Open the Health Connect app and enable the permissions manually.',
-              [{ text: 'OK' }]
-            );
-          }
-        },
+      onPress: async () => {
+        const available = await isHealthConnectAvailable();
+        if (!available) {
+          Alert.alert(
+            'Health Connect not available',
+            'Install Health Connect from the Play Store to sync your health data.',
+            [{ text: 'OK' }]
+          );
+          return;
+        }
+        
+        const status = await requestHealthPermissions();
+        
+        if (status === 'granted') {
+          Alert.alert('Connected', 'Health Connect is syncing your steps, calories burned, and sleep.');
+        } else if (status === 'denied') {
+          Alert.alert(
+            'Permission needed',
+            'Open the Health Connect app and enable the permissions manually.',
+            [{ text: 'OK' }]
+          );
+        } else {
+          Alert.alert('Error', 'Could not initialise Health Connect.');
+        }
+      },
     },
     { key: 'help', icon: 'help-circle-outline', title: 'Help & Support', subtitle: 'Get assistance', onPress: () => Linking.openURL('mailto:be_fit.support@gmail.com?subject=Be_fit%20Support') },
   ], [navigation]);
@@ -82,9 +80,22 @@ export default function ProfileScreen() {
 
   const themedStyles = useMemo(() => StyleSheet.create({
     hero: { alignItems: 'center', backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: 20, borderWidth: 1, flexDirection: 'row', gap: 20, padding: 24 },
-    avatar: { alignItems: 'center', backgroundColor: theme.colors.accent, borderRadius: 42, height: 84, justifyContent: 'center', overflow: 'hidden', width: 84 },
+    
+    // CHANGED: Background changed to black/theme bg, added a subtle border to frame the image
+    avatar: { 
+      alignItems: 'center', 
+      backgroundColor: theme.colors.bg, 
+      borderColor: theme.colors.border,
+      borderWidth: 1,
+      borderRadius: 42, 
+      height: 84, 
+      justifyContent: 'center', 
+      overflow: 'hidden', 
+      width: 84 
+    },
     avatarImage: { height: '100%', resizeMode: 'cover', width: '100%' },
-    avatarLetter: { color: theme.colors.accentText, fontSize: 28, fontWeight: '700' },
+    avatarLetter: { color: theme.colors.text, fontSize: 28, fontWeight: '700' },
+    
     name: { color: theme.colors.text, fontSize: 20, fontWeight: '700' },
     email: { color: theme.colors.muted, fontSize: 13, marginTop: 2 },
     premiumPill: { alignSelf: 'flex-start', backgroundColor: theme.colors.accentGlow, borderRadius: 999, marginTop: 8, paddingHorizontal: 10, paddingVertical: 4 },
@@ -127,7 +138,7 @@ export default function ProfileScreen() {
               <Text style={themedStyles.rowTitle}>{row.title}</Text>
               <Text style={themedStyles.rowSubtitle}>{row.subtitle}</Text>
             </View>
-<Ionicons color={theme.colors.muted} name="chevron-forward" size={20} />
+            <Ionicons color={theme.colors.muted} name="chevron-forward" size={20} />
           </Pressable>
         ))}
       </View>

@@ -1,4 +1,4 @@
-import { collection, doc, getDocs, query, where, deleteDoc } from 'firebase/firestore';
+import { collection, doc, getDocs, query, where, deleteDoc, setDoc } from 'firebase/firestore';
 import { db } from './firebase';
 
 export interface DayLog {
@@ -50,8 +50,10 @@ export async function getLogsForDate(uid: string, date: string): Promise<DayLog[
     const actSnap = await getDocs(actQ);
     actSnap.forEach((d) => {
       const data = d.data();
-      if (data.sleepMinutes > 0) {
-        results.push({ id: d.id, name: 'Sleep Log', type: 'sleep', sleepMin: data.sleepMinutes });
+      // FIXED: Check for 'sleepMin' (our new field) AND 'sleepMinutes'
+      const sleepMins = data.sleepMin || data.sleepMinutes || 0;
+      if (sleepMins > 0) {
+        results.push({ id: d.id, name: 'Sleep Log', type: 'sleep', sleepMin: sleepMins });
       }
     });
   } catch (e) { console.warn(e); }
@@ -60,9 +62,15 @@ export async function getLogsForDate(uid: string, date: string): Promise<DayLog[
 }
 
 export async function deleteDayLog(uid: string, log: DayLog): Promise<void> {
+  if (log.type === 'sleep') {
+    // FIXED: Don't delete the whole activity document (it holds steps too). 
+    // Just reset the sleep to 0.
+    await setDoc(doc(db, 'activityLogs', uid, 'entries', log.id), { sleepMin: 0 }, { merge: true });
+    return;
+  }
+  
   let col = 'foodLogs';
   if (log.type === 'water') col = 'waterLogs';
-  if (log.type === 'sleep') col = 'activityLogs';
   
   await deleteDoc(doc(db, col, uid, 'entries', log.id));
 }

@@ -193,37 +193,6 @@ export function useTodayWater(uid: string | undefined) {
  * Live view of today's mood. Same storage model as water — a single doc per day
  * keyed by the local date — so this listens to that document directly.
  */
-export function useTodayMood(uid: string | undefined) {
-  const [mood, setMoodValue] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!uid) {
-      setMoodValue(null);
-      setLoading(false);
-      return;
-    }
-    const today = todayLocalISO();
-    const unsub = onSnapshot(
-      doc(db, 'moodLogs', uid, 'entries', today),
-      (snap) => {
-        const value = snap.data()?.mood;
-        setMoodValue(typeof value === 'string' ? value : null);
-        setLoading(false);
-        setError(null);
-      },
-      (err) => {
-        console.warn('[useTodayMood]', err.message);
-        setError(err.message);
-        setLoading(false);
-      },
-    );
-    return () => unsub();
-  }, [uid]);
-
-  return { mood, loading, error };
-}
 
 /**
  * Live view of today's sleep minutes. Sleep is stored in the activityLogs
@@ -243,7 +212,10 @@ export function useTodaySleep(uid: string | undefined) {
     const unsub = onSnapshot(
       docRef,
       (snap) => {
-        setSleepMinutes(Number(snap.data()?.sleepMinutes ?? 0));
+        const data = snap.data();
+        // FIXED: Read 'sleepMin' (what we save in activityLogs.ts) 
+        // with a fallback to 'sleepMinutes' just in case.
+        setSleepMinutes(Number(data?.sleepMin ?? data?.sleepMinutes ?? 0));
       },
       (err) => {
         console.warn('[useTodaySleep]', err.message);
@@ -254,7 +226,40 @@ export function useTodaySleep(uid: string | undefined) {
 
   return sleepMinutes;
 }
+/** Live view of today's activity log (steps, active burn, total burn). */
+export function useTodayActivity(uid: string | undefined) {
+  const [activity, setActivity] = useState<DailyActivity | null>(null);
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    if (!uid) {
+      setActivity(null);
+      setLoading(false);
+      return;
+    }
+    const today = todayLocalISO();
+    const docRef = doc(db, 'activityLogs', uid, 'entries', today);
+    
+    const unsub = onSnapshot(
+      docRef,
+      (snap) => {
+        if (snap.exists()) {
+          setActivity(snap.data() as DailyActivity);
+        } else {
+          setActivity(null);
+        }
+        setLoading(false);
+      },
+      (err) => {
+        console.warn('[useTodayActivity]', err.message);
+        setLoading(false);
+      },
+    );
+    return () => unsub();
+  }, [uid]);
+
+  return { activity, loading };
+}
 /** Live view of the most recent weight entries, newest first. */
 export function useRecentWeights(uid: string | undefined, count = 30) {
   const [entries, setEntries] = useState<WeightEntry[]>([]);

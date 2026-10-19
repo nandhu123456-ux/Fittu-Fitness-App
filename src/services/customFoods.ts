@@ -1,4 +1,4 @@
-import { addDoc, collection, getDocs, orderBy, query, serverTimestamp } from 'firebase/firestore';
+import { addDoc, collection, getDocs, orderBy, query, serverTimestamp, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 
 import { db } from './firebase';
 import type { FoodResult } from './foodSearch';
@@ -62,4 +62,21 @@ export async function searchCustomFoods(uid: string, queryText: string): Promise
   const needle = queryText.trim().toLowerCase();
   if (!needle) return customs;
   return customs.filter((food) => food.name.toLowerCase().includes(needle));
+}
+
+// --- ADDED: EDIT AND DELETE FUNCTIONS ---
+
+export async function deleteCustomFood(uid: string, foodId: string): Promise<void> {
+  await deleteDoc(doc(db, 'customFoods', uid, 'foods', foodId));
+}
+
+export async function updateCustomFood(uid: string, foodId: string, draft: CustomFoodDraft): Promise<void> {
+  await updateDoc(doc(db, 'customFoods', uid, 'foods', foodId), {
+    name: draft.name.trim(),
+    serving: draft.serving.trim(),
+    cal: draft.cal,
+    protein: draft.protein,
+    carbs: draft.carbs,
+    fat: draft.fat,
+  });
 }
