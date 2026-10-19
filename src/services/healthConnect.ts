@@ -1,6 +1,7 @@
 import {
   initialize,
   requestPermission,
+  getGrantedPermissions,
   readRecords,
   getSdkStatus,
   SdkAvailabilityStatus,
@@ -42,8 +43,22 @@ export async function initHealthConnect(): Promise<boolean> {
 
 export async function requestHealthPermissions(): Promise<boolean> {
   try {
-    const granted = await requestPermission(PERMISSIONS);
-    return granted.length > 0;
+    const ok = await initialize();
+    if (!ok) {
+      console.warn('[HealthConnect] initialize failed — Health Connect may not be installed.');
+      return false;
+    }
+    const HEALTH_PERMISSIONS = [
+      { accessType: 'read' as const, recordType: 'Steps' as const },
+      { accessType: 'read' as const, recordType: 'ActiveCaloriesBurned' as const },
+      { accessType: 'read' as const, recordType: 'TotalCaloriesBurned' as const },
+      { accessType: 'read' as const, recordType: 'Distance' as const },
+      { accessType: 'read' as const, recordType: 'SleepSession' as const },
+    ];
+    const already = await getGrantedPermissions();
+    if (already.length >= HEALTH_PERMISSIONS.length) return true;
+    const granted = await requestPermission([...HEALTH_PERMISSIONS]);
+    return granted.length === HEALTH_PERMISSIONS.length;
   } catch (e) {
     console.warn('[healthConnect] permission failed', e);
     return false;

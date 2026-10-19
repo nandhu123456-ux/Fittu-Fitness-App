@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 
-import { DEFAULT_SETTINGS, getReminderSettings, ReminderSettings, saveAndScheduleReminders } from '../services/reminderService';
+import { DEFAULT_SETTINGS, getReminderSettings, ReminderSettings, saveAndScheduleReminders, requestPermissions } from '../services/reminderService';
 import { useTheme } from '../theme';
 import type { RootTabParamList } from '../types/navigation';
 
@@ -50,6 +50,7 @@ export default function RemindersScreen() {
         if (!cancelled) setLoading(false);
       }
     })();
+    void requestPermissions().catch((e) => console.warn('[reminders] permission request failed', e));
     return () => { cancelled = true; };
   }, []);
 

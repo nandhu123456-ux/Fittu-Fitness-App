@@ -1,5 +1,5 @@
 import * as Notifications from 'expo-notifications';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
@@ -12,6 +12,7 @@ import RootNavigator, { navigationRef } from './src/navigation/RootNavigator';
 import { useTheme } from './src/theme';
 import { onAuthChange } from './src/services/auth';
 import { getUserProfile } from './src/services/user';
+import { requestHealthPermissions } from './src/services/healthConnect';
 import { useAuthStore } from './src/store/authStore';
 import { useOnboardingStore } from './src/store/onboardingStore';
 import AnimatedSplash from './src/components/AnimatedSplash';
@@ -42,6 +43,15 @@ function navigateToScreen(screen: string, retries = 40): void {
 export default function App() {
   const [fontsLoaded] = useFonts({ ...Ionicons.font });
   const [splashDone, setSplashDone] = useState(false);
+  const user = useAuthStore((s) => s.user);
+  const healthAsked = useRef(false);
+
+  useEffect(() => {
+    if (user && !healthAsked.current) {
+      healthAsked.current = true;
+      void requestHealthPermissions().catch(() => {});
+    }
+  }, [user]);
 
   useEffect(() => {
     const unsubscribe = onAuthChange(async (user) => {
