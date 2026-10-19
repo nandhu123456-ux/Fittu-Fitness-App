@@ -4,11 +4,11 @@
     "slug": "Be_fit",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./icons/icon.png",
     "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./icons/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#0F0D0C"
     },
@@ -17,7 +17,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./icons/adaptive-icon.png",
         "backgroundColor": "#0F0D0C"
       },
       "edgeToEdgeEnabled": true,
@@ -35,7 +35,7 @@
       ]
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./icons/favicon.png"
     },
     "extra": {
       "eas": {

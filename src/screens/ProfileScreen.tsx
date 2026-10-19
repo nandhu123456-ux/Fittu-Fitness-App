@@ -108,7 +108,7 @@ export default function ProfileScreen() {
     <ScrollView style={{ flex: 1, backgroundColor: theme.colors.bg }} contentContainerStyle={styles.content}>
       <View style={themedStyles.hero}>
         <View style={themedStyles.avatar}>
-          <Image source={require('../../assets/icon.png')} style={themedStyles.avatarImage} />
+          <Image source={require('../../icons/icon.png')} style={themedStyles.avatarImage} />
         </View>
         <View style={styles.identity}>
           <Text numberOfLines={1} style={themedStyles.name}>{displayName}</Text>

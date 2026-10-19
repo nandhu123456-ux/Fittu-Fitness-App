@@ -34,7 +34,7 @@ export default function WelcomeScreen({ navigation }: Props) {
     <SafeAreaView style={themedStyles.flex}>
       <View style={themedStyles.glow} />
       <View style={themedStyles.center}>
-        <Image source={require('../../../assets/icon.png')} style={themedStyles.icon} />
+        <Image source={require('../../../icons/icon.png')} style={themedStyles.icon} />
         <View style={themedStyles.wordmark}>
           <Text style={themedStyles.wordFi}>Fi</Text>
           <Text style={themedStyles.wordTtu}>ttu</Text>
