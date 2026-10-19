@@ -18,14 +18,20 @@ export const DEFAULT_SETTINGS: ReminderSettings = {
   water: { enabled: false, time: '10:00' },
 };
 
-async function ensureChannel(): Promise<void> {
-  if (Platform.OS !== 'android') return;
-  await Notifications.setNotificationChannelAsync('reminders', {
-    name: 'Reminders',
-    importance: Notifications.AndroidImportance.DEFAULT,
-    vibrationPattern: [0, 250, 250, 250],
-    lightColor: '#008A47',
-  });
+async function ensureChannel(): Promise<boolean> {
+  if (Platform.OS !== 'android') return true;
+  try {
+    await Notifications.setNotificationChannelAsync('reminders', {
+      name: 'Reminders',
+      importance: Notifications.AndroidImportance.DEFAULT,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: '#008A47',
+    });
+    return true;
+  } catch (e) {
+    console.error('[reminderService] ensureChannel threw', e);
+    return false;
+  }
 }
 
 export async function getReminderSettings(): Promise<ReminderSettings> {
@@ -68,9 +74,18 @@ export async function saveAndScheduleReminders(settings: ReminderSettings) {
 }
 
 export async function requestPermissions(): Promise<boolean> {
-  await ensureChannel();
-  const { status: existing } = await Notifications.getPermissionsAsync();
-  if (existing === 'granted') return true;
-  const { status } = await Notifications.requestPermissionsAsync();
-  return status === 'granted';
+  try {
+    await ensureChannel();
+
+    const { status: existing } = await Notifications.getPermissionsAsync();
+    console.error('[reminderService] existing permission:', existing);
+    if (existing === 'granted') return true;
+
+    const { status } = await Notifications.requestPermissionsAsync();
+    console.error('[reminderService] requested permission:', status);
+    return status === 'granted';
+  } catch (e) {
+    console.error('[reminderService] requestPermissions threw', e);
+    return false;
+  }
 }

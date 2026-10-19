@@ -1,7 +1,9 @@
+import React from 'react';
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Switch, Text, View, Modal } from 'react-native';
+import { ActivityIndicator, Alert, Linking, Pressable, ScrollView, StyleSheet, Switch, Text, View, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import * as Notifications from 'expo-notifications';
 import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 
@@ -32,12 +34,14 @@ function timeFor(hour: number): string {
   return String(hour).padStart(2, '0') + ':00';
 }
 
-export default function RemindersScreen() {
+function RemindersScreenInner() {
   const theme = useTheme();
   const navigation = useNavigation<Navigation>();
   const [settings, setSettings] = useState<ReminderSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [pickerKey, setPickerKey] = useState<ReminderKey | null>(null);
+  const [notifStatus, setNotifStatus] =
+    useState<'checking' | 'granted' | 'denied' | 'undetermined'>('checking');
 
   useEffect(() => {
     let cancelled = false;
@@ -50,8 +54,25 @@ export default function RemindersScreen() {
         if (!cancelled) setLoading(false);
       }
     })();
-    void requestPermissions().catch((e) => console.warn('[reminders] permission request failed', e));
+    void requestPermissions()
+      .then((granted) => console.error('[Reminders] requestPermissions result:', granted))
+      .catch((e) => console.error('[Reminders] requestPermissions threw', e));
     return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const { status } = await Notifications.getPermissionsAsync();
+        console.error('[Reminders] notif permission:', status);
+        if (status === 'granted') setNotifStatus('granted');
+        else if (status === 'denied') setNotifStatus('denied');
+        else setNotifStatus('undetermined');
+      } catch (e) {
+        console.error('[Reminders] getPermissions threw', e);
+        setNotifStatus('undetermined');
+      }
+    })();
   }, []);
 
   const KEYS: ReminderKey[] = ['breakfast', 'lunch', 'dinner', 'water'];
@@ -103,6 +124,28 @@ export default function RemindersScreen() {
     modalOptionSelectedText: { color: theme.colors.accent, fontWeight: '700' },
     modalClose: { alignItems: 'center', marginTop: 16, paddingVertical: 12 },
     modalCloseText: { color: theme.colors.accent, fontSize: 16, fontWeight: '600' },
+
+    permCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: theme.colors.surface,
+      borderColor: theme.colors.accent,
+      borderWidth: 1,
+      borderRadius: 12,
+      padding: 12,
+      marginHorizontal: 16,
+      marginBottom: 12,
+      gap: 8,
+    },
+    permTitle: { color: theme.colors.text, fontSize: 14, fontWeight: '700' },
+    permBody: { color: theme.colors.muted, fontSize: 12, marginTop: 2 },
+    permButton: {
+      backgroundColor: theme.colors.accent,
+      borderRadius: 8,
+      paddingHorizontal: 12,
+      paddingVertical: 7,
+    },
+    permButtonText: { color: theme.colors.bg, fontSize: 13, fontWeight: '700' },
   }), [theme]);
 
   if (loading) {
@@ -121,7 +164,43 @@ export default function RemindersScreen() {
         </Pressable>
         <Text style={themed.headerTitle}>Reminders</Text>
       </View>
-      
+
+      {notifStatus !== 'granted' && notifStatus !== 'checking' && (
+        <View style={themed.permCard}>
+          <Ionicons name="notifications-outline" size={22} color={theme.colors.accent} />
+          <View style={{ flex: 1, marginLeft: 10 }}>
+            <Text style={themed.permTitle}>
+              {notifStatus === 'denied' ? 'Notifications blocked' : 'Enable reminders'}
+            </Text>
+            <Text style={themed.permBody}>
+              {notifStatus === 'denied'
+                ? 'Open Settings to allow notifications'
+                : 'Required to receive reminder alerts'}
+            </Text>
+          </View>
+          <Pressable
+            onPress={async () => {
+              try {
+                if (notifStatus === 'denied') {
+                  await Linking.openSettings();
+                } else {
+                  const { status } = await Notifications.requestPermissionsAsync();
+                  console.error('[Reminders] requested:', status);
+                  setNotifStatus(status === 'granted' ? 'granted' : 'denied');
+                }
+              } catch (e) {
+                console.error('[Reminders] permission action threw', e);
+              }
+            }}
+            style={themed.permButton}
+          >
+            <Text style={themed.permButtonText}>
+              {notifStatus === 'denied' ? 'Settings' : 'Enable'}
+            </Text>
+          </Pressable>
+        </View>
+      )}
+
       <ScrollView contentContainerStyle={themed.scrollContent}>
         {rows.map((row) => (
           <View key={row.key} style={themed.card}>
@@ -167,5 +246,45 @@ export default function RemindersScreen() {
         </Pressable>
       </Modal>
     </SafeAreaView>
+  );
+}
+
+class RemindersErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean; error: Error | null }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error: Error) {
+    console.error('[Reminders] render error:', error);
+    return { hasError: true, error };
+  }
+  componentDidCatch(error: Error, info: React.ErrorInfo) {
+    console.error('[Reminders] caught:', error, info.componentStack);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <View style={{ flex: 1, backgroundColor: '#0F0D0C', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+          <Text style={{ color: '#fff', fontSize: 16, fontWeight: '700', marginBottom: 8 }}>
+            Reminders unavailable
+          </Text>
+          <Text style={{ color: '#888', fontSize: 13, textAlign: 'center' }}>
+            {this.state.error?.message ?? 'Unknown error'}
+          </Text>
+        </View>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+export default function RemindersScreen() {
+  return (
+    <RemindersErrorBoundary>
+      <RemindersScreenInner />
+    </RemindersErrorBoundary>
   );
 }
