@@ -26,16 +26,16 @@ export function useHealthData(user: { uid: string } | null): HealthDataState {
     setLoading(true);
     setLastError(null);
     try {
-      console.error('[useHealthData] requesting permissions...');
+      console.log('[useHealthData] requesting permissions...');
       const result = await requestHealthPermissions();
       setStatus(result);
-      console.error('[useHealthData] permission result:', result);
+      console.log('[useHealthData] permission result:', result);
 
       if (result === 'granted') {
         const summary = await readTodayHealth();
         if (summary) {
           setData(summary);
-          console.error('[useHealthData] data loaded:', summary.steps, 'steps');
+          console.log('[useHealthData] data loaded:', summary.steps, 'steps');
         } else {
           setLastError('Could not read health data');
           console.error('[useHealthData] data read returned null');

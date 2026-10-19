@@ -3,6 +3,7 @@ import {
   requestPermission,
   getGrantedPermissions,
   readRecords,
+  aggregateRecord,
   getSdkStatus,
   SdkAvailabilityStatus,
 } from 'react-native-health-connect';
@@ -34,25 +35,10 @@ export async function isHealthConnectAvailable(): Promise<boolean> {
   try {
     const status = await getSdkStatus();
     const available = status === SdkAvailabilityStatus.SDK_AVAILABLE;
-    console.error('[HC] getSdkStatus:', status, '→ available:', available);
+    console.log('[HC] getSdkStatus:', status, '→ available:', available);
     return available;
   } catch (e) {
     console.error('[HC] getSdkStatus threw', e);
-    return false;
-  }
-}
-
-export async function initHealthConnect(): Promise<boolean> {
-  try {
-    const ok = await initialize();
-    if (!ok) {
-      console.error('[HC] initialize() returned false — provider not responding');
-      return false;
-    }
-    console.error('[HC] initialize() succeeded');
-    return true;
-  } catch (e) {
-    console.error('[HC] initialize() threw', e);
     return false;
   }
 }
@@ -70,7 +56,7 @@ export async function requestHealthPermissions(): Promise<HealthPermissionStatus
       console.error('[HC] initialize() returned false — provider not responding');
       return 'unavailable';
     }
-    console.error('[HC] initialize() succeeded');
+    console.log('[HC] initialize() succeeded');
   } catch (e) {
     console.error('[HC] initialize() threw', e);
     return 'error';
@@ -78,7 +64,7 @@ export async function requestHealthPermissions(): Promise<HealthPermissionStatus
 
   try {
     const already = await getGrantedPermissions();
-    console.error('[HC] already granted:', already.length, 'of', REQUIRED_PERMISSIONS.length);
+    console.log('[HC] already granted:', already.length, 'of', REQUIRED_PERMISSIONS.length);
     if (already.length >= REQUIRED_PERMISSIONS.length) {
       return 'granted';
     }
@@ -88,10 +74,10 @@ export async function requestHealthPermissions(): Promise<HealthPermissionStatus
   }
 
   try {
-    console.error('[HC] calling requestPermission() — dialog should appear');
+    console.log('[HC] calling requestPermission() — dialog should appear');
     const granted = await requestPermission([...REQUIRED_PERMISSIONS]);
-    console.error('[HC] requestPermission() returned:', granted.length, 'grants');
-    if (granted.length === REQUIRED_PERMISSIONS.length) return 'granted';
+    console.log('[HC] requestPermission() returned:', granted.length, 'grants');
+    if (granted.length >= REQUIRED_PERMISSIONS.length) return 'granted';
     return 'denied';
   } catch (e) {
     console.error('[HC] requestPermission() threw', e);
@@ -102,20 +88,72 @@ export async function requestHealthPermissions(): Promise<HealthPermissionStatus
 export async function readTodayHealth(): Promise<HealthSummary | null> {
   try {
     const now = new Date();
+    // Get exact local start of day
     const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    
     const timeRangeFilter = {
       operator: 'between' as const,
       startTime: startOfDay.toISOString(),
       endTime: now.toISOString(),
     };
 
-    const [stepsResult, activeCalResult, totalCalResult, distanceResult] = await Promise.all([
-      readRecords('Steps', { timeRangeFilter }),
-      readRecords('ActiveCaloriesBurned', { timeRangeFilter }),
-      readRecords('TotalCaloriesBurned', { timeRangeFilter }),
-      readRecords('Distance', { timeRangeFilter }),
-    ]);
+    console.log(`[HC] Reading data from ${startOfDay.toLocaleString()} to ${now.toLocaleString()}`);
 
+    // --- 1. STEPS (with fallback) ---
+    let steps = 0;
+    try {
+      const stepsResult = await aggregateRecord({ recordType: 'Steps', timeRangeFilter });
+      steps = stepsResult.COUNT_TOTAL ?? 0;
+      
+      // Fallback: If aggregate returns 0, try reading raw records
+      if (steps === 0) {
+        const rawSteps = await readRecords('Steps', { timeRangeFilter });
+        steps = rawSteps.records.reduce((sum: number, r: any) => sum + (r.count ?? 0), 0);
+      }
+    } catch (e) {
+      console.log('[HC] Aggregate steps failed, falling back to readRecords');
+      const rawSteps = await readRecords('Steps', { timeRangeFilter });
+      steps = rawSteps.records.reduce((sum: number, r: any) => sum + (r.count ?? 0), 0);
+    }
+
+    // --- 2. ACTIVE CALORIES (with fallback) ---
+    let activeCal = 0;
+    try {
+      const activeCalResult = await aggregateRecord({ recordType: 'ActiveCaloriesBurned', timeRangeFilter });
+      activeCal = activeCalResult.ACTIVE_CALORIES_TOTAL?.inKilocalories ?? 0;
+      
+      if (activeCal === 0) {
+        const rawCal = await readRecords('ActiveCaloriesBurned', { timeRangeFilter });
+        activeCal = rawCal.records.reduce((sum: number, r: any) => sum + (r.energy?.inKilocalories ?? 0), 0);
+      }
+    } catch (e) {
+      const rawCal = await readRecords('ActiveCaloriesBurned', { timeRangeFilter });
+      activeCal = rawCal.records.reduce((sum: number, r: any) => sum + (r.energy?.inKilocalories ?? 0), 0);
+    }
+
+    // --- 3. DISTANCE (with fallback) ---
+    let distanceMeters = 0;
+    try {
+      const distanceResult = await aggregateRecord({ recordType: 'Distance', timeRangeFilter });
+      distanceMeters = distanceResult.DISTANCE?.inMeters ?? 0;
+      
+      if (distanceMeters === 0) {
+        const rawDist = await readRecords('Distance', { timeRangeFilter });
+        distanceMeters = rawDist.records.reduce((sum: number, r: any) => sum + (r.distance?.inMeters ?? 0), 0);
+      }
+    } catch (e) {
+      const rawDist = await readRecords('Distance', { timeRangeFilter });
+      distanceMeters = rawDist.records.reduce((sum: number, r: any) => sum + (r.distance?.inMeters ?? 0), 0);
+    }
+
+    // --- 4. TOTAL CALORIES ---
+    const totalCalResult = await readRecords('TotalCaloriesBurned', { timeRangeFilter });
+    const totalCal = totalCalResult.records.reduce(
+      (sum: number, r: any) => sum + (r.energy?.inKilocalories ?? 0),
+      0
+    );
+
+    // --- 5. SLEEP ---
     const sleepStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 18, 0, 0);
     const sleepEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 10, 0, 0);
     const sleepResult = await readRecords('SleepSession', {
@@ -133,12 +171,7 @@ export async function readTodayHealth(): Promise<HealthSummary | null> {
       sleepMinutes += (end.getTime() - start.getTime()) / 60000;
     }
 
-    const steps = stepsResult.records.reduce((sum: number, r: any) => sum + (r.count ?? 0), 0);
-    const activeCal = activeCalResult.records.reduce((sum: number, r: any) => sum + (r.energy?.inKilocalories ?? 0), 0);
-    const totalCal = totalCalResult.records.reduce((sum: number, r: any) => sum + (r.energy?.inKilocalories ?? 0), 0);
-    const distanceMeters = distanceResult.records.reduce((sum: number, r: any) => sum + (r.distance?.inMeters ?? 0), 0);
-
-    console.error('[HC] read success — steps:', steps, 'cal:', activeCal || totalCal);
+    console.log('[HC] read success — steps:', steps, 'cal:', activeCal || totalCal);
 
     return {
       steps: Math.round(steps),
