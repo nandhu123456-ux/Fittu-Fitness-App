@@ -16,6 +16,7 @@ import { LogCircleMenu } from '../components/LogCircleMenu';
 import { addWater } from '../services/waterLogs';
 import { logManualSleep } from '../services/activityLogs';
 import { useHealthData } from '../hooks/useHealthData';
+import { HealthConnectBanner } from '../components/HealthConnectBanner';
 import { useTodayFoodLogs, useTodayWater, useTodaySleep, useUserDoc } from '../hooks/useRealtime';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../theme';
@@ -32,7 +33,7 @@ export default function DashboardScreen() {
   const { totals } = useTodayFoodLogs(uid);
   const { ml: water } = useTodayWater(uid);
   useUserDoc(uid);
-  const health = useHealthData(true);
+  const hc = useHealthData(user);
 
   const [waterModalVisible, setWaterModalVisible] = useState(false);
   const [sleepModalVisible, setSleepModalVisible] = useState(false);
@@ -50,7 +51,9 @@ export default function DashboardScreen() {
   const greeting = hour < 5 ? 'Good night' : hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : hour < 21 ? 'Good evening' : 'Good night';
 
   const manualSleepMin = useTodaySleep(uid);
-  const displaySleepMin = manualSleepMin > 0 ? manualSleepMin : (health.data?.sleepMinutes ?? 0);
+  const displaySleepMin = manualSleepMin > 0 ? manualSleepMin : (hc.data?.sleepMinutes ?? 0);
+  const displaySteps = hc.data?.steps ?? 0;
+  const displayCalories = hc.data?.caloriesBurned ?? 0;
 
   const themed = useMemo(() => StyleSheet.create({
     // Removed ScrollView, using flex: 1 to strictly fit the screen
@@ -117,11 +120,17 @@ export default function DashboardScreen() {
       <WeekStrip onDayPress={(date) => setSelectedDate(date)} selectedDate={selectedDate} />
 
       {/* 3. Main Nutrition Card */}
+      <HealthConnectBanner
+        status={hc.status}
+        loading={hc.loading}
+        lastError={hc.lastError}
+        onRequest={() => void hc.requestPermissions()}
+      />
       <View style={themed.sectionGap}>
         <CaloriesMacrosCard
           eaten={totals.calories}
           target={calories}
-          burned={health.data?.caloriesBurned ?? 0}
+           burned={displayCalories}
           protein={totals.protein}
           proteinTarget={targets?.protein ?? 0}
           carbs={totals.carbs}
@@ -133,7 +142,7 @@ export default function DashboardScreen() {
 
       {/* 4. Steps */}
       <View style={themed.sectionGap}>
-        <StepsCard steps={health.data?.steps ?? 0} onPress={() => {}} />
+         <StepsCard steps={displaySteps} onPress={() => {}} />
       </View>
 
       {/* 5. Water & Sleep (Pushed slightly down to fill bottom space) */}

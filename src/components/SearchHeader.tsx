@@ -53,6 +53,7 @@ export function SearchHeader({
     estimateBtn: { alignItems: 'center', backgroundColor: theme.colors.carbs + '33', borderRadius: theme.radius.md, justifyContent: 'center', paddingHorizontal: 16 },
     iconRow: { flexDirection: 'row', gap: 8, marginTop: 10 },
     iconBtn: { alignItems: 'center', backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: theme.radius.md, borderWidth: 1, flex: 1, gap: 4, paddingVertical: 10 },
+    iconLabel: { color: theme.colors.text, fontSize: 11, fontWeight: '600' },
     estimateText: { color: '#FFFFFF', fontSize: 12, fontWeight: '700' },
   }), [theme]);
 
