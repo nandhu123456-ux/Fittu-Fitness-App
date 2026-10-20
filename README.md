@@ -1,8 +1,8 @@
+<p align="center">
+  <img src="ic_launcher_round" src="https://github.com/user-attachments/assets/9f92feaf-ca20-4bd9-925a-c94c660d2f33" width="150" alt="Fittu Logo" />
+</p>
 
-
-<h1 align="center"><img src="<img width="72" height="72" alt="ic_launcher_round" src="https://github.com/user-attachments/assets/9f92feaf-ca20-4bd9-925a-c94c660d2f33" />
-" width="100" alt="Fittu Logo" /> Fittu - Eat Better. Live Stronger.</h1>
-
+<h1 align="center">🦅 Fittu - Eat Better. Live Stronger.</h1>
 <p align="center">
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
   <a href="#"><img src="https://img.shields.io/badge/React_Native-20232A?style=flat&logo=react&logoColor=61DAFB" alt="React Native"></a>
