@@ -1,6 +1,3 @@
-<p align="center">
-  <img src="ic_launcher_round" src="https://github.com/user-attachments/assets/9f92feaf-ca20-4bd9-925a-c94c660d2f33" width="150" alt="Fittu Logo" />
-</p>
 
 <h1 align="center">🦅 Fittu - Eat Better. Live Stronger.</h1>
 <p align="center">
