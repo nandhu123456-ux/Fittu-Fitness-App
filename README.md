@@ -1,5 +1,6 @@
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/9dd850d4-b76d-4a88-88be-31d76470f052" width="150" alt="Fittu Logo" />
+  <img src="<img width="1254" height="1254" alt="icon" src="https://github.com/user-attachments/assets/8ca96ba7-f2a3-4bcc-825d-e116fc5fe12d" />
+" />
 </p>
 
 <h1 align="center">🦅 Fittu - Eat Better. Live Stronger.</h1>
