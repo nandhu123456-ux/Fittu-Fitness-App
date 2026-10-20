@@ -1,4 +1,20 @@
-# 🦅 Fittu - Eat Better. Live Stronger.
+<p align="center">
+  <img src="logo.png" width="150" alt="Fittu Logo" />
+</p>
+
+<h1 align="center">🦅 Fittu - Eat Better. Live Stronger.</h1>
+
+<p align="center">
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
+  <a href="#"><img src="https://img.shields.io/badge/React_Native-20232A?style=flat&logo=react&logoColor=61DAFB" alt="React Native"></a>
+  <a href="#"><img src="https://img.shields.io/badge/Expo-1B1F23?style=flat&logo=expo&logoColor=white" alt="Expo"></a>
+  <a href="#"><img src="https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white" alt="TypeScript"></a>
+  <a href="#"><img src="https://img.shields.io/badge/Firebase-FFCA28?style=flat&logo=firebase&logoColor=black" alt="Firebase"></a>
+</p>
+
+<p align="center">
+  <b>Fittu</b> is a premium, dark-mode fitness and nutrition tracking mobile application built with React Native and Expo. It goes beyond basic step counting by syncing natively with Android Health Connect, calculating exact daily calorie deficits, and estimating actual fat loss.
+</p>
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![React Native](https://img.shields.io/badge/React_Native-20232A?style=flat&logo=react&logoColor=61DAFB)]()
@@ -9,13 +25,10 @@
 **Fittu** is a premium, dark-mode fitness and nutrition tracking mobile application built with React Native and Expo. It goes beyond basic step counting by syncing natively with Android Health Connect, calculating exact daily calorie deficits, and estimating actual fat loss.
 
 ## 📱 Screenshots
-*(Replace with your actual screenshot links once uploaded to GitHub)*
-| Dashboard | Stats & Graphs | AI Coach |
-| :---: | :---: | :---: |
-| <img src="<img width="720" height="1600" alt="WhatsApp Image 2026-10-20 at 6 09 34 PM (3)" src="https://github.com/user-attachments/assets/0017b7d1-e46e-4500-9689-63e9d1060094" />
-" width="250"/> | <img src="<img width="720" height="1600" alt="WhatsApp Image 2026-10-20 at 6 09 37 PM (1)" src="https://github.com/user-attachments/assets/a6af1e2b-0b3b-4112-b20c-4802b074656b" />
-" width="250"/> | <img src="<img width="720" height="1600" alt="WhatsApp Image 2026-10-20 at 6 09 38 PM (3)" src="https://github.com/user-attachments/assets/65981d8c-917f-440e-ae95-8edcccf77e39" />
-" width="250"/> |
+
+| App Logo | Dashboard | Stats & Graphs | AI Coach |
+| :---: | :---: | :---: | :---: |
+| <img src="logo.png" width="120"/> | <img src="dashboard.png" width="180"/> | <img src="stats.png" width="180"/> | <img src="chat.png" width="180"/> |
 
 ## ✨ Key Features
 *   **Native Health Connect Integration:** Syncs steps, active calories, distance, and resting BMR automatically from the device in real-time.
