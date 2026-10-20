@@ -40,7 +40,7 @@ To run this project locally:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/your-repo.git
+   git clone (https://github.com/nandhu123456-ux/Fittu-Fitness-App).git
 Install dependencies:
 
 bash
@@ -48,8 +48,8 @@ npm install
 Create a .env file in the root and add your Firebase config:
 
 env
-EXPO_PUBLIC_FIREBASE_API_KEY=your_api_key
-EXPO_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+EXPO_PUBLIC_FIREBASE_API_KEY=....
+EXPO_PUBLIC_FIREBASE_PROJECT_ID=.....
 ...
 Start the app:
 
@@ -57,13 +57,14 @@ bash
 npx expo start
 📲 Try the App (Android Only)
 You can download the latest release APK and test it on your Android device:
-👉 Download Fittu APK  --->//DRIVE LINK 
+👉 Download Fittu APK :
+ [--->//DRIVE LINK ](https://drive.google.com/file/d/1QE7WLzDgss3jbiRnxOHLgWE3Vjyncgv-/view?usp=sharing)
 
 🔒 Security Note
 This project uses Firebase client-side configurations. The exposed API keys are designed to be public and are protected by strict Firestore Security Rules (request.auth.uid == uid), ensuring users can only access their own health and nutrition data.
 
 Developed by [NANDA VARDHAN REDDY]
 
-LinkedIn//-->
+LinkedIn: (https://www.linkedin.com/in/arumalla-nanda-vardhan-reddy-6295592a6/?isSelfProfile=true)
 
-GitHub//-->
+GitHub: (https://github.com/nandhu123456-ux/)
