@@ -1,8 +1,3 @@
-<p align="center">
-  <img src="<img width="1254" height="1254" alt="icon" src="https://github.com/user-attachments/assets/ee59ef5a-6bd2-442e-99fe-32aa330e850e" />
-" />
-" />
-</p>
 
 <h1 align="center">🦅 Fittu - Eat Better. Live Stronger.</h1>
 
@@ -25,11 +20,10 @@
 
 **Fittu** is a premium, dark-mode fitness and nutrition tracking mobile application built with React Native and Expo. It goes beyond basic step counting by syncing natively with Android Health Connect, calculating exact daily calorie deficits, and estimating actual fat loss.
 
-## 📱 Screenshots
-
-| App Logo | Dashboard | Food Log | Stats & Graphs | AI Coach |
-| :---: | :---: | :---: | :---: | :---: |
-| <img src="https://github.com/user-attachments/assets/9dd850d4-b76d-4a88-88be-31d76470f052" width="180"/> | <img src="https://github.com/user-attachments/assets/4f5b5bd3-2bdf-499b-bc9f-379ab6748742" width="180"/> | <img src="https://github.com/user-attachments/assets/89c97bfc-5a1b-49c1-85c5-0d38d45b4a1f" width="180"/> | <img src="https://github.com/user-attachments/assets/7d2b5f2f-5f32-440b-9675-d9bead006457" width="180"/> | <img src="https://github.com/user-attachments/assets/3a299228-18e2-43c3-89d2-8f3d5a8a4573" width="180"/> |
+| App Logo | Dashboard | Food Log | Progress | Stats & Graphs | AI Coach |
+| :---: | :---: | :---: | :---: | :---: | :---: |
+| <img src="https://github.com/user-attachments/assets/9dd850d4-b76d-4a88-88be-31d76470f052" width="180"/> | <img src="https://github.com/user-attachments/assets/4f5b5bd3-2bdf-499b-bc9f-379ab6748742" width="180"/> | <img src="https://github.com/user-attachments/assets/89c97bfc-5a1b-49c1-85c5-0d38d45b4a1f" width="180"/> | <img src="<img width="720" height="1600" alt="progress" src="https://github.com/user-attachments/assets/354ce066-57a4-47db-8d4d-b17f3326d5e0" />
+" width="180"/> | <img src="https://github.com/user-attachments/assets/7d2b5f2f-5f32-440b-9675-d9bead006457" width="180"/> | <img src="https://github.com/user-attachments/assets/3a299228-18e2-43c3-89d2-8f3d5a8a4573" width="180"/> |
 ## ✨ Key Features
 *   **Native Health Connect Integration:** Syncs steps, active calories, distance, and resting BMR automatically from the device in real-time.
 *   **Smart Deficit & Fat Loss Math:** Calculates `(Food Eaten) - (Active Burn + BMR + Manual Workout)` to provide users with an estimated fat loss metric in **KG**.
