@@ -18,4 +18,5 @@
 -keep class com.margelo.nitro.** { *; }
 -keep class com.facebook.react.** { *; }
 -keep class expo.modules.** { *; }
+-keep class com.horcrux.svg.** { *; }
 # @generated end expo-build-properties
