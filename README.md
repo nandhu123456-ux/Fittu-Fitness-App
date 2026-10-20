@@ -12,7 +12,10 @@
 *(Replace with your actual screenshot links once uploaded to GitHub)*
 | Dashboard | Stats & Graphs | AI Coach |
 | :---: | :---: | :---: |
-| <img src="link_to_dashboard_image.png" width="250"/> | <img src="link_to_stats_image.png" width="250"/> | <img src="link_to_chat_image.png" width="250"/> |
+| <img src="<img width="720" height="1600" alt="WhatsApp Image 2026-10-20 at 6 09 34 PM (3)" src="https://github.com/user-attachments/assets/0017b7d1-e46e-4500-9689-63e9d1060094" />
+" width="250"/> | <img src="<img width="720" height="1600" alt="WhatsApp Image 2026-10-20 at 6 09 37 PM (1)" src="https://github.com/user-attachments/assets/a6af1e2b-0b3b-4112-b20c-4802b074656b" />
+" width="250"/> | <img src="<img width="720" height="1600" alt="WhatsApp Image 2026-10-20 at 6 09 38 PM (3)" src="https://github.com/user-attachments/assets/65981d8c-917f-440e-ae95-8edcccf77e39" />
+" width="250"/> |
 
 ## ✨ Key Features
 *   **Native Health Connect Integration:** Syncs steps, active calories, distance, and resting BMR automatically from the device in real-time.
