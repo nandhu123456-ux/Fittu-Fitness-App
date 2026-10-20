@@ -27,8 +27,7 @@
 
 | App Logo | Dashboard | Food Log | Stats & Graphs | AI Coach |
 | :---: | :---: | :---: | :---: | :---: |
-| <img src="https://github.com/user-attachments/assets/9dd850d4-b76d-4a88-88be-31d76470f052" width="180"/> | <img src="https://github.com/user-attachments/assets/4f5b5bd3-2bdf-499b-bc9f-379ab6748742" width="180"/> | <img src="<img width="720" height="1600" alt="LOG" src="https://github.com/user-attachments/assets/89c97bfc-5a1b-49c1-85c5-0d38d45b4a1f" />
-" width="180"/> | <img src="https://github.com/user-attachments/assets/7d2b5f2f-5f32-440b-9675-d9bead006457" width="180"/> | <img src="https://github.com/user-attachments/assets/3a299228-18e2-43c3-89d2-8f3d5a8a4573" width="180"/> |
+| <img src="https://github.com/user-attachments/assets/9dd850d4-b76d-4a88-88be-31d76470f052" width="180"/> | <img src="https://github.com/user-attachments/assets/4f5b5bd3-2bdf-499b-bc9f-379ab6748742" width="180"/> | <img src="https://github.com/user-attachments/assets/89c97bfc-5a1b-49c1-85c5-0d38d45b4a1f" width="180"/> | <img src="https://github.com/user-attachments/assets/7d2b5f2f-5f32-440b-9675-d9bead006457" width="180"/> | <img src="https://github.com/user-attachments/assets/3a299228-18e2-43c3-89d2-8f3d5a8a4573" width="180"/> |
 ## ✨ Key Features
 *   **Native Health Connect Integration:** Syncs steps, active calories, distance, and resting BMR automatically from the device in real-time.
 *   **Smart Deficit & Fat Loss Math:** Calculates `(Food Eaten) - (Active Burn + BMR + Manual Workout)` to provide users with an estimated fat loss metric in **KG**.
