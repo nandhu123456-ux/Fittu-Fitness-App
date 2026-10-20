@@ -49,7 +49,10 @@ export function SearchHeader({
     pill: { backgroundColor: theme.colors.success, borderColor: 'rgba(255,255,255,0.6)', borderRadius: theme.radius.pill, borderWidth: 1, paddingHorizontal: 12, paddingVertical: 6 },
     pillText: { color: '#000000', fontSize: 12, fontWeight: '700' },
     aiRow: { flexDirection: 'row', gap: 8, marginTop: 10 },
-    aiInput: { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: theme.radius.md, borderWidth: 1, color: '#000000', flex: 1, fontSize: 14, paddingHorizontal: 12, paddingVertical: 10 },
+    
+    // FIXED: Changed color from '#000000' to theme.colors.text
+    aiInput: { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: theme.radius.md, borderWidth: 1, color: theme.colors.text, flex: 1, fontSize: 14, paddingHorizontal: 12, paddingVertical: 10 },
+    
     estimateBtn: { alignItems: 'center', backgroundColor: theme.colors.carbs + '33', borderRadius: theme.radius.md, justifyContent: 'center', paddingHorizontal: 16 },
     iconRow: { flexDirection: 'row', gap: 8, marginTop: 10 },
     iconBtn: { alignItems: 'center', backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: theme.radius.md, borderWidth: 1, flex: 1, gap: 4, paddingVertical: 10 },
