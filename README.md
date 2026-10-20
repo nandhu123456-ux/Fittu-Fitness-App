@@ -25,28 +25,7 @@
 | <img src="https://github.com/user-attachments/assets/9dd850d4-b76d-4a88-88be-31d76470f052" width="180"/> | <img src="https://github.com/user-attachments/assets/4f5b5bd3-2bdf-499b-bc9f-379ab6748742" width="180"/> | <img src="https://github.com/user-attachments/assets/89c97bfc-5a1b-49c1-85c5-0d38d45b4a1f" width="180"/> |
 | **Progress** | **Stats & Graphs** | **AI Coach** |
 | <img src="https://github.com/user-attachments/assets/354ce066-57a4-47db-8d4d-b17f3326d5e0" width="180"/> | <img src="https://github.com/user-attachments/assets/7d2b5f2f-5f32-440b-9675-d9bead006457" width="180"/> | <img src="https://github.com/user-attachments/assets/3a299228-18e2-43c3-89d2-8f3d5a8a4573" width="180"/> |
-```mermaid
-graph TD
-    A[User opens Fittu App] --> B{Login / Sign Up};
-    B --> C[Dashboard];
-    C --> D[View Macros & Stats];
-    C --> E[Log Food];
-    C --> F[Log Water & Sleep];
-    C --> G[Chat with AI Coach];
 
-    D --> H[Syncs with Health Connect];
-    H --> I[Calculates Fat Loss];
-
-    E --> J[AI Search & Custom Food DB];
-    F --> K[Sets Reminders];
-
-    subgraph "Backend (Firebase)"
-        L[Firestore DB]
-        M[Authentication]
-    end
-
-    C -.-> L;
-    B -.-> M;
 ## ✨ Key Features
 *   **Native Health Connect Integration:** Syncs steps, active calories, distance, and resting BMR automatically from the device in real-time.
 *   **Smart Deficit & Fat Loss Math:** Calculates `(Food Eaten) - (Active Burn + BMR + Manual Workout)` to provide users with an estimated fat loss metric in **KG**.
@@ -95,7 +74,28 @@ You can download the latest release APK and test it on your Android device:
 
 🔒 Security Note
 This project uses Firebase client-side configurations. The exposed API keys are designed to be public and are protected by strict Firestore Security Rules (request.auth.uid == uid), ensuring users can only access their own health and nutrition data.
+```mermaid
+graph TD
+    A[User opens Fittu App] --> B{Login / Sign Up};
+    B --> C[Dashboard];
+    C --> D[View Macros & Stats];
+    C --> E[Log Food];
+    C --> F[Log Water & Sleep];
+    C --> G[Chat with AI Coach];
 
+    D --> H[Syncs with Health Connect];
+    H --> I[Calculates Fat Loss];
+
+    E --> J[AI Search & Custom Food DB];
+    F --> K[Sets Reminders];
+
+    subgraph "Backend (Firebase)"
+        L[Firestore DB]
+        M[Authentication]
+    end
+
+    C -.-> L;
+    B -.-> M;
 Developed by [NANDA VARDHAN REDDY]
 
 LinkedIn: (https://www.linkedin.com/in/arumalla-nanda-vardhan-reddy-6295592a6/?isSelfProfile=true)
